@@ -1,12 +1,36 @@
-import "./index.css"
+
+import Login from "./pages/auth/Login";
+import Panel from "./pages/agent/Panel";
+
+import { Navigate, Route, Routes } from "react-router-dom";
+import Tickets from "./pages/agent/Tickets";
+import Dashboard from "./pages/agent/Dashboard";
+
+
+
+
 
 function App() {
+  // const [role] = useState(localStorage.getItem("role"));
+  //  role ? <Navigate to="/main" /> 
   return (
-   <div className="">
-      <h1 className="text-5xl font-bold text-blue-600">
-        Hello CallX
-      </h1>
-    </div>
+    <>
+    <Routes>
+      <Route path="/" element={<Login />} />
+      {/* {role === "agent" &&  */}
+      <Route path="/main" element={<Panel/>}>
+        <Route index element={<Dashboard/>} />
+        
+        <Route path="tickets" element={<Tickets/>} />
+      </Route>
+      
+      
+      
+      {/* {role === "admin" && <Route path="/admin" element={<AdminPanel/>} />}
+      <Route path="*" element={<Navigate to="/" />} /> */}
+    </Routes>
+    </>
   );
 }
-export default App
+
+export default App;
