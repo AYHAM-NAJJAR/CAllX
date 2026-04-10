@@ -1,6 +1,21 @@
 import React from 'react';
+import menu from '../../assets/menu.png'; 
+import { Outlet, useLocation} from 'react-router-dom';
+import Button from '../../components/common/Button.jsx'
+
 
 const Tickets= () => {
+  
+   const location = useLocation();
+  
+  
+  const isSubRoute = location.pathname.includes('alltickets');
+
+  
+  if (isSubRoute) {
+    return <Outlet/>;
+  }
+    
   return (
     <div className="flex min-h-screen bg-[#080C11] text-gray-300 font-sans">
       {/* --- MAIN CONTENT --- */}
@@ -9,8 +24,7 @@ const Tickets= () => {
         <header className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
             <div className="space-y-1 cursor-pointer">
-              <div className="w-6 h-0.5 bg-gray-500"></div>
-              <div className="w-6 h-0.5 bg-gray-500"></div>
+              <img src={menu} className='w-8 h-8' alt="" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-white uppercase">Tickets</h1>
           </div>
@@ -87,10 +101,11 @@ const TicketList = ({ title, color }) => (
         </div>
       ))}
     </div>
-    
-    <button className="w-full py-3 text-xs font-bold transition-colors border border-gray-800 rounded-xl hover:bg-gray-800">
-      Show All Tickets
-    </button>
+    <Button 
+    path={"/main/tickets/alltickets"}
+    className='w-full py-3 text-xs font-bold transition-colors border border-gray-800 rounded-xl hover:bg-gray-800'>
+      SHOW All Tickets
+    </Button>
   </div>
 );
 

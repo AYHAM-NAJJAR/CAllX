@@ -1,14 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
 import SidBarAgent from '../../components/private/agent/SidBarAgent'
 import { Outlet } from 'react-router-dom'
 
 function Panel() {
+  // الحالة الافتراضية: true ليظهر السايد بار عند التحميل
+  const [showSidebar, setShowSidebar] = useState(true);
+
+  const toggleSidebar = () => setShowSidebar(prev => !prev);
+
   return (
     <div className='flex flex-row w-screen h-screen overflow-hidden bg-primary'>
-      <SidBarAgent/>
-      <div className='flex-1  mr-0 overflow-y-auto '>
-        
-      <Outlet/>
+      
+      {/* حاوية السايد بار في اللابتوب مع أنميشن العرض */}
+      <div className={`
+        transition-all duration-300 ease-in-out overflow-hidden
+        ${showSidebar ? 'w-64' : 'w-0'} 
+        hidden lg:block
+      `}>
+        {/* العرض هنا ثابت (256px) لضمان عدم عصر المحتوى أثناء الحركة */}
+        <div className="w-64 h-full">
+           <SidBarAgent isOpen={showSidebar} toggleSidebar={toggleSidebar} />
+        </div>
+      </div>
+
+      {/* نسخة الموبايل: تظهر فوق المحتوى ولا تحركه */}
+      <div className="lg:hidden">
+         <SidBarAgent isOpen={showSidebar} toggleSidebar={toggleSidebar} />
+      </div>
+
+      {/* المحتوى الرئيسي: يتمدد تلقائياً بفضل flex-1 */}
+      <div className='flex-1 h-full overflow-y-auto bg-primary'>
+        <Outlet context={{ toggleSidebar, showSidebar }} />
       </div>
     </div>
   )

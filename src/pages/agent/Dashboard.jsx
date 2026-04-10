@@ -1,5 +1,6 @@
 import React from 'react';
-
+import menu from '../../assets/menu.png'; 
+import { useOutletContext } from 'react-router-dom';
 const Dashboard = () => {
   const inboundCalls = [
     { name: '+956 844 55', sub: 'United States', wait: '40s', vip: false },
@@ -14,12 +15,14 @@ const Dashboard = () => {
     { name: 'Alice Cooper', sub: 'Sales Lead', duration: '2m 15s' },
     { name: 'Tech Support', sub: 'Internal Referral', duration: '8m 05s' },
   ];
+  const { toggleSidebar } = useOutletContext();
 
   return (
     <div className="min-h-screen bg-[#0f111a] text-white p-8 font-sans">
       {/* Header Section */}
       <header className="flex justify-between items-center mb-10">
         <div>
+          <img  onClick={toggleSidebar}   src={menu} className='w-8 h-8 cursor-pointer' alt="" />
           <h1 className="text-2xl font-bold">Call Center</h1>
           <p className="text-gray-400 text-sm">Manage active and incoming customer inquiries</p>
         </div>

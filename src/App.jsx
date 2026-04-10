@@ -5,6 +5,8 @@ import Panel from "./pages/agent/Panel";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Tickets from "./pages/agent/Tickets";
 import Dashboard from "./pages/agent/Dashboard";
+import ShowAllTickets from "./pages/agent/ShowAllTickets";
+import TicketDetails from "./pages/agent/Ticket Details";
 
 
 
@@ -20,8 +22,11 @@ function App() {
       {/* {role === "agent" &&  */}
       <Route path="/main" element={<Panel/>}>
         <Route index element={<Dashboard/>} />
-        
-        <Route path="tickets" element={<Tickets/>} />
+        <Route path="tickets" element={<Tickets/>}>
+          <Route path="alltickets" element={<ShowAllTickets/>}>
+            <Route path="ticketdetails" element={<TicketDetails/>} />
+          </Route>
+        </Route>
       </Route>
       
       
