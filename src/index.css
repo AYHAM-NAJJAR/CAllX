@@ -7,3 +7,21 @@
 body {
   margin: 0;
 }
+
+/* تخصيص المسطرة للمتصفحات (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px; /* عرض المسطرة */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1e293b; /* نفس لون الـ bg-secondary تقريباً */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569; /* لون المسطرة نفسها */
+  border-radius: 5px; /* حواف دائرية */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* لون المسطرة عند التمرير عليها */
+}

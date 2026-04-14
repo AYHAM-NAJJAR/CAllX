@@ -29,7 +29,7 @@ function Panel() {
       </div>
 
       {/* المحتوى الرئيسي: يتمدد تلقائياً بفضل flex-1 */}
-      <div className='flex-1 h-full overflow-y-auto bg-primary'>
+      <div className='flex-1 h-full overflow-y-auto custom-scrollbar bg-primary'>
         <Outlet context={{ toggleSidebar, showSidebar }} />
       </div>
     </div>

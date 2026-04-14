@@ -1,13 +1,18 @@
 import React from 'react';
 import menu from '../../assets/menu.png'; 
-import { Outlet, useLocation} from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useOutletContext} from 'react-router-dom';
 import Button from '../../components/common/Button.jsx'
-
+import { useHotkeys } from 'react-hotkeys-hook';
+import '../../index.css'
 
 const Tickets= () => {
-  
+   const navigate = useNavigate();
+  useHotkeys("m", (event) => {
+      event.preventDefault(); 
+      navigate("/main"); 
+    });
    const location = useLocation();
-  
+      const { toggleSidebar} = useOutletContext();
   
   const isSubRoute = location.pathname.includes('alltickets');
 
@@ -17,14 +22,14 @@ const Tickets= () => {
   }
     
   return (
-    <div className="flex min-h-screen bg-[#080C11] text-gray-300 font-sans">
+    <div className="flex min-h-screen bg-[#080C11] text-gray-300 font-sans ">
       {/* --- MAIN CONTENT --- */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-8 overflow-y-auto ">
         {/* Header */}
         <header className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
             <div className="space-y-1 cursor-pointer">
-              <img src={menu} className='w-8 h-8' alt="" />
+              <img src={menu} onClick={toggleSidebar} className='w-8 h-8' alt="" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-white uppercase">Tickets</h1>
           </div>

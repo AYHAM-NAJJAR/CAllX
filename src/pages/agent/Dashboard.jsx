@@ -1,7 +1,37 @@
-import React from 'react';
+
 import menu from '../../assets/menu.png'; 
-import { useOutletContext } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
+import { useHotkeys } from "react-hotkeys-hook";
+import Button from '../../components/common/Button';
+import Modal from "react-modal";
+import ModalFastCall from '../../components/private/agent/ModalFastCall';
+import { useState } from 'react';
+import ModalCall from '../../components/private/agent/ModalCall';
+import ModalWrapUp from '../../components/private/agent/ModalWrapUp';
+import InBoundedCalls from '../../components/private/agent/cards/InBoundedCalls';
 const Dashboard = () => {
+   const navigate = useNavigate();
+    const [openCall, setOpenCall] = useState(false);
+    const [openFastCall, setOpenFastCall] = useState(false);
+    const [wrapUpOpen, setWrapUpOpen] = useState(true);
+  useHotkeys("c", (event) => {
+    event.preventDefault(); 
+    navigate("/main/customers"); 
+  });
+
+  useHotkeys("v", (event) => {
+    event.preventDefault(); 
+    setOpenFastCall(true);
+      
+  });
+
+  useHotkeys("1", (event) => {
+    event.preventDefault(); 
+    setOpenCall(true);
+      
+  });
+  useHotkeys("esc", () => setOpenFastCall(false));
+  
   const inboundCalls = [
     { name: '+956 844 55', sub: 'United States', wait: '40s', vip: false },
     { name: 'Sarah Jenkins', sub: '+1 202 555 0109', wait: '1m 12s', vip: true },
@@ -16,19 +46,43 @@ const Dashboard = () => {
     { name: 'Tech Support', sub: 'Internal Referral', duration: '8m 05s' },
   ];
   const { toggleSidebar } = useOutletContext();
+    const location = useLocation();
+  const isSubRoute = location.pathname.includes('makecall');
+  const fromCallroom = location.state?.from === "callroom";
 
+  
+  if (isSubRoute) {
+    return <Outlet/>;
+  }
   return (
-    <div className="min-h-screen bg-[#0f111a] text-white p-8 font-sans">
+    <div className=" min-h-screen bg-[#0f111a] text-white p-8 font-sans">
+      <ModalFastCall  isOpen={openFastCall} setIsOpen={setOpenFastCall}/>
+      <ModalCall isOpen={openCall}  setIsOpen={setOpenCall}/>
+      {fromCallroom && <ModalWrapUp isOpen={wrapUpOpen} setIsOpen={setWrapUpOpen}/>}
       {/* Header Section */}
       <header className="flex justify-between items-center mb-10">
-        <div>
+         
+        <div className='flex items-center justify-center gap-5' >
           <img  onClick={toggleSidebar}   src={menu} className='w-8 h-8 cursor-pointer' alt="" />
-          <h1 className="text-2xl font-bold">Call Center</h1>
+         <div>
+           <h1 className="text-2xl font-bold">Call Center</h1>
           <p className="text-gray-400 text-sm">Manage active and incoming customer inquiries</p>
+         </div>
         </div>
-        <button className="bg-[#22c55e] hover:bg-[#1eb054] text-white px-6 py-2 rounded-full font-semibold flex items-center gap-2 transition-all">
-          <span>+</span> Make Call
-        </button>
+        <div className='flex items-centre justify-center gap-10'>
+          
+        <Button 
+        path={"/main/customers"}
+        className="bg-[#0D9EF2]  text-white px-6 py-2 rounded-full font-semibold flex items-center gap-2 transition-all">
+          Customers
+        </Button>
+        <Button 
+        path={"/main/makecall"}
+        className="bg-[#22c55e] hover:bg-[#1eb054] text-white px-6 py-2 rounded-full font-semibold flex items-center gap-2 transition-all">
+          Make Call
+        </Button>
+        </div>
+        
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -42,29 +96,13 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {inboundCalls.map((call, idx) => (
-              <div key={idx} className="bg-[#161b2a] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-[#1c2438] rounded-full flex items-center justify-center text-blue-400">
-                      👤
-                    </div>
-                    {call.vip && (
-                      <div className="absolute -left-2 top-1/2 -translate-y-1/2 bg-yellow-500 text-[10px] px-1 rounded font-bold text-black">
-                        VIP
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-medium">{call.name}</div>
-                    <div className="text-xs text-gray-500">{call.sub}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500">Wait Time</div>
-                  <div className="text-cyan-400 font-bold">{call.wait}</div>
-                </div>
-              </div>
+            {inboundCalls.map((call) => (
+              <InBoundedCalls
+              name={call.name}
+              sub={call.sub}
+              wait={call.wait}
+              
+              />
             ))}
           </div>
         </section>
@@ -79,22 +117,12 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {outboundCalls.map((call, idx) => (
-              <div key={idx} className="bg-[#161b2a] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-[#1c2438] rounded-full flex items-center justify-center text-gray-400">
-                    👤
-                  </div>
-                  <div>
-                    <div className="font-medium">{call.name}</div>
-                    <div className="text-xs text-gray-500">{call.sub}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500">Duration</div>
-                  <div className="font-bold text-gray-300">{call.duration}</div>
-                </div>
-              </div>
+            {outboundCalls.map((call) => (
+              <InBoundedCalls
+                name={call.name}
+                sub={call.sub}
+                wait={call.duration}
+              />
             ))}
           </div>
         </section>
