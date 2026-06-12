@@ -1,0 +1,25 @@
+{
+  "login": {
+    "loading": "Process Login Operation",
+    "title": "CAllX",
+    "description": "Please enter your credentials to access the system.",
+    "email_label": "EMAIL",
+    "email_placeholder": "Enter email ......",
+    "password_label": "PASSWORD",
+    "password_placeholder": "Password",
+    "submit": "LOGIN",
+    "no_account": "Need an account?",
+    "contact": "Contact your admin"
+  },
+  "department": {
+      "title": "Create The First Department in System",
+      "description": "To get started, please create the first department. This will serve as the foundation of your organization's structure.",
+      "inputLabel": "Department Name",
+      "placeholder": "eg. SALES",
+      "previousButton": "Previous",
+      "nextButton": "Next",
+      "generateButton": "Generate Department",
+      "loading": "Creating Department..."
+    
+  }
+}

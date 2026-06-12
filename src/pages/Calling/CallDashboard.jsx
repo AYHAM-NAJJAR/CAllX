@@ -8,8 +8,8 @@ import ModalFastCall from '../../components/private/agent/ModalFastCall';
 import { useState } from 'react';
 import ModalCall from '../../components/private/agent/ModalCall';
 import ModalWrapUp from '../../components/private/agent/ModalWrapUp';
-import InBoundedCalls from '../../components/private/agent/cards/InBoundedCalls';
-const Dashboard = () => {
+import InBoundedCalls from './components/InBoundedCalls';
+const CallDashboard = () => {
    const navigate = useNavigate();
     const [openCall, setOpenCall] = useState(false);
     const [openFastCall, setOpenFastCall] = useState(false);
@@ -55,7 +55,7 @@ const Dashboard = () => {
     return <Outlet/>;
   }
   return (
-    <div className=" min-h-screen bg-[#0f111a] text-white p-8 font-sans">
+    <div className=" min-h-screen bg-primary text-white p-8 font-sans">
       <ModalFastCall  isOpen={openFastCall} setIsOpen={setOpenFastCall}/>
       <ModalCall isOpen={openCall}  setIsOpen={setOpenCall}/>
       {fromCallroom && <ModalWrapUp isOpen={wrapUpOpen} setIsOpen={setWrapUpOpen}/>}
@@ -131,4 +131,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default CallDashboard;

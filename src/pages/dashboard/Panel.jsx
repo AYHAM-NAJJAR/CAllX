@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import SidBarAgent from '../../components/private/agent/SidBarAgent'
 import { Outlet } from 'react-router-dom'
+import SidBarAdmin from '../../components/common/SideBarAdmin';
 
 function Panel() {
   // الحالة الافتراضية: true ليظهر السايد بار عند التحميل
@@ -18,15 +19,15 @@ function Panel() {
         hidden lg:block
       `}>
         {/* العرض هنا ثابت (256px) لضمان عدم عصر المحتوى أثناء الحركة */}
-        <div className="w-64 h-full">
-           <SidBarAgent isOpen={showSidebar} toggleSidebar={toggleSidebar} />
+        <div className="w-60 h-full">
+           <SidBarAdmin isOpen={showSidebar} toggleSidebar={toggleSidebar} />
         </div>
       </div>
 
-      {/* نسخة الموبايل: تظهر فوق المحتوى ولا تحركه */}
+{/*      
       <div className="lg:hidden">
          <SidBarAgent isOpen={showSidebar} toggleSidebar={toggleSidebar} />
-      </div>
+      </div> */}
 
       {/* المحتوى الرئيسي: يتمدد تلقائياً بفضل flex-1 */}
       <div className='flex-1 h-full overflow-y-auto custom-scrollbar bg-primary'>

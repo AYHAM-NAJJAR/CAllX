@@ -7,9 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        'primary': '#0F172A',
-        'secondary': "#101B22"
+        primary: '#0F172A',
+        secondary: "#101B22",
+        customButton:'#0D9EF2'
       },
+      fontFamily: {
+        tajawal: ['Tajawal', 'sans-serif'], 
+      }
     },
   },
   plugins: [],
