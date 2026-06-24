@@ -8,6 +8,8 @@ import { Download } from "lucide-react";
 // 1. استيراد مكتبة الـ Tooltip
 import { Tooltip } from "react-tooltip";
 import { exportCSV } from "../../services/Analytics&Reports/ExportTicketsData(CSV)";
+import LoadingError from "../../components/common/LoadingError";
+import LoadingCircle from "../../components/common/LoadingCircle";
 
 const ShowAllTickets = () => {
   const [activeTab, setActiveTab] = useState("Open");
@@ -20,41 +22,35 @@ const ShowAllTickets = () => {
     data: tickets,
     isLoading,
     isError,
-    error,
+    
   } = useTickets(token);
 
-  const isSubRoute = location.pathname.includes("structure");
+  const isSubRoute = location.pathname.includes("structure") || location.pathname.includes("/details/");
+
 
   if (isSubRoute) {
     return <Outlet />;
   }
   async function ExportCSV() {
   try {
-    const fileData = await exportCSV(token);
-    
-    if (fileData) {
-      // 1. تحويل البيانات النصية القادمة إلى ملف Blob بصيغة CSV
-      const blob = new Blob([fileData], { type: 'text/csv;charset=utf-8;' });
-      
-      // 2. إنشاء رابط وهمي (URL) في ذاكرة المتصفح يشير إلى هذا الملف
-      const url = window.URL.createObjectURL(blob);
-      
-      // 3. إنشاء عنصر وسم <a> وهمي وغير مرئي في الصفحة
-      const link = document.createElement('a');
-      link.href = url;
-      
-      // 4. تحديد اسم الملف الذي سيظهر للمستخدم عند التحميل
-      link.setAttribute('download', `tickets_report_${new Date().toISOString().split('T')[0]}.csv`);
-      
-      // 5. إضافة الرابط للصفحة وضغط الزر تلقائياً ثم حذفه
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    await exportCSV(token);
     }
-  } catch (err) {
+   catch (err) {
     console.error("حدث خطأ أثناء تحميل الملف:", err);
   }
 }
+   if (isLoading) {
+    return (
+      <LoadingCircle Phrase={"Tickets"}/>
+    );
+  }
+
+  if (isError) {
+    return (
+      <LoadingError Phrase={"Tickets"}/>
+    );
+  }
+
   return (
     <>
       {/* Header - يظل ثابتاً في الأعلى دائماً */}
@@ -114,20 +110,8 @@ const ShowAllTickets = () => {
         ))}
       </div>
 
-      {/* منطقة المحتوى الديناميكي (التيكتات / التحميل / الخطأ) */}
-      <div>
-        {isLoading && (
-          <div className="text-center py-20 text-white text-lg">
-            Loading tickets...
-          </div>
-        )}
-
-        {isError && (
-          <div className="text-center py-20 text-red-500 text-lg">
-            {error?.message || "Failed to load tickets"}
-          </div>
-        )}
-
+     
+       <div>
         {!isLoading && !isError && (
           <div className="grid grid-cols-3 gap-8">
             {tickets?.length > 0 ? (

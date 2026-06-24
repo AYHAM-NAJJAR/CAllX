@@ -69,20 +69,10 @@ const TicketCard = ({ ticket }) => {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 mt-5">
-        {ticket.images?.length > 0 && (
-          <button className="flex-1 bg-[#1e293b] hover:bg-gray-700 text-gray-200 text-xs font-semibold py-3 rounded-xl transition-colors relative">
-            Attachments
-
-            <span className="absolute -top-2 -right-2 bg-sky-600 text-[10px] text-white w-5 h-5 rounded-full flex items-center justify-center">
-              {ticket.images.length}
-            </span>
-          </button>
-        )}
-
+      <div className="flex items-center justify-center gap-3 mt-5">
         <Button
-          path={`/main/tickets/alltickets/ticketdetails/${ticket.id}`}
-          className="flex-1 bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold py-3 rounded-xl transition-colors"
+          path={`/main/system/tickets/details/${ticket.id}`}
+          className="items-center justify-center  bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold py-2 px-3 rounded-xl transition-colors"
         >
           View Details
         </Button>

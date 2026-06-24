@@ -1,134 +1,316 @@
+// import menu from "../../assets/menu.png";
+// import { useOutletContext } from "react-router-dom";
+// import { useState } from "react";
+// import { useCall } from "../../context/Call/CallContext";
+// import { initiateCall } from "../../services/call/core/InitiateCall";
 
-import menu from '../../assets/menu.png'; 
-import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
-import { useHotkeys } from "react-hotkeys-hook";
-import Button from '../../components/common/Button';
-import Modal from "react-modal";
-import ModalFastCall from '../../components/private/agent/ModalFastCall';
-import { useState } from 'react';
-import ModalCall from '../../components/private/agent/ModalCall';
-import ModalWrapUp from '../../components/private/agent/ModalWrapUp';
-import InBoundedCalls from './components/InBoundedCalls';
-const CallDashboard = () => {
-   const navigate = useNavigate();
-    const [openCall, setOpenCall] = useState(false);
-    const [openFastCall, setOpenFastCall] = useState(false);
-    const [wrapUpOpen, setWrapUpOpen] = useState(true);
-  useHotkeys("c", (event) => {
-    event.preventDefault(); 
-    navigate("/main/customers"); 
-  });
+// const CallDashboard = () => {
 
-  useHotkeys("v", (event) => {
-    event.preventDefault(); 
-    setOpenFastCall(true);
-      
-  });
+//   const { toggleSidebar } = useOutletContext();
 
-  useHotkeys("1", (event) => {
-    event.preventDefault(); 
-    setOpenCall(true);
-      
-  });
-  useHotkeys("esc", () => setOpenFastCall(false));
+//   const { incomingCalls, addIncomingCall } = useCall();
+
+//   const [loading, setLoading] = useState(false);
+
+//   const handleCall = async () => {
+//   console.log("MAKE CALL CLICKED");
+
+//   setLoading(true);
+
+//   try {
+//     const token = localStorage.getItem("Token");
+
+//     const data = await initiateCall(
+//       token,
+//       (event) => {
+//         console.log("REAL EVENT:", event);
+//         addIncomingCall(event);
+//       }
+//     );
+
+//     console.log("CALL READY:", data);
+//   } catch (err) {
+//     console.error("CALL ERROR:", err);
+//   }
+
+//   setLoading(false);
+// };
+
+//   return (
+//     <div className="p-6">
+
+//       {/* HEADER */}
+
+//       <div className="flex justify-between items-center mb-10">
+
+//         <div className="flex items-center gap-5">
+
+//           <img
+//             onClick={toggleSidebar}
+//             src={menu}
+//             className="w-8 h-8 cursor-pointer"
+//             alt="menu"
+//           />
+
+//           <h1 className="text-2xl text-white font-bold">
+//             Call Center(Main Workspace)
+//           </h1>
+
+//         </div>
+
+//         <button
+//           onClick={handleCall}
+//           className="bg-green-500 px-6 py-2 rounded text-white"
+//         >
+//           {loading ? "Calling..." : "Make Call"}
+//         </button>
+
+//       </div>
+
+//       {/* CALL LIST */}
+
+//       <div className="space-y-3">
+
+//         {incomingCalls.map((c) => (
+
+//           <div
+//             key={c.callId}
+//             className="p-4 bg-slate-800 rounded"
+//           >
+
+//             <div>{c.callerIdentity}</div>
+//             <div>{c.phoneNumber}</div>
+
+//           </div>
+
+//         ))}
+
+//       </div>
+
+//     </div>
+//   );
+// };
+// AgentTerminal.js
+// AgentTerminal.jsx
+// AgentTerminal.js
+import React, { useState, useEffect } from 'react';
+import { useCall } from '../../context/Call/CallContext';
+import { CALL_STATUS } from '../../services/call/Livekit/livekitConstants';
+
+const AgentTerminal = () => {
+  const {
+    incomingCalls,
+    activeCall,
+    callStatus,
+    isMuted,
+    wsStatus,
+    initInboundEngine,
+    handleAcceptCall,
+    handleEndOrRejectCall,
+    handleToggleMute,
+  } = useCall();
+
+  // 1. إعدادات الخوادم والصلاحيات
+  const savedToken = localStorage.getItem("Token") || '';
+  const [springUrl, setSpringUrl] = useState('http://153.75.91.83:8080');
+  const [livekitUrl, setLivekitUrl] = useState('ws://153.75.91.83:7880');
+  const [token, setToken] = useState(savedToken);
   
-  const inboundCalls = [
-    { name: '+956 844 55', sub: 'United States', wait: '40s', vip: false },
-    { name: 'Sarah Jenkins', sub: '+1 202 555 0109', wait: '1m 12s', vip: true },
-    { name: '+44 7700 900504', sub: 'United Kingdom', wait: '2m 45s', vip: false },
-    { name: 'Mike Ross', sub: 'Incoming via IVR', wait: '5s', vip: false },
-  ];
+  // 2. حالات التحكم المحلية
+  const [queueId, setQueueId] = useState('1');
+  const [agentIdentity, setAgentIdentity] = useState('ayhamagent@gmail.com'); 
+  const [logs, setLogs] = useState(['في انتظار بدء الاتصال بالمحرك...']);
 
-  const outboundCalls = [
-    { name: '+1 415 555 0122', sub: 'Callback Request', duration: '4m 30s' },
-    { name: 'John Doe', sub: 'Follow-up Call', duration: '12m 10s' },
-    { name: 'Alice Cooper', sub: 'Sales Lead', duration: '2m 15s' },
-    { name: 'Tech Support', sub: 'Internal Referral', duration: '8m 05s' },
-  ];
-  const { toggleSidebar } = useOutletContext();
-    const location = useLocation();
-  const isSubRoute = location.pathname.includes('makecall');
-  const fromCallroom = location.state?.from === "callroom";
+  const addLog = (message) => {
+    setLogs(prev => [`> [${new Date().toLocaleTimeString()}] ${message}`, ...prev]); // ترتيب تنازلي لرؤية السجلات الحديثة فوراً
+  };
 
-  
-  if (isSubRoute) {
-    return <Outlet/>;
-  }
+  // مراقبة أحداث المكالمات وتوليد سجلات عربية دقيقة لعمليات التدقيق
+  useEffect(() => {
+    if (callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0) {
+      const latestCall = incomingCalls[incomingCalls.length - 1];
+      addLog(`🚨 إشارة رنين واردة! رقم المكالمة: ${latestCall.callId} | المتصل: ${latestCall.callerIdentity || 'غير معروف'}.. في انتظار قرار الوكيل.`);
+    } else if (callStatus === CALL_STATUS.CONNECTING_TO_ROOM) {
+      addLog(`⚡ جاري التوصيل التلقائي بغرفة الميديا المؤقّتة عبر LiveKit...`);
+    } else if (callStatus === CALL_STATUS.CONNECTED) {
+      addLog(`✅ تم ربط قنوات الصوت بنجاح. جلسة WebRTC نشطة ومباشرة الآن.`);
+    } else if (callStatus === CALL_STATUS.IDLE && logs.length > 1) {
+      addLog(`🛑 تم إغلاق المكالمة وتفريغ مسارات الوسائط وجلسات الاستماع.`);
+    }
+  }, [callStatus, incomingCalls]);
+
+  // مراقبة حالة الـ WebSocket للتأكيد على التواجد التلقائي (Presence)
+  useEffect(() => {
+    if (wsStatus === 'Connected') {
+      addLog('✅ تم تفعيل اتصال STOMP/SockJS بنجاح مع خادم Spring Boot.');
+      addLog(`📡 نظام التواجد التلقائي: الوكيل نشط ومتاح حالياً (AVAILABLE) في طابور الخدمة رقم [${queueId}].`);
+    } else if (wsStatus === 'Disconnected' && logs.length > 1) {
+      addLog('❌ انقطع الاتصال بخادم الإشارات التابع للمنصة.');
+    }
+  }, [wsStatus, queueId]);
+
+  const handleConnectEngine = () => {
+    if (!token) {
+      addLog('خطأ: رمز الصلاحية (SSO Token) مطلوب للمصادقة مع السيرفر.');
+      return;
+    }
+    addLog(`جاري طلب الاتصال بخادم الإشارات الموحد على الرابط: ${springUrl}...`);
+    initInboundEngine(token, queueId, agentIdentity);
+  };
+
   return (
-    <div className=" min-h-screen bg-primary text-white p-8 font-sans">
-      <ModalFastCall  isOpen={openFastCall} setIsOpen={setOpenFastCall}/>
-      <ModalCall isOpen={openCall}  setIsOpen={setOpenCall}/>
-      {fromCallroom && <ModalWrapUp isOpen={wrapUpOpen} setIsOpen={setWrapUpOpen}/>}
-      {/* Header Section */}
-      <header className="flex justify-between items-center mb-10">
-         
-        <div className='flex items-center justify-center gap-5' >
-          <img  onClick={toggleSidebar}   src={menu} className='w-8 h-8 cursor-pointer' alt="" />
-         <div>
-           <h1 className="text-2xl font-bold">Call Center</h1>
-          <p className="text-gray-400 text-sm">Manage active and incoming customer inquiries</p>
-         </div>
-        </div>
-        <div className='flex items-centre justify-center gap-10'>
-          
-        <Button 
-        path={"/main/customers"}
-        className="bg-[#0D9EF2]  text-white px-6 py-2 rounded-full font-semibold flex items-center gap-2 transition-all">
-          Customers
-        </Button>
-        <Button 
-        path={"/main/makecall"}
-        className="bg-[#22c55e] hover:bg-[#1eb054] text-white px-6 py-2 rounded-full font-semibold flex items-center gap-2 transition-all">
-          Make Call
-        </Button>
-        </div>
+    // تم التحديث: تفعيل اتجاه RTL للنصوص العربية وتنسيقات الهوامش المتوافقة مع Tailwind
+    <div className="min-h-screen bg-gray-900 text-gray-300 p-8 font-sans animate-fade-in" dir="rtl">
+      <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg shadow-2xl p-6 border border-gray-700">
         
-      </header>
+        {/* العناوين الرئيسية */}
+        <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+          <h1 className="text-2xl font-bold text-cyan-400">لوحة تحكم ومحاكاة محرك الوكيل (Agent Terminal)</h1>
+          <span className="text-xs bg-cyan-950 text-cyan-400 px-3 py-1 rounded border border-cyan-800 font-mono">CallX SaaS v1.0</span>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Inbound Calls Column */}
-        <section>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-blue-400 font-semibold flex items-center gap-2">
-              <span className="text-lg">↙</span> Inbound Calls (4)
-            </h2>
-            <span className="text-gray-500 text-xs tracking-widest uppercase">Active Queue</span>
+        {/* الخطوة 1: الخوادم والصلاحيات */}
+        <div className="bg-gray-900 rounded p-4 mb-6 border border-gray-700">
+          <h2 className="text-sm font-semibold text-cyan-500 mb-4">الخطوة 1: إعدادات المنافذ ورمز الصلاحية (Authorization)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">رابط خادم الإشارات (Spring Backend)</label>
+              <input 
+                value={springUrl}
+                onChange={(e) => setSpringUrl(e.target.value)}
+                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 font-mono text-left" 
+                dir="ltr"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">رابط خادم الميديا والصوت (LiveKit Server)</label>
+              <input 
+                value={livekitUrl}
+                onChange={(e) => setLivekitUrl(e.target.value)}
+                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 font-mono text-left" 
+                dir="ltr"
+              />
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-xs text-gray-400 mb-1">رمز دخول الوكيل الموحد (Agent SSO Access Token - JWT)</label>
+            <input 
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+              placeholder="قم بلصق رمز الـ JWT المستخرج للوكيل هنا..."
+              className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 placeholder-gray-600 font-mono text-left" 
+              dir="ltr"
+            />
+          </div>
+          <button 
+            onClick={handleConnectEngine}
+            className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold py-2 px-6 rounded text-sm transition-colors w-full sm:w-auto shadow-lg shadow-cyan-500/20">
+            بدء تشغيل محرك الاتصالات للوكيل
+          </button>
+        </div>
+
+        {/* شريط حالة الـ WebSocket المستقل */}
+        <div className="bg-gray-850 border border-gray-750 text-center py-2.5 rounded mb-6 font-medium text-sm flex justify-center items-center gap-2">
+          <span>حالة اتصال الـ WebSocket الأساسي:</span>
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${wsStatus === 'Connected' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-gray-900 text-gray-400 border border-gray-700'}`}>
+            {wsStatus === 'Connected' ? 'متصل بالخدمة (CONNECTED)' : 'غير متصل (DISCONNECTED)'}
+          </span>
+        </div>
+
+        {/* الخطوة 2: استقبال التدفق الهاتفي المباشر */}
+        <div className="bg-gray-900 rounded p-4 mb-6 border border-gray-700">
+          <h2 className="text-sm font-semibold text-cyan-500 mb-4">الخطوة 2: إدارة تدفق المكالمات الواردة (Inbound Traffic)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">هوية الوكيل الحالية (مستخرجة تلقائياً من الـ JWT)</label>
+              <input 
+                disabled
+                value={agentIdentity}
+                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-500 cursor-not-allowed font-mono text-left" 
+                dir="ltr"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">رقم طابور الانتظار المستهدف (Queue ID)</label>
+              <input 
+                value={queueId}
+                onChange={(e) => setQueueId(e.target.value)}
+                className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:outline-none focus:border-cyan-500 font-mono text-center" 
+              />
+            </div>
           </div>
 
-          <div className="space-y-3">
-            {inboundCalls.map((call) => (
-              <InBoundedCalls
-              name={call.name}
-              sub={call.sub}
-              wait={call.wait}
-              
-              />
+          {/* صندوق التنبيه المنبثق التفاعلي عند الرنين */}
+          {callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0 ? (
+            <div className="bg-cyan-950/30 p-4 rounded border border-cyan-800/80 animate-pulse mt-4">
+              <div className="flex justify-between items-center mb-3">
+                <p className="text-sm text-cyan-400 font-bold flex items-center gap-1.5">
+                  <span>🚨 مكالمة واردة من:</span>
+                  <span className="text-yellow-400 font-mono">{incomingCalls[0].callerIdentity || "عميل خارجي"}</span>
+                </p>
+                <span className="text-xs font-mono bg-cyan-900 text-cyan-300 px-2 py-0.5 rounded">ID: {incomingCalls[0].callId.substring(0, 8)}...</span>
+              </div>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => handleAcceptCall(incomingCalls[0].callId)}
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-bold py-2 px-4 rounded text-sm transition-colors shadow-lg shadow-emerald-500/10">
+                  قبول المكالمة وبدء الصوت (Accept)
+                </button>
+                <button 
+                  onClick={handleEndOrRejectCall}
+                  className="flex-1 bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 rounded text-sm transition-colors shadow-lg shadow-red-500/10">
+                  رفض وتحويل المكالمة (Reject)
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center text-xs py-5 text-gray-500 border border-dashed border-gray-700 rounded mt-2">
+              لا يوجد حركة اتصالات واردة حالياً. النظام في وضع الاستماع ومراقبة الطوابير...
+            </div>
+          )}
+        </div>
+
+        {/* الخطوة 3: أدوات تحكم المكالمة النشطة */}
+        <div className="bg-gray-900 rounded p-4 mb-6 border border-gray-700">
+          <h2 className="text-sm font-semibold text-cyan-500 mb-4">الخطوة 3: أزرار تحكم الجلسة الصوتية النشطة (Media Control)</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm bg-gray-850 p-3 rounded border border-gray-750">
+            <p className="text-gray-400">رقم المكالمة الحالية: <span className="text-yellow-500 font-mono font-semibold">{activeCall ? activeCall.callId : 'لا يوجد'}</span></p>
+            <p className="text-gray-400">حالة الميكروفون الحالية: 
+              <span className={`mr-2 font-bold ${isMuted ? 'text-red-400' : 'text-emerald-400'}`}>
+                {isMuted ? 'مكتوم (MUTED)' : 'مفتوح حي (LIVE)'}
+              </span>
+            </p>
+          </div>
+          
+          <div className="flex gap-4">
+            <button
+              onClick={handleToggleMute}
+              disabled={callStatus !== CALL_STATUS.CONNECTED}
+              className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed border border-gray-600">
+              {isMuted ? 'تفعيل الميكروفون (Unmute)' : 'كتم الميكروفون (Mute)'}
+            </button>
+            <button 
+              onClick={handleEndOrRejectCall}
+              disabled={callStatus !== CALL_STATUS.CONNECTED}
+              className="flex-1 bg-red-900/40 hover:bg-red-800 text-red-300 font-bold py-2 px-4 rounded text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed border border-red-800/60">
+              إنهاء المكالمة الحالية (Hang Up)
+            </button>
+          </div>
+        </div>
+
+        {/* شاشة السجلات البرمجية الحية (Live Log Terminal) */}
+        <div>
+          <h2 className="text-sm font-semibold text-gray-400 mb-2">شاشة مراقبة السجلات والرسائل الفورية (Live Terminal Logs)</h2>
+          <div className="bg-black text-cyan-400 font-mono text-xs p-4 rounded-lg h-44 overflow-y-auto border border-gray-850 text-right space-y-1.5" dir="ltr">
+            {logs.map((log, idx) => (
+              <div key={idx} className="transition-all duration-150 hover:bg-gray-950 px-1 py-0.5 rounded">{log}</div>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Outbound Calls Column */}
-        <section>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-orange-400 font-semibold flex items-center gap-2">
-              <span className="text-lg">↗</span> Outbound Calls (4)
-            </h2>
-            <span className="text-gray-500 text-xs tracking-widest uppercase">Recent Logs</span>
-          </div>
-
-          <div className="space-y-3">
-            {outboundCalls.map((call) => (
-              <InBoundedCalls
-                name={call.name}
-                sub={call.sub}
-                wait={call.duration}
-              />
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );
 };
 
-export default CallDashboard;
+export default AgentTerminal;

@@ -5,29 +5,30 @@ import { useDepartments } from "../../hooks/useDepartments";
 import CreateEmployeeModal from "../UserManagement/employees/modal/CreateEmployeeModal";
 import DepartmentCard from "./components/DepartmentCard";
 import CreatDepartmentModal from "./Modal/CreateDepartmentModal";
+import LoadingError from "../../components/common/LoadingError";
+import LoadingCircle from "../../components/common/LoadingCircle";
 
 export default function DepartmentsList() {
   const [isCreateDepartmentModalOpen,setIsCreateDepartmentModalOpen] = useState(false);
   const token = localStorage.getItem("Token")
   const { 
     data: departments = [], 
-    isLoading: isDepsLoading,
-    error ,
+    isLoading,
+    isError ,
     refetch
   } = useDepartments(token);
-  
-  // حالة التحميل
-  if (isDepsLoading) {
+  console.log(departments);
+console.log(departments.categories);
+    if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white">
-        Loading Departments...
-      </div>
+      <LoadingCircle Phrase={"Departments"}/>
     );
   }
 
-  // حالة الخطأ (في حال فشل الطلب)
-  if (error) {
-    return <div className="text-red-500 p-8">Error: {error.message}</div>;
+  if (isError) {
+    return (
+      <LoadingError Phrase={"Departments"}/>
+    );
   }
 
   return (

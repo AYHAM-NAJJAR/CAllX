@@ -6,6 +6,8 @@ import LoadingCircle from '../../../components/common/LoadingCircle';
 import EmployeeCard from './components/EmployeeCard';
 import CreateEmployeeModal from './modal/CreateEmployeeModal';
 import { Outlet, useLocation } from 'react-router-dom';
+import LoadingError from '../../../components/common/LoadingError';
+
 
 const GetAllEmployees = () => {
     const token = localStorage.getItem("Token");
@@ -14,12 +16,23 @@ const GetAllEmployees = () => {
     const location = useLocation();
     const isSubRoute = location.pathname !== '/main/system/employee' && location.pathname !== '/main/system/employee/';
   
-  if (error) return <div className="text-red-500 p-10">Error loading employees</div>;
+      if (isLoading) {
+    return (
+      <LoadingCircle Phrase={"Employess"}/>
+    );
+  }
+
+  // 2. حالة الخطأ (Error State)
+  if (error) {
+    return (
+      <LoadingError Phrase={"Employess"}  />
+    );
+    }
     if (isSubRoute) {
         return <Outlet/>;
     }
   return (
-    <div className="min-h-screen bg-[#0f172a] p-8 text-white font-sans">
+    <div className="min-h-screen bg-[#0f172a]  text-white font-sans">
      
       <CreateEmployeeModal onSuccess={() => refetch()} onClose={setIsOpenModalAddEmployee} isOpen={isOpenModalAddEmployee}/>
       <div className="flex justify-between items-center mb-8">
@@ -45,12 +58,6 @@ const GetAllEmployees = () => {
           <div className="text-[10px] text-gray-500">TOTAL</div>
         </div>
       </div>
-
-        {isLoading ? (
-            <div className='flex items-center justify-center h-[50vh] w-full '>
-                <LoadingCircle />
-            </div>
-        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {employees?.map((emp) => (
             <EmployeeCard
@@ -64,7 +71,7 @@ const GetAllEmployees = () => {
             />
         ))}
       </div>
-        )}
+        
       <Outlet/>
     </div>
   );

@@ -10,7 +10,7 @@ import Button from '../../../components/common/Button';
 
 const CreateEmployee = () => {
   const token = localStorage.getItem('Token');
-  const [isActive, setIsActive] = useState(true);
+
   const [loading, setLoading] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
 
@@ -188,19 +188,7 @@ const CreateEmployee = () => {
             </div>
 
             {/* Active Status Toggle */}
-            <div className="bg-[#1e293b]/50 border border-slate-700/50 rounded-lg p-4 flex items-center justify-between mt-8">
-              <div>
-                <p className="text-sm font-bold text-white">Active Status</p>
-                <p className="text-xs text-slate-500">Enable login capabilities immediately</p>
-              </div>
-              <button 
-                type="button"
-                onClick={() => setIsActive(!isActive)}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${isActive ? 'bg-emerald-500' : 'bg-slate-600'}`}
-              >
-                <div className={`bg-[#0f172a] w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${isActive ? 'translate-x-6' : 'translate-x-0'}`} />
-              </button>
-            </div>
+           
           </div>
 
           {/* Right Column */}

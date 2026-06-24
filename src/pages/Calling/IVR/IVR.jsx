@@ -7,11 +7,16 @@ import TransferNode from './components/TransferNode';
 import PropertySidebar from './components/PropertySideBar';
 import HangupNode from './components/HangupNode';
 import VoicEmailNode from './components/VoicEmailNode';
+import { useParams } from 'react-router-dom';
 
 export default function IVR() {
+  const {flowId} = useParams()
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [activePropertyNodeId, setActivePropertyNodeId] = useState(null);
+
+
+
 
   const toggleProperties = (nodeId) => {
     setActivePropertyNodeId(activePropertyNodeId === nodeId ? null : nodeId);
@@ -43,10 +48,12 @@ export default function IVR() {
       </main>
       {activePropertyNodeId && (
         <PropertySidebar
-          nodeId={activePropertyNodeId}
-          nodes={nodes}
-          setNodes={setNodes}
-          close={() => setActivePropertyNodeId(null)} 
+        flowId={flowId}
+        nodeId={activePropertyNodeId}
+        nodes={nodes}
+        edges={edges}
+        setNodes={setNodes}
+        close={() => setActivePropertyNodeId(null)}
         />
       )}
     </div>

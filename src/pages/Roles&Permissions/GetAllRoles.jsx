@@ -3,12 +3,15 @@ import { useRoles } from '../../hooks/useRoles';
 import { Shield, Key, Layers, Info, Users, Briefcase, Settings } from 'lucide-react';
 import Button from "../../components/common/Button"
 import CreateRoleModal from './Modal/CreateRoleModal';
+import LoadingCircle from '../../components/common/LoadingCircle';
+import LoadingError from '../../components/common/LoadingError';
 function GetAllRoles() {
     const token = localStorage.getItem("Token")
     const [isCreateRoleModalOpen,setIsCreateRoleModalOpen] = useState(false)
     const { 
         data: roles = [], 
-        isLoading: isRolesLoading ,
+        isLoading ,
+        isError,
         refetch
     } = useRoles(token);
 
@@ -24,17 +27,17 @@ function GetAllRoles() {
         }, {});
     };
 
-    // 1. حالة التحميل (Loading State)
-    if (isRolesLoading) {
-        return (
-            <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white font-sans">
-                <div className="text-center space-y-3">
-                    <div className="w-10 h-10 border-4 border-[#0D9EF2] border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="text-slate-400 text-sm animate-pulse">Fetching system roles and capabilities...</p>
-                </div>
-            </div>
-        );
-    }
+     if (isLoading) {
+    return (
+      <LoadingCircle Phrase={"Roles"}/>
+    );
+  }
+
+  if (isError) {
+    return (
+      <LoadingError Phrase={"Roles"}/>
+    );
+  }
 
     // 2. حالة عدم وجود بيانات (Empty State)
     if (!roles || roles.length === 0) {

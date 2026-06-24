@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-// import { toast } from 'react-toastify';
-import LoadingCircle from '../../../../components/common/LoadingCircle';
 import Button from '../../../../components/common/Button';
 import Modal from 'react-modal';
+import { toast } from 'react-toastify';
+import { createFlow } from '../../../../services/call/IVR/Flow/createFlow';
+import LoadingInButton from '../../../../components/common/LoadingInButton';
 
-const CreateFlowModal = ({ isOpen, onClose}) => {
-//   const token = localStorage.getItem('Token');
+// استقبل onSuccess هنا 
+const CreateFlowModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
-
-  // 1. بيانات الـ Flow
+  const token = localStorage.getItem("Token");
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -23,37 +24,37 @@ const CreateFlowModal = ({ isOpen, onClose}) => {
     e.preventDefault();
     setLoading(true);
 
-    // const payload = {
-    //   name: formData.name,
-    //   description: formData.description,
-    //   active: true, // القيمة الافتراضية كما في الريكوست
-    //   rootNodeId: null
-    // };
+    const payload = {
+      name: formData.name,
+      description: formData.description,
+      active: true, 
+      rootNodeId: null
+    };
 
-    // try {
-    //   // استبدل الرابط أدناه برابط الـ API الخاص بك
-    //   const response = await fetch('{{base_url}}/api/ivr/flows', {
-    //     method: 'POST',
-    //     headers: { 
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${token}` 
-    //     },
-    //     body: JSON.stringify(payload),
-    //   });
-
-    //   if (response.ok) {
-    //     toast.success("Flow created successfully!");
-    //     setFormData({ name: '', description: '' });
-    //     onSuccess(); // لتحديث القائمة أو الانتقال
-    //     onClose();
-    //   } else {
-    //     toast.error("Failed to create flow");
-    //   }
-    // } catch (error) {
-    //   toast.error("Error connecting to server");
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      const response = await createFlow(payload, token);
+      if (response.success) {
+        toast.success(response.message, {
+          position: "top-left",
+          autoClose: 3000,
+          className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
+        });
+        
+        // 1. تحديث القائمة في الخلفية فوراً
+        if (onSuccess) await onSuccess(); 
+        
+        // 2. تصفير الفورم لتجهيزه للمرة القادمة
+        setFormData({ name: '', description: '' }); 
+        
+        // 3. إغلاق المودال
+        onClose(); 
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Error connecting to server");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,7 +64,7 @@ const CreateFlowModal = ({ isOpen, onClose}) => {
       className="outline-none "
       overlayClassName="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
     >
-      <form onSubmit={handleSubmit} className="bg-[#171A21]  rounded-xl border border-[#2A2E37] p-8 w-full max-w-lg flex flex-col gap-6 shadow-3xl">
+      <form onSubmit={handleSubmit} className="bg-[#171A21] rounded-xl border border-[#2A2E37] p-8 w-full max-w-lg flex flex-col gap-6 shadow-3xl">
         <h2 className="text-2xl font-semibold text-white">Create New IVR Flow</h2>
         <div className="space-y-4">
           <div>
@@ -90,9 +91,10 @@ const CreateFlowModal = ({ isOpen, onClose}) => {
         </div>
 
         <div className="flex justify-end gap-4 border-t border-slate-800 pt-6">
-          <Button onClick={onClose} className="text-slate-400 hover:text-white">Cancel</Button>
+          {/* تأكد من إضافة type="button" هنا لمنع زر Cancel من عمل submit للفورم بالخطأ */}
+          <Button type="button" onClick={onClose} className="text-slate-400 hover:text-white">Cancel</Button>
           <Button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg">
-            {loading ? <LoadingCircle /> : "Create Flow"}
+            {loading ? <LoadingInButton/> : "Create Flow"}
           </Button>
         </div>
       </form>

@@ -19,7 +19,7 @@ function Panel() {
         hidden lg:block
       `}>
         {/* العرض هنا ثابت (256px) لضمان عدم عصر المحتوى أثناء الحركة */}
-        <div className="w-60 h-full">
+        <div className="w-64 h-full">
            <SidBarAdmin isOpen={showSidebar} toggleSidebar={toggleSidebar} />
         </div>
       </div>

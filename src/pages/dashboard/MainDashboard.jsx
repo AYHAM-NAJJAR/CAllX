@@ -1,7 +1,11 @@
+import { Download } from 'lucide-react';
 import React from 'react';
+import Button from '../../components/common/Button';
+import { Tooltip } from 'react-tooltip';
+import { exportAnalyticsPDF } from '../../services/Analytics&Reports/ExportAnalyticsReport(PDF)';
 
 const MainDashboard = () => {
-  // بيانات كاملة (Mock Data)
+  const token = localStorage.getItem('Token');
   const mockStats = {
     activeRooms: 2,
     totalParticipants: 5,
@@ -17,11 +21,31 @@ const MainDashboard = () => {
     { id: 1, roomName: "my-phone-room", startedAt: "2026-05-20T10:00:00Z", endedAt: "2026-05-20T10:45:00Z", peakParticipants: 3, totalJoins: 5, status: "COMPLETED", durationSeconds: 2700 },
     { id: 2, roomName: "support-room", startedAt: "2026-05-20T11:00:00Z", endedAt: "2026-05-20T11:20:00Z", peakParticipants: 2, totalJoins: 2, status: "COMPLETED", durationSeconds: 1200 }
   ];
-
+  const handleExportClick = async () => {
+    
+    try {
+      
+      
+     
+      await exportAnalyticsPDF(token); 
+      
+    } catch (error) {
+      alert("عذراً، حدث خطأ أثناء تحميل الملف.");
+    }
+};
   return (
-    <div className="min-h-screen bg-[#0F172A] p-8 text-white">
-      <h1 className="text-2xl font-bold mb-8 border-l-4 border-[#0D9EF2] pl-4">Main Dashboard</h1>
-
+    <div className="min-h-screen bg-[#0F172A] p-10 text-white">
+      <div className='flex flex-row items-center justify-between mb-10'>
+        <h1 className="text-2xl font-bold  border-l-4 border-[#0D9EF2] pl-4">Main Dashboard</h1>
+      <Button
+            onClick={handleExportClick}
+            dataTooltipId="export-tickets-tooltip"
+            dataTooltipContent="Export PDF"
+            className="p-2 bg-[#0d1527] rounded-md border border-[#1e293b] hover:bg-[#1e293b] transition-colors focus:outline-none"
+          >
+            <Download className="text-customButton" size={20} />
+          </Button>
+      </div>
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <StatCard title="Active Rooms" value={mockStats.activeRooms} />
@@ -81,6 +105,19 @@ const MainDashboard = () => {
           </div>
         </div>
       </div>
+       <Tooltip
+        id="export-tickets-tooltip"
+        place="top"
+        style={{
+          backgroundColor: "#1e293b",
+          color: "#f8fafc",
+          fontSize: "12px",
+          borderRadius: "6px",
+          padding: "6px 10px",
+          boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.5)",
+          zIndex: 50
+        }}
+      />
     </div>
   );
 };

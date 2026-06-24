@@ -27,7 +27,6 @@ import BuildTicketStructrue from "./pages/Ticketing/BuildTicketStructrue";
 import AllActiveFields from "./pages/Ticketing/AllActiveFields";
 import IVR from "./pages/Calling/IVR/IVR";
 import IVRCatalog from "./pages/Calling/IVR/IVRCatalog";
-import Flow from "./pages/Calling/IVR/Flow";
 import GetAllDepartments from "./pages/CompanyStructure/GetAllDepartments";
 import Profile from "./pages/profile/Profile";
 import GetAllRoles from "./pages/Roles&Permissions/GetAllRoles";
@@ -37,6 +36,14 @@ import CallDashboard from "./pages/Calling/CallDashboard";
 import CreateWorkFlowRules from "./pages/workflowEngine/CreateWorkFlowRules";
 import GetAllWorkFlowEngines from "./pages/workflowEngine/GetAllWorkFlowEngines";
 import WorkFlowDetail from "./pages/workflowEngine/WorkFlowDetail";
+import AgentTerminal from "./pages/Calling/CallDashboard";
+import MainPerformance from "./pages/performance/AgentsPerformance";
+import SystemStats from "./pages/dashboard/SystemStats";
+import TicketDetails from "./pages/Ticketing/Ticket Details";
+import AllFlows from "./pages/Calling/IVR/AllFlows";
+import AgentsPerformance from "./pages/performance/AgentsPerformance";
+import Monitory from "./pages/monitoring/Monitory";
+import AuditLogs from "./pages/monitoring/AuditLogs";
 Modal.setAppElement('#root');
 
 function App() {
@@ -88,32 +95,33 @@ function App() {
             path="/ticketing" 
             element={<PermissionGuard requiredPermission="MANAGE_USERS"><CreateFieldDefinition inSystem={false}/></PermissionGuard>} 
           />
-          <Route 
-            path="/flow" 
-            element={<PermissionGuard requiredPermission="MANAGE_USERS"><Flow/></PermissionGuard>} 
-          />
-          <Route 
+         
+          {/* <Route 
             path="/ivrcatalog" 
             element={<PermissionGuard requiredPermission="MANAGE_USERS"><IVRCatalog/></PermissionGuard>} 
-          />
+          /> */}
           <Route 
-            path="/ivr" 
+            path="/ivr/:flowId" 
             element={<PermissionGuard requiredPermission="MANAGE_USERS"><IVR/></PermissionGuard>} 
           />
           <Route path="/main" element={<Panel/>}>
-            <Route index element={<PermissionGuard requiredPermission="VIEW_ANALYTICS"><MainDashboard/></PermissionGuard>} />
-            <Route path="calling" element={<CallDashboard/>} />
+            <Route index element={<PermissionGuard requiredPermission=""><MainDashboard/></PermissionGuard>} />
+            <Route path="calling" element={<AgentTerminal/>} />
             <Route path="workengine" element={<GetAllWorkFlowEngines/>}>
               <Route path="create" element={<CreateWorkFlowRules/>} />
               <Route path="details/:id" element={<WorkFlowDetail/>} />
             </Route>
+              <Route path="flow" element={<PermissionGuard requiredPermission=""><AllFlows/></PermissionGuard>} />
             <Route path="system" element={<System/>}>
-              <Route index element={<Navigate to="employee" replace />} />
+              {/* <Route index element={<Navigate to="employee" replace />} /> */}
+              <Route index element={<Navigate to="stats" replace />} />
+              <Route path="stats" element={<SystemStats/>} />
               <Route path="employee" element={<GetAllEmployees/>}>
                 <Route path="details/:id" element={<EmployeeDetails/>} />
               </Route>
               
               <Route path="tickets" element={<ShowAllTickets/>}>
+                <Route  path="details/:id" element={<TicketDetails/>}  />
                 <Route path="structure" element={<BuildTicketStructrue/>}>
                   <Route index element={<Navigate to="createField" replace />} />
                   <Route path="createField" element={<CreateFieldDefinition inSystem={true}/>} />
@@ -127,6 +135,9 @@ function App() {
                 
               </Route>
             </Route>
+            <Route path="performance" element={<AgentsPerformance/>}></Route>
+            <Route path="monitory" element={<Monitory/>}></Route>
+            <Route path="audit" element={<AuditLogs/>}></Route>
             <Route path="profile" element={<Profile/>} />
           </Route>
         </Routes>

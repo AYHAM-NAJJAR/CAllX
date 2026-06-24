@@ -28,7 +28,7 @@ const DepartmentCard = ({ department }) => {
           {department.categories.length > 0 ? (
             department.categories.map((cat, index) => (
               <span key={index} className="text-white text-xs bg-sky-600 px-2 py-0.5 rounded-full">
-                {cat}
+                {cat.name}
               </span>
             ))
           ) : (

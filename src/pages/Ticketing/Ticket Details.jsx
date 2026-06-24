@@ -1,161 +1,232 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getTicketByID } from '../../services/Tickets/getOneTicket';
+import LoadingError from "../../components/common/LoadingError";
+import LoadingCircle from "../../components/common/LoadingCircle";
+import Button from '../../components/common/Button';
+import UpdateTicketModal from './Modal/UpdateTicketModal';
+import DeleteEmployeeModal from '../UserManagement/employees/modal/DeleteEmployeeModal';
+import DeleteTicketModal from './Modal/DeleteTicketModal';
 
-const TicketDetails= () => {
+const TicketDetails = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [ticket, setTicket] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const token = localStorage.getItem("Token");
+  const[isOpenModalUpdateTicket,setIsOpenModalUpdateTicket]=useState(false);
+  const[isOpenModalDeleteTicket,setIsOpenModalDeleteTicket]=useState(false);
+
+  useEffect(() => {
+    const fetchTicketData = async () => {
+      try {
+        setLoading(true);
+        const res = await getTicketByID(token, id);
+        
+        // التأكد من جلب كائن data الداخلي لضمان قراءة الخصائص بشكل صحيح
+        if (res) {
+          setTicket(res);
+        } 
+      } catch (err) {
+        setError("فشل في تحميل بيانات التذكرة.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchTicketData();
+    }
+  }, [token, id]);
+
+  if (loading) {
+    return <LoadingCircle Phrase={"Ticket Details"} />;
+  }
+
+  if (error || !ticket) {
+    return <LoadingError Phrase={error || "Ticket Details"} />;
+  }
+
+  // تنسيق التاريخ ليظهر بشكل مقروء واحترافي
+  const formattedDate = new Date(ticket.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   return (
-    <div className="min-h-screen bg-[#080C11] text-gray-200 font-sans">
+    <div className="min-h-screen bg-primary text-gray-200 font-sans">
+      <UpdateTicketModal data={ticket} isOpen={isOpenModalUpdateTicket} onClose={setIsOpenModalUpdateTicket}/>
+      <DeleteTicketModal data={ticket}  isOpen={isOpenModalDeleteTicket} onClose={setIsOpenModalDeleteTicket}/>
       <div className="container mx-auto px-10 py-12">
+        
+        {/* Header */}
         <header className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 border-2 border-[#1E88E5] rounded flex items-center justify-center">
-              <div className="w-5 h-2 bg-[#1E88E5]"></div>
-            </div>
-            <h1 className="text-xl font-bold tracking-wider text-white">Support Portal</h1>
+            <h1 className="text-xl font-bold tracking-wider text-white">Ticket Details</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="bg-[#151D29] border border-gray-800 rounded-full px-6 py-2.5 text-sm font-semibold hover:bg-gray-800">
-              Back to List
-            </button>
-            <div className="flex flex-col gap-0.5 cursor-pointer p-1">
-              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-              <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-            </div>
-          </div>
+           <div className="flex items-center gap-3">
+          <Button
+          path={"/main/system/tickets"}
+          className="bg-[#151D29] border border-gray-800 rounded-full ease-in transition-colors   px-6 py-2.5 text-sm font-semibold hover:bg-gray-800">
+            Back to List
+          </Button>
+          <Button
+          onClick={() => setIsOpenModalUpdateTicket(true)}
+          className="rounded-full bg-customButton hover:bg-sky-400 ease-in transition-colors  px-6 py-2.5 text-sm font-bold text-white ">
+            Edit Ticket details
+          </Button>
+          <Button
+          onClick={()=>setIsOpenModalDeleteTicket(true)}
+          className="rounded-full text-white  bg-red-400 hover:bg-red-600 ease-in transition-colors   px-6 py-2.5 text-sm font-bold  ">
+            Delete Ticket
+          </Button>
+        </div>
         </header>
 
+        {/* Ticket Header Info & Badges */}
         <section className="mb-10">
           <div className="flex gap-2.5 mb-5">
             <span className="bg-[#153444] text-[#81D4FA] text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-              High Priority
+              {ticket.priority} Priority
             </span>
             <span className="bg-[#1E3A2E] text-[#66BB6A] text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-              Open
+              {ticket.status}
             </span>
+            {ticket.categoryName && (
+              <span className="bg-gray-800 text-gray-300 text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
+                {ticket.categoryName}
+              </span>
+            )}
           </div>
-          <div className="flex items-start justify-between">
+          
+          <div className="flex items-start justify-between gap-6">
             <div>
-              <h2 className="text-5xl font-extrabold text-white">Ticket #8421</h2>
-              <p className="text-gray-500 mt-2 text-base">Created on Oct 24, 2023 at 2:45 PM</p>
+              <div className='flex items-center justify-start gap-4 '>
+                <span className="text-gray-500 text-lg font-mono block mb-1">Ticket #{ticket.ticketId || ticket.id}</span>
+              <p className="bg-slate-600  text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-sky-600 transition shrink-0">
+              {ticket.assignedToId ? `Assigned To: ${ticket.assignedToName}` : 'Assign Agent'}
+            </p>
+              </div>
+              <h2 className="text-4xl font-black text-white tracking-tight leading-tight">{ticket.title}</h2>
+              <p className="text-gray-500 mt-2 text-sm">Created on {formattedDate}</p>
+            
             </div>
-            <button className="bg-[#00A3FF] text-white px-8 py-3 rounded-full text-base font-semibold hover:bg-blue-600 transition">
-              Assign Agent
-            </button>
+            
           </div>
         </section>
 
-        <section className="bg-[#111821] border border-gray-800 rounded-3xl p-10 flex items-center gap-10 mb-10">
-          <img
-            src="https://randomuser.me/api/portraits/men/32.jpg"
-            alt="Customer profile"
-            className="w-48 h-48 rounded-full border-4 border-gray-800 object-cover"
-          />
-          <div className="flex-1 space-y-6">
+        {/* Customer Profile Section */}
+        <section className="bg-[#111821] border border-gray-800 w-fit rounded-3xl p-10 flex items-center justify-between gap-10 mb-10">
+          <div className="space-y-6 flex-1">
             <div>
               <p className="text-[#00A3FF] text-xs font-bold tracking-widest uppercase mb-1.5">
-                Customer Profile
+                Created By
               </p>
-              <h3 className="text-3xl font-extrabold text-white">John Doe</h3>
-              <p className="text-yellow-400 text-sm mt-1.5 flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 bg-yellow-400 rounded-sm"></span> Gold Tier Member • Since 2021
+              <h3 className="text-3xl font-extrabold text-white">{ticket.userName}</h3>
+              <p className="text-gray-400 text-sm mt-1.5">
+                Department: <span className="text-white font-semibold">{ticket.department || 'N/A'}</span>
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-gray-300 text-base">
+            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-gray-300 text-sm">
               <div className="flex items-center gap-3">
-                <span className="text-xl">✉</span>
-                <span>john.doe@example.com</span>
+                <span className="text-lg text-gray-500">✉</span>
+                <span>{ticket.userEmail}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xl">📞</span>
-                <span>+1 (555) 0123-4567</span>
-              </div>
+              {ticket.location && (
+                <div className="flex items-center gap-3">
+                  
+                  <span>{ticket.location}</span>
+                </div>
+              )}
             </div>
           </div>
-          <button className="bg-[#151D29] border border-gray-800 rounded-xl px-6 py-2.5 text-sm font-semibold hover:bg-gray-800 flex items-center gap-2">
-            View Profile <span>↗</span>
-          </button>
+          
         </section>
 
+        {/* Content Body Grid */}
         <div className="grid grid-cols-3 gap-10">
+          
+          {/* Main Content Area (Left Column) */}
           <section className="col-span-2 space-y-10">
-            <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
-              <div className="flex items-center gap-3 mb-8">
-                <span className="text-2xl text-[#00A3FF]">📄</span>
-                <h4 className="text-xl font-bold text-white uppercase tracking-wider">Issue Description</h4>
+            
+            {/* Primary Ticket Description Box */}
+            <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10 space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-800/60">
+                
+                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Issue Description</h4>
               </div>
-              <p className="text-gray-300 leading-relaxed mb-8 text-base">
-                The user is reporting a persistent sync error when attempting to connect the mobile application with the desktop dashboard. This occurs primarily on iOS devices running version 15.4 or higher.
-              </p>
-              <p className="text-gray-300 mb-4 text-base">Steps to reproduce:</p>
-              <ul className="list-decimal list-inside space-y-3.5 text-gray-300 text-base">
-                <li>Open mobile app on iOS 15.4+</li>
-                <li>Navigate to 'Sync Settings'</li>
-                <li>Tap 'Connect to Desktop'</li>
-                <li>Scan QR code from desktop app</li>
-                <li>Result: "Error 504: Handshake Failed"</li>
-              </ul>
-              <div className="flex gap-3 mt-10">
-                {['#ios-issue', '#sync-error', '#mobile-app'].map(tag => (
-                  <span key={tag} className="text-gray-600 text-[10px] font-bold uppercase tracking-widest">
-                    {tag}
-                  </span>
-                ))}
+              <div className="text-gray-200 text-base leading-relaxed bg-[#151D29]/40 p-6 rounded-2xl border border-gray-800/50 whitespace-pre-line min-h-[150px]">
+                {ticket.description || <span className="text-gray-500 italic">No description provided.</span>}
               </div>
             </div>
 
-            <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
-              <div className="flex items-center gap-3 mb-8">
-                <span className="text-2xl text-[#00A3FF]">📎</span>
-                <h4 className="text-xl font-bold text-white uppercase tracking-wider">Attachments (2)</h4>
+            {/* Images / Attachments Section */}
+            {ticket.images && ticket.images.length > 0 && (
+              <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
+                <div className="flex items-center gap-3 mb-8">
+                  <span className="text-2xl text-[#00A3FF]">📎</span>
+                  <h4 className="text-xl font-bold text-white uppercase tracking-wider">Attachments ({ticket.images.length})</h4>
+                </div>
+                <div className="flex flex-wrap gap-5">
+                  {ticket.images.map((img, index) => (
+                    <div key={index} className="w-40 h-40 bg-[#151D29] border border-gray-800 rounded-xl overflow-hidden group cursor-pointer hover:border-[#1E88E5] transition">
+                      <img src={img} alt={`Attachment ${index + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-5">
-                {[
-                  { name: 'SCREENSHOT_1.PNG', icon: '🖼' },
-                  { name: 'LOG_REPORT.TXT', icon: '📄' }
-                ].map(file => (
-                  <div key={file.name} className="w-40 h-40 bg-[#151D29] border border-gray-800 rounded-xl p-5 flex flex-col items-center justify-center gap-4 group cursor-pointer hover:border-[#1E88E5]">
-                    <span className="text-5xl text-gray-600 group-hover:text-[#1E88E5]">{file.icon}</span>
-                    <p className="text-gray-500 text-xs text-center font-mono break-all">{file.name}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            )}
           </section>
 
+          {/* Sidebar Area (Right Column) */}
           <aside className="space-y-10">
+            
+            {/* Ticket Stats */}
             <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
               <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Ticket Stats</h4>
               <div className="space-y-5 text-base">
-                {[
-                  { label: 'Time Open', value: '4h 22m' },
-                  { label: 'Assigned To', value: 'Unassigned', isAgent: true },
-                  { label: 'Source', value: 'Mobile App' }
-                ].map(stat => (
-                  <div key={stat.label} className="flex justify-between items-center pb-5 border-b border-gray-800/60 last:border-b-0 last:pb-0">
-                    <span className="text-gray-500">{stat.label}</span>
-                    <span className={`text-white font-semibold flex items-center gap-2 ${stat.isAgent ? 'text-gray-500 font-normal' : ''}`}>
-                      {stat.isAgent && <div className="w-7 h-7 bg-gray-700 rounded-full flex items-center justify-center text-[10px] text-gray-500">UA</div>}
-                      {stat.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <button className="w-full mt-10 bg-transparent border-2 border-dashed border-gray-800 text-gray-500 py-3 rounded-xl text-sm font-semibold hover:border-blue-800 hover:text-white transition">
-                Modify Ticket
-              </button>
-            </div>
-
-            <div className="bg-[#111821] border border-gray-800 rounded-3xl p-8 border-l-4 border-l-[#1E88E5]">
-              <div className="flex gap-3">
-                <span className="text-2xl text-[#1E88E5]">ⓘ</span>
-                <div className="space-y-2">
-                  <h4 className="text-sm font-bold text-white uppercase tracking-wider">Internal Note</h4>
-                  <p className="text-gray-400 text-base font-mono leading-relaxed">
-                    "Known issue on v15.4. Check server-side logs for session handshake timeouts."
-                  </p>
+                <div className="flex justify-between items-center pb-5 border-b border-gray-800/60">
+                  <span className="text-gray-500">Assigned To</span>
+                  <span className={`text-white font-semibold flex items-center gap-2 ${!ticket.assignedToId ? 'text-gray-500 font-normal' : ''}`}>
+                    {!ticket.assignedToId && <div className="w-7 h-7 bg-gray-700 rounded-full flex items-center justify-center text-[10px] text-gray-400 font-bold">UA</div>}
+                    {ticket.assignedToName}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pb-5 border-b border-gray-800/60">
+                  <span className="text-gray-500">Category</span>
+                  <span className="text-white font-semibold">{ticket.categoryName || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500">Last Update</span>
+                  <span className="text-white font-semibold text-sm">
+                    {new Date(ticket.updatedAt).toLocaleDateString('en-US')}
+                  </span>
                 </div>
               </div>
+             
             </div>
+
+            {/* Admin Notes */}
+            {ticket.adminNotes && (
+              <div className="bg-[#111821] border border-gray-800 rounded-3xl p-8 border-l-4 border-l-[#1E88E5]">
+                <div className="flex gap-3">
+                  <span className="text-2xl text-[#1E88E5]">ⓘ</span>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">Admin Notes</h4>
+                    <p className="text-gray-400 text-base font-mono leading-relaxed">
+                      "{ticket.adminNotes}" 
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </aside>
+          
         </div>
       </div>
     </div>

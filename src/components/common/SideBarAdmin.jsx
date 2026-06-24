@@ -206,12 +206,30 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           isActive={location.pathname.startsWith("/main/system")}
           />
           <SidebarItem 
+          path={"/main/flow"}
+          label="IVR Builder and Flows"
+          isActive={location.pathname.startsWith("/main/flow")}
+          />
+          <SidebarItem 
           path={"/main/workengine"}
           label="Workflow Rules"
           isActive={location.pathname.startsWith("/main/workengine")}
           />
-
-          <SidebarItem label="Performance" />
+          <SidebarItem 
+          path={"/main/performance"}
+          label="Agents Performance"
+          isActive={location.pathname.startsWith("/main/performance")}
+          />
+          <SidebarItem 
+          path={"/main/monitory"}
+          label="Monitoring"
+          isActive={location.pathname.startsWith("/main/monitory")}
+          />
+          <SidebarItem 
+          path={"/main/audit"}
+          label="Auditing Logs"
+          isActive={location.pathname.startsWith("/main/audit")}
+          />
         </nav>
 
         {/* Bottom Actions */}
