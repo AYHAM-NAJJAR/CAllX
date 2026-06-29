@@ -65,13 +65,19 @@ export const getflows= "/ivr/flows"
 export const updateflow= "/ivr/flows/"
 export const deleteflow = "/ivr/flows/"
 //*  —————————————————————————————————————————— *//
-
 //* IVR + Node *//
 //! (MENU  + TRANSFER + HANGUP+ VOCEMAIL) NODE !//
 export const menuenode= "/ivr/flows/"
 export const transfernode= "/ivr/flows/"
 export const hangupnode= "/ivr/flows/"
+export const voicenode= "/ivr/flows/"
+export const updatenode= "/ivr/nodes/"
+//*  —————————————————————————————————————————— *//
 
+//* Tenants Management *//
+export const alltenants= "/tenants"
+export const createtenant= "/tenants"
+export const updatetenant= "/tenants/"
 
 //*  —————————————————————————————————————————— *//
 // ** ENDPOINTS END ** //

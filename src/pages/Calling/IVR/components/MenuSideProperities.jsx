@@ -106,7 +106,7 @@ export default function MenuSideProperties({
    * لا تحذف هذا الكود.
    * سنحتاجه لاحقاً عند تفعيل إدارة الخيارات من جديد.
    */
-  /*
+  
   const addOption = () => {
     const newOption = {
       id: Date.now().toString(),
@@ -126,7 +126,7 @@ export default function MenuSideProperties({
       options: data.options.filter((_, i) => i !== index),
     });
   };
-  */
+  
 
   return (
     <div className='p-8'>
@@ -238,26 +238,7 @@ export default function MenuSideProperties({
       </div>
 
       <div className="mt-4">
-        {/*
-          ========================================
-          OPTIONS SECTION
-          ========================================
-
-          لا تحذف هذا الجزء.
-
-          حالياً تم تعطيله لأن:
-          - Create Node لا يحتاج options.
-          - options سيتم إرسالها لاحقاً عبر Update API.
-
-          عند تنفيذ Save Flow:
-          1. نقرأ edges.
-          2. نحول UUID => dbId.
-          3. نبني options.
-          4. نستدعي Update Node.
-
-        */}
-
-        {/*
+       
         <button
           type="button"
           onClick={addOption}
@@ -310,7 +291,7 @@ export default function MenuSideProperties({
             </button>
           </div>
         ))}
-        */}
+        
       </div>
     </div>
   );

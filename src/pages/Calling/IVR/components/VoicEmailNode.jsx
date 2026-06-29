@@ -16,6 +16,9 @@ export default function VoicEmailNode({ data, toggleProperties }) {
       onClick={() => toggleProperties()}
       className="bg-slate-900 p-4 rounded-xl border-2 border-purple-500 min-w-[220px] text-white shadow-lg cursor-pointer hover:border-purple-400 transition-all"
     >
+      
+      <Handle type="target" position={Position.Left} />
+
       {audioUrl && <audio ref={audioRef} src={audioUrl} />}
 
       <div className="flex items-center justify-between mb-3 text-purple-400">
@@ -35,7 +38,13 @@ export default function VoicEmailNode({ data, toggleProperties }) {
         "{promptText || "Please leave a message"}"
       </p>
 
-      <Handle type="target" position={Position.Left} />
+      {/* مقبض الخروج الجديد لإكمال المسار */}
+      <Handle 
+        type="source" 
+        position={Position.Right} 
+        id="next-node" 
+        style={{ background: '#a855f7' }} 
+      />
     </div>
   );
 }

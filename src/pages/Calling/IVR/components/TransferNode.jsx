@@ -56,7 +56,7 @@ export default function TransferNode({ data, toggleProperties }) {
         "{promptText || "No prompt"}"
       </p>
 
-      {/* نقطة الاتصال بالـ Flow */}
+      
       <Handle type="target" position={Position.Left} />
       <Handle type="source" position={Position.Right} />
     </div>

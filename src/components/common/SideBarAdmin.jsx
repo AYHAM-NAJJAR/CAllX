@@ -206,6 +206,11 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           isActive={location.pathname.startsWith("/main/system")}
           />
           <SidebarItem 
+          path={"/main/tenants"}
+          label="Tenants Management"
+          isActive={location.pathname.startsWith("/main/tenants")}
+          />
+          <SidebarItem 
           path={"/main/flow"}
           label="IVR Builder and Flows"
           isActive={location.pathname.startsWith("/main/flow")}

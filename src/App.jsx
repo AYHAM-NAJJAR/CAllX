@@ -44,6 +44,7 @@ import AllFlows from "./pages/Calling/IVR/AllFlows";
 import AgentsPerformance from "./pages/performance/AgentsPerformance";
 import Monitory from "./pages/monitoring/Monitory";
 import AuditLogs from "./pages/monitoring/AuditLogs";
+import ShowAllTenants from "./pages/Tenants/ShowAllTenants";
 Modal.setAppElement('#root');
 
 function App() {
@@ -135,6 +136,7 @@ function App() {
                 
               </Route>
             </Route>
+            <Route path="tenants" element={<ShowAllTenants/>}></Route>
             <Route path="performance" element={<AgentsPerformance/>}></Route>
             <Route path="monitory" element={<Monitory/>}></Route>
             <Route path="audit" element={<AuditLogs/>}></Route>
