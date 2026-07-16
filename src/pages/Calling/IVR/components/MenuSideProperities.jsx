@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { FileAudio, Trash2 } from 'lucide-react';
+import { FileAudio, Loader2, Trash2 } from 'lucide-react';
 import Button from '../../../../components/common/Button';
 import { createMenueNode } from '../../../../services/call/IVR/Node/CreateMenuNode';
+import { uploadAudioService } from '../../../../services/call/IVR/audio/UploadAudioPromptFile';
 
 export default function MenuSideProperties({
   node,
@@ -9,6 +10,7 @@ export default function MenuSideProperties({
   flowId,
 }) {
   const [data, setData] = useState(node.data);
+  const [isUploading, setIsUploading] = useState(false);
   const token = localStorage.getItem('Token');
 
   const updateNodeData = (newData) => {
@@ -31,6 +33,42 @@ export default function MenuSideProperties({
   useEffect(() => {
     console.log("😁DATA CHANGED", data);
   }, [data]);
+
+    // دالة التعامل مع رفع الملف الصوتي
+  const handleAudioChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // التحقق من الصيغة المطلوبة (.mp3 أو .wav)
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav'];
+    if (!allowedTypes.includes(file.type) && !file.name.endsWith('.mp3') && !file.name.endsWith('.wav')) {
+      alert('Please select a valid audio track (.mp3 or .wav format)');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      // استدعاء خدمة الرفع
+      const uploadedUrl = await uploadAudioService(file, token);
+
+      if (uploadedUrl) {
+        console.log('🎵 Audio uploaded successfully:', uploadedUrl);
+        // حفظ الـ URL الحقيقي القادم من السيرفر في الـ Node Data
+        updateNodeData({
+          ...data,
+          audioUrl: uploadedUrl,
+        });
+      } else {
+        alert('Failed to upload audio. Please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+
   async function handleCreateMenueNode() {
     const payload = {
       type: 'MENU',
@@ -164,25 +202,22 @@ export default function MenuSideProperties({
 
         <input
           type="file"
-          accept="audio/*"
-          onChange={(e) => {
-            const file = e.target.files[0];
-
-            if (file) {
-              updateNodeData({
-                ...data,
-                audioUrl: URL.createObjectURL(file),
-              });
-            }
-          }}
+          accept=".mp3, .wav" 
+          onChange={handleAudioChange}
+          disabled={isUploading}
           className="w-full text-sm text-slate-400 file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:bg-sky-900 file:text-sky-200"
         />
-
-        {data.audioUrl && (
+        {isUploading && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-amber-400 animate-pulse">
+            <Loader2 size={14} className="animate-spin" />
+            Uploading audio to server...
+          </div>
+        )}
+        {data.audioUrl && !isUploading && (
           <div className="mt-2 flex items-center justify-between bg-slate-800 p-2 rounded text-xs text-sky-400">
-            <span className="flex items-center gap-2">
+            <span className="flex items-center gap-2 truncate max-w-[80%]">
               <FileAudio size={14} />
-              Audio attached
+              <span className="truncate">{data.audioUrl}</span>
             </span>
 
             <button
@@ -192,6 +227,7 @@ export default function MenuSideProperties({
                   audioUrl: null,
                 })
               }
+              className="text-red-400 hover:text-red-300"
             >
               <Trash2 size={14} />
             </button>

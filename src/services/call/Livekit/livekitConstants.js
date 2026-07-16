@@ -15,7 +15,8 @@ export const CALL_STATUS = {
 
   // --- حالات داخلية للفرونت إند لإدارة الـ UI بسلاسة ---
   IDLE: "IDLE",                           // الوضع الافتراضي (انتظار مكالمات)
-  CONNECTING_TO_ROOM: "CONNECTING_TO_ROOM" // مرحلة الربط بسيرفر LiveKit بعد الـ ACCEPTED وقبل بث الصوت
+  CONNECTING_TO_ROOM: "CONNECTING_TO_ROOM",// مرحلة الربط بسيرفر LiveKit بعد الـ ACCEPTED وقبل بث الصوت
+  CONNECTED: "ACCEPTED"
 };
 
 export const DEFAULT_ROOM_OPTIONS = {

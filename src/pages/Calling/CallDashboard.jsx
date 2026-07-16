@@ -96,7 +96,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCall } from '../../context/Call/CallContext';
 import { CALL_STATUS } from '../../services/call/Livekit/livekitConstants';
-
+import Button from '../../components/common/Button';
 const AgentTerminal = () => {
   const {
     incomingCalls,
@@ -118,7 +118,7 @@ const AgentTerminal = () => {
   
   // 2. حالات التحكم المحلية
   const [queueId, setQueueId] = useState('1');
-  const [agentIdentity, setAgentIdentity] = useState('ayhamagent@gmail.com'); 
+  const [agentIdentity, setAgentIdentity] = useState('ahm55aldddi@gmail.com'); 
   const [logs, setLogs] = useState(['في انتظار بدء الاتصال بالمحرك...']);
 
   const addLog = (message) => {
@@ -162,7 +162,12 @@ const AgentTerminal = () => {
     // تم التحديث: تفعيل اتجاه RTL للنصوص العربية وتنسيقات الهوامش المتوافقة مع Tailwind
     <div className="min-h-screen bg-gray-900 text-gray-300 p-8 font-sans animate-fade-in" dir="rtl">
       <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg shadow-2xl p-6 border border-gray-700">
-        
+        <Button
+        path={"/main/calling/makecall"}
+        className='text-xs bg-cyan-950 text-cyan-400 px-3 py-1 rounded border border-cyan-800 font-mono'
+        >
+          Make call
+        </Button>
         {/* العناوين الرئيسية */}
         <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
           <h1 className="text-2xl font-bold text-cyan-400">لوحة تحكم ومحاكاة محرك الوكيل (Agent Terminal)</h1>

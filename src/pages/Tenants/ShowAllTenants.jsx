@@ -10,6 +10,7 @@ import LoadingCircle from '../../components/common/LoadingCircle';
 import LoadingError from '../../components/common/LoadingError';
 import CreateTenantModal from './Modal/CreateTenantModal';
 import { updateTenant } from '../../services/Tenants/updateTenant';
+import CreateAdminTenant from './Modal/CreateAdminTenant';
 
 
 function ShowAllTenants() {
@@ -17,6 +18,7 @@ function ShowAllTenants() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalAdminOpen, setIsModalAdminOpen] = useState(false);
   const token = localStorage.getItem("Token");
 
 
@@ -67,7 +69,11 @@ function ShowAllTenants() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={refreshFlows} 
       />
-        
+          <CreateAdminTenant
+        isOpen={isModalAdminOpen}
+        onClose={() => setIsModalAdminOpen(false)}
+        onSuccess={refreshFlows} 
+      />
         
       <div className="max-w-6xl p-20 mx-auto">
         <div className="flex justify-between items-center mb-8">
@@ -76,12 +82,20 @@ function ShowAllTenants() {
             <p className="text-slate-400">Manage your organization's tenants and their status from here.</p>
         </div>
 
-          <button
+          <div  className='flex gap-2 items-center' >
+            <button
             onClick={() => setIsModalOpen(true)}
             className="bg-customButton text-slate-50 px-6 py-2 rounded-lg font-semibold transition"
           >
             Add New Tenant
           </button>
+          <button
+            onClick={() => setIsModalAdminOpen(true)}
+            className="bg-customButton text-slate-50 px-6 py-2 rounded-lg font-semibold transition"
+          >
+            Create Admin Tenant
+          </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

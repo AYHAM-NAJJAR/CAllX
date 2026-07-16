@@ -45,6 +45,14 @@ import AgentsPerformance from "./pages/performance/AgentsPerformance";
 import Monitory from "./pages/monitoring/Monitory";
 import AuditLogs from "./pages/monitoring/AuditLogs";
 import ShowAllTenants from "./pages/Tenants/ShowAllTenants";
+import MakeCall from "./pages/Calling/MakeCall";
+import WebSocketProvider from "./pages/Calling/provider/WebSocketProvider";
+
+import CustomerDetails from "./pages/Crm/customers/CustomerDetails";
+import GetAllTags from "./pages/Crm/Tags/GetAllTags";
+import ShowAllCampaigns from "./services/CRM/Campaigns/ShowAllCampaigns";
+import Documentation from "./pages/Documentation/Documentation";
+import ShowAllCustomers from "./pages/Crm/customers/ShowAllCustomers";
 Modal.setAppElement('#root');
 
 function App() {
@@ -66,7 +74,7 @@ function App() {
     return <ServiceDown errorCode={errorInfo.code} message={errorInfo.message} />;
   }
   return (
-    
+     <WebSocketProvider>
     <QueryClientProvider client={queryClient}>
       <div dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
         <Routes>
@@ -108,6 +116,7 @@ function App() {
           <Route path="/main" element={<Panel/>}>
             <Route index element={<PermissionGuard requiredPermission=""><MainDashboard/></PermissionGuard>} />
             <Route path="calling" element={<AgentTerminal/>} />
+            <Route path="calling/makecall" element={<MakeCall/>} />
             <Route path="workengine" element={<GetAllWorkFlowEngines/>}>
               <Route path="create" element={<CreateWorkFlowRules/>} />
               <Route path="details/:id" element={<WorkFlowDetail/>} />
@@ -140,12 +149,21 @@ function App() {
             <Route path="performance" element={<AgentsPerformance/>}></Route>
             <Route path="monitory" element={<Monitory/>}></Route>
             <Route path="audit" element={<AuditLogs/>}></Route>
-            <Route path="profile" element={<Profile/>} />
+            <Route path="customers" element={<ShowAllCustomers/>}>
+              <Route path="details/:id" element={<CustomerDetails/>} />
+              <Route path="tags" element={<GetAllTags/>} />
+            </Route>
+             <Route path="campaigns" element={<ShowAllCampaigns/>}>
+              
+            </Route>
+             <Route path="profile" element={<Profile/>} />
+             <Route path="doc" element={<Documentation/>} />
           </Route>
         </Routes>
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
+    </WebSocketProvider>
   );
 }
 export default App;

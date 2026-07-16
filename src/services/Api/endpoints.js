@@ -1,5 +1,4 @@
 export const BASE_URL="https://callx.futxtech.com/api"
-
 export const  SECONDARY_URL="http://153.75.91.83:8080/api"
 
 
@@ -64,14 +63,17 @@ export const createflow= "/ivr/flows"
 export const getflows= "/ivr/flows"
 export const updateflow= "/ivr/flows/"
 export const deleteflow = "/ivr/flows/"
+
 //*  —————————————————————————————————————————— *//
-//* IVR + Node *//
+//* IVR + Node + Audio *//
 //! (MENU  + TRANSFER + HANGUP+ VOCEMAIL) NODE !//
 export const menuenode= "/ivr/flows/"
 export const transfernode= "/ivr/flows/"
 export const hangupnode= "/ivr/flows/"
 export const voicenode= "/ivr/flows/"
 export const updatenode= "/ivr/nodes/"
+export const uploadaudio = "/ivr/audio/upload"
+export const runaudio = "/ivr/audio/static/tenant_1/" 
 //*  —————————————————————————————————————————— *//
 
 //* Tenants Management *//
@@ -80,5 +82,18 @@ export const createtenant= "/tenants"
 export const updatetenant= "/tenants/"
 
 //*  —————————————————————————————————————————— *//
+ //* CRM  *//
+ //? customers
+export const getcustomers = "/v1/crm/customers" 
+export const createcustomer = "/v1/crm/customers" 
+//? tags
+export const createtag = "/v1/crm/tags";
+export const tags = "/v1/crm/tags";
+export const deletetags="/v1/crm/tags/"
+//*  —————————————————————————————————————————— *//
+
+//*  —————————————————————————————————————————— *//
+
+
 // ** ENDPOINTS END ** //
 

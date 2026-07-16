@@ -1,5 +1,8 @@
+import { ChevronDown, Phone, PhoneIncoming, PhoneMissed } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useWS } from "../../pages/Calling/provider/WebSocketProvider";
+import Button from "./Button";
 
 const SidebarItem = ({
   children,
@@ -38,9 +41,45 @@ const SidebarItem = ({
   </Link>
 );
 
+const SidebarDropdown = ({ label, children, activePaths }) => {
+  const location = useLocation();
+  
+  // فحص ذكي: إذا كان المستخدم واقف على صفحة فرعية، تفتح القائمة تلقائياً
+  const isSubItemActive = activePaths.some(path => location.pathname.startsWith(path));
+  const [isOpen, setIsOpen] = React.useState(isSubItemActive);
+
+  return (
+    <div className="flex flex-col">
+      {/* الزر الرئيسي الذي يفتح ويغلق */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center justify-between w-full px-4 py-2 text-gray-400  ${
+          isSubItemActive ? "text-gray-400" : ""
+        }`}
+      >
+        <span className="uppercase tracking-widest px-4 py-2 text-[12px] font-bold">{label}</span>
+       <ChevronDown
+       className={`w-4 h-4 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+       />
+        
+      </button>
+
+      {/* الحاوية الفرعية للروابط مع تأثير حركة ناعم */}
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out pl-4 flex flex-col space-y-1 mt-1 ${
+          isOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
 const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
   const [isclickStatus, setIsClickStatus] = useState(false);
   const location = useLocation();
+  const { isConnected } = useWS();
   // جميع الحالات داخل مصفوفة
   const [statuses, setStatuses] = useState([
     {
@@ -85,6 +124,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
 
+ 
   
   return (
     <>
@@ -178,15 +218,37 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
               ))}
             </div>
           </div>
-
-          {/* Info */}
+              
           
         </div>
 
           }
         {/* Main Navigation */}
         <nav className="flex-1 flex flex-col space-y-2">
-          
+          <div className="flex items-center justify-center">
+            <div className={`rounded-xl p-2 w-fit flex items-center justify-center gap-2 border transition-all duration-300 ${
+            isConnected 
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+              : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+          }`}>
+            {isConnected ? (
+              <>
+                <PhoneIncoming className="animate-pulse" size={16} />
+                <Button  className="text-xs font-semibold tracking-wide uppercase">
+                  Ready to Receive Calls
+                </Button>
+              </>
+            ) : (
+              <>
+                <PhoneMissed className="animate-pulse" size={16} />
+                <span className="text-xs font-semibold tracking-wide uppercase opacity-90">
+                  Out of Service
+                </span>
+              </>
+            )}
+          </div>
+          </div>
+
 
           <SidebarItem 
           path={'/main'}
@@ -220,21 +282,47 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           label="Workflow Rules"
           isActive={location.pathname.startsWith("/main/workengine")}
           />
-          <SidebarItem 
-          path={"/main/performance"}
-          label="Agents Performance"
-          isActive={location.pathname.startsWith("/main/performance")}
-          />
-          <SidebarItem 
-          path={"/main/monitory"}
-          label="Monitoring"
-          isActive={location.pathname.startsWith("/main/monitory")}
-          />
-          <SidebarItem 
-          path={"/main/audit"}
-          label="Auditing Logs"
-          isActive={location.pathname.startsWith("/main/audit")}
-          />
+          
+          <SidebarDropdown 
+            label="Analytical" 
+            activePaths={["/main/performance", "/main/monitory", "/main/audit"]}
+          >
+            <SidebarItem
+              path={"/main/performance"}
+              label="Agents Performance"
+              isActive={location.pathname.startsWith("/main/performance")}
+            />
+            <SidebarItem
+              path={"/main/monitory"}
+              label="Monitoring"
+              isActive={location.pathname.startsWith("/main/monitory")}
+            />
+            <SidebarItem
+              path={"/main/audit"}
+              label="Auditing Logs"
+              isActive={location.pathname.startsWith("/main/audit")}
+            />
+          </SidebarDropdown>
+          <SidebarDropdown 
+            label="CRM Module" 
+            activePaths={["/main/customers", "/main/contacts", "/main/audit"]}
+          >
+            <SidebarItem
+              path={"/main/customers"}
+              label="Customers"
+              isActive={location.pathname.startsWith("/main/customers")}
+            />
+            <SidebarItem
+              path={"/main/contacts"}
+              label="Contacts"
+              isActive={location.pathname.startsWith("/main/contacts")}
+            />
+            <SidebarItem
+              path={"/main/campaigns"}
+              label="Campaigns"
+              isActive={location.pathname.startsWith("/main/campaigns")}
+            />
+          </SidebarDropdown>
         </nav>
 
         {/* Bottom Actions */}
@@ -244,6 +332,12 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           path={'/main/profile'}
           label="My Profile" 
           isActive={location.pathname === "/main/profile"} />
+          <SidebarItem
+          path={'/main/doc'}
+          label="Documentation CAllX" 
+          isBottom={true} 
+          isActive={location.pathname === "/main/doc"} 
+          />
           <SidebarItem label="Logout" isBottom={true} />
         </div>
       </div>
