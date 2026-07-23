@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   define: {
-    // هذا السطر يحل مشكلة sockjs-client تماماً بجعل global يشير إلى window
+    'process.env': {},
     global: 'window', 
   },
 })

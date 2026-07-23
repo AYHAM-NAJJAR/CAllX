@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { CALL_STATUS } from "../../services/call/Livekit/livekitConstants";
-import { endActiveOutboundCall, initiateOutboundCall, startAgentOutboundEngine } from "../../services/realtime/stomp/Stompmake";
+import { endActiveOutboundCall, initiateOutboundCall } from "../../services/realtime/stomp/Stompmake";
+import { useOutboundWS } from "./context/OutboundWSContext";
+
 
 export default function MakeCall() {
-  // 1. حالات المدخلات والاتصال
-  const tokenUse = localStorage.getItem("Token")
-  const [backendUrl, setBackendUrl] = useState("http://153.75.91.83:8080");
-  const [token, setToken] = useState(tokenUse);
-  const [identity, setIdentity] = useState("ayhamagent@gmail.com");
-  const [phoneNumber, setPhoneNumber] = useState("96395589126324");
+  // 1. استدعاء حالة الاتصال مباشرة من الـ Context
+  const { isConnected: isWsConnected } = useOutboundWS();
+  const token = localStorage.getItem("Token");
 
-  // 2. حالات التحكم في الواجهة (UI States)
-  const [isWsConnected, setIsWsConnected] = useState(false);
+  // 2. حالات التحكم في الواجهة (UI States) - أبقينا فقط على رقم الهاتف
+  const [phoneNumber, setPhoneNumber] = useState("+96395589126324");
   const [callState, setCallState] = useState(CALL_STATUS.IDLE); 
   const [currentCallId, setCurrentCallId] = useState(null);
   const [uiMessage, setUiMessage] = useState("");
@@ -42,22 +41,18 @@ export default function MakeCall() {
     return `${m < 10 ? "0" : ""}${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  // 4. دالة التحديث المركزية الذكية والمحمية
+  // 4. دالة التحديث للـ Call الحاصلة (بدون الحاجة لإدارة الـ WebSocket هنا)
   const handleUiUpdate = (update) => {
     console.log("📥 [UI UPDATE TRIGGERED] البيانات المستقبلة في الواجهة:", update);
 
-    if (update.isWsConnected !== undefined) setIsWsConnected(update.isWsConnected);
-    
-    // 🌟 استنتاج الحالة ذكياً لحماية الواجهة من التجمد إذا نسي السيرفر أو دالة الـ Fetch إرسال الـ status
     let inferredStatus = update.status;
     if (!inferredStatus && update.callId && update.room) {
-      inferredStatus = CALL_STATUS.RINGING; // طالما يوجد كائن غرفة ومعرف مكالمة إذن نحن في مرحلة الرنين/الاتصال
+      inferredStatus = CALL_STATUS.RINGING; 
     }
 
     if (inferredStatus) {
       setCallState(inferredStatus);
       
-      // إذا عادت الحالة إلى IDLE، نقوم بإغلاق العداد وتصفير البيانات
       if (inferredStatus === CALL_STATUS.IDLE || inferredStatus === "IDLE") {
         setTimerActive(false);
         setSeconds(0);
@@ -65,29 +60,19 @@ export default function MakeCall() {
       }
     }
     
-    // تحديث المعرف الفريد للمكالمة
     if (update.callId !== undefined) {
       setCurrentCallId(update.callId);
     }
     
     if (update.message) setUiMessage(update.message);
     
-    // تشغيل العداد فور قبول العميل للمكالمة أو وجود إشارة بدء العداد
     if (update.startTimer) {
       setSeconds(0);
       setTimerActive(true);
     }
   };
 
-  // 5. إجراءات أزرار التحكم
-  const handleConnect = () => {
-    if (!token) {
-      alert("الرجاء إدخال رمز JWT أولاً");
-      return;
-    }
-    startAgentOutboundEngine(token, identity, handleUiUpdate);
-  };
-
+  // 5. إجراءات أزرار التحكم بالمكالمة فقط
   const handleCall = () => {
     if (!phoneNumber) {
       alert("الرجاء إدخال رقم هاتف العميل");
@@ -127,73 +112,26 @@ export default function MakeCall() {
         {/* جسم اللوحة */}
         <div className="p-4">
           
-          {/* شريط حالة الاتصال الأساسي */}
+          {/* شريط حالة الاتصال التلقائي المستند للـ Context */}
           <div className="flex items-center gap-2 mb-4 p-2.5 px-3 bg-sky-600 rounded-lg border border-black/5">
             <div className={`w-2.5 h-2.5 rounded-full ${getDotColorClass()}`} />
             <span className="text-xs text-zinc-600 font-medium">
-              {isWsConnected ? `متصل بالخدمة — ${identity}` : "غير متصل بالسيرفر"}
+              {isWsConnected ? "متصل بخدمة الاتصال الصادر (Context)" : "جاري الاتصال بالسيرفر..."}
             </span>
           </div>
 
           <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2 mt-3 block">
-            إعدادات اتصال الخادم
-          </div>
-          
-          {/* حقول الإدخال والتهيئة */}
-          <div className="flex flex-col gap-1.5 mb-3">
-            <label className="text-xs text-zinc-500 font-medium">رابط الباك إند الأساسي</label>
-            <input 
-              type="url" 
-              value={backendUrl} 
-              onChange={(e) => setBackendUrl(e.target.value)} 
-              className="w-full p-2 text-sm bg-sky-600 border border-black/15 rounded-lg outline-none focus:border-[#185FA5] font-mono text-zinc-800 transition-colors text-left" 
-              dir="ltr"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5 mb-3">
-            <label className="text-xs text-zinc-500 font-medium">رمز توثيق العميل (JWT Token)</label>
-            <input 
-              type="text" 
-              value={token} 
-              placeholder="eyJhbGciOiJIUzI1NiJ9..." 
-              onChange={(e) => setToken(e.target.value)} 
-              className="w-full p-2 text-sm bg-sky-600 border border-black/15 rounded-lg outline-none focus:border-[#185FA5] font-mono text-zinc-800 transition-colors text-left" 
-              dir="ltr"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5 mb-3">
-            <label className="text-xs text-zinc-500 font-medium">المعرف النصي الفريد للوكيل (Identity)</label>
-            <input 
-              type="text" 
-              value={identity} 
-              onChange={(e) => setIdentity(e.target.value)} 
-              className="w-full p-2 text-sm bg-sky-600 border border-black/15 rounded-lg outline-none focus:border-[#185FA5] font-mono text-zinc-800 transition-colors text-left" 
-              dir="ltr"
-            />
-          </div>
-
-          <button 
-            onClick={handleConnect} 
-            className="flex items-center justify-center w-full p-2.5 text-sm font-medium rounded-lg text-white bg-sky-600  hover:bg-[#0C447C] transition-all cursor-pointer active:scale-[0.98]"
-          >
-            {isWsConnected ? "إعادة مزامنة الاتصال" : "إنشاء مصافحة الـ WebSocket"}
-          </button>
-
-          <div className="h-px bg-sky-600  my-4.5" />
-          
-          <div className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2 mt-3 block">
             طلب مكالمة جديدة
           </div>
 
+          {/* حقل إدخال رقم الهاتف فقط */}
           <div className="flex flex-col gap-1.5 mb-3">
             <label className="text-xs text-zinc-500 font-medium">رقم هاتف العميل المستهدف</label>
             <input 
               type="text" 
               value={phoneNumber} 
               onChange={(e) => setPhoneNumber(e.target.value)} 
-              className="w-full p-2  bg-sky-600  text-sm bg-sky-600border border-black/15 rounded-lg outline-none focus:border-[#185FA5] font-mono text-zinc-800 transition-colors text-left" 
+              className="w-full p-2 text-sm bg-sky-600 border border-black/15 rounded-lg outline-none focus:border-[#185FA5] font-mono text-zinc-800 transition-colors text-left" 
               dir="ltr"
             />
           </div>
@@ -201,14 +139,14 @@ export default function MakeCall() {
           <button 
             onClick={handleCall} 
             disabled={!isWsConnected || (callState !== CALL_STATUS.IDLE && callState !== "IDLE")}
-            className="flex items-center justify-center w-full p-2.5 text-sm font-medium rounded-lg border border-black/15 bg-sky-600  hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none transition-all cursor-pointer active:scale-[0.98]"
+            className="flex items-center justify-center w-full p-2.5 text-sm font-medium rounded-lg border border-black/15 bg-sky-600 hover:bg-zinc-50 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none transition-all cursor-pointer active:scale-[0.98]"
           >
             📞 إرسال طلب المكالمة الصادرة
           </button>
 
           {/* بطاقة المكالمة الديناميكية المحمية من التعليق */}
           {(callState === CALL_STATUS.RINGING || callState === "RINGING" || callState === "CONNECTED" || callState === CALL_STATUS.CONNECTED) && (
-            <div className="bg-sky-600border border-black/10 rounded-lg p-4 mt-4 text-center">
+            <div className="bg-sky-600 border border-black/10 rounded-lg p-4 mt-4 text-center">
               <div className="text-[11px] text-zinc-400 uppercase tracking-widest mb-1.5 font-semibold">
                 {(callState === CALL_STATUS.RINGING || callState === "RINGING") ? "جاري الاتصال والرنين عند العميل..." : "المكالمة متصلة الآن"}
               </div>
@@ -223,7 +161,7 @@ export default function MakeCall() {
               
               <button 
                 onClick={handleHangUp} 
-                className="flex items-center justify-center w-full p-2.5 text-sm font-medium rounded-lg text-[#791F1F] bg-sky-600  border border-[#A32D2D] hover:bg-[#fbdada] transition-all cursor-pointer mt-3"
+                className="flex items-center justify-center w-full p-2.5 text-sm font-medium rounded-lg text-[#791F1F] bg-sky-600 border border-[#A32D2D] hover:bg-[#fbdada] transition-all cursor-pointer mt-3"
               >
                 إنهاء الجلسة وفصل الخط 🛑
               </button>
@@ -232,7 +170,7 @@ export default function MakeCall() {
 
           {/* صندوق الإشعارات السفلي اللحظي */}
           {uiMessage && (
-            <div className="mt-3 p-2.5 bg-sky-600  text-[#633806] rounded-md text-xs font-medium border border-amber-200/40">
+            <div className="mt-3 p-2.5 bg-sky-600 text-[#633806] rounded-md text-xs font-medium border border-amber-200/40">
               ℹ️ {uiMessage}
             </div>
           )}

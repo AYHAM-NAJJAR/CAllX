@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
-import { User, Shield, Mail, Key, Globe, CheckCircle } from 'lucide-react'; 
+import { User, Shield, Mail, Key, CheckCircle, PhoneIncoming, PhoneMissed, PhoneOutgoing } from 'lucide-react'; 
+import { useCall } from '../../context/Call/CallContext';
+import { useOutboundWS } from '../Calling/context/OutboundWSContext';
 
 const Profile = () => {
-    // Safely retrieve user data synchronously during state initialization
-    const [user, setUser] = useState(() => {
+    const { wsStatus, callStatus, activeCall } = useCall();
+      
+    // استدعاء حالة الاتصال الخاصة بالـ Outbound
+    const { isConnected: isOutboundConnected } = useOutboundWS();
+      
+    // تحديد ما إذا كان الوارد متصلاً بنجاح (مع WebSocket)
+    const isConnected = wsStatus === "Connected";
+
+    const [user] = useState(() => {
         const storedUser = localStorage.getItem("user");
         return storedUser ? JSON.parse(storedUser) : null;
     });
 
     // Safely retrieve permissions data synchronously during state initialization
-    const [permissions, setPermissions] = useState(() => {
+    const [permissions] = useState(() => {
         const storedPermissions = localStorage.getItem("permissions");
         return storedPermissions ? JSON.parse(storedPermissions) : [];
     });
@@ -31,14 +40,66 @@ const Profile = () => {
             <div className="w-full max-w-4xl space-y-8">
                 
                 {/* Page Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800/80 pb-5 gap-4">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-slate-800/80 pb-5 gap-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-white">Profile</h1>
                         <p className="text-sm text-slate-400 mt-1">Manage your account information and access permissions</p>
                     </div>
-                    <button className="bg-[#0D9EF2] hover:bg-[#0b8ad3] text-white font-medium px-5 py-2.5 rounded-lg transition-colors duration-200 text-sm shadow-lg shadow-[#0D9EF2]/20 flex items-center gap-2">
-                        Edit Profile
-                    </button>
+
+                    {/* حاوية مؤشرات الاتصال (الوارد والصادر) بجانب بعضهما */}
+                    <div className="flex flex-row items-center justify-end gap-2 w-full lg:w-auto">
+                        
+                        {/* مؤشر الاتصال الوارد (Inbound) */}
+                        <div className="flex items-center w-36 sm:w-40 justify-center">
+                            <div className={`w-full py-2 px-2 rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-300 ${
+                            isConnected 
+                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                                : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                            }`}>
+                            {isConnected ? (
+                                <>
+                                <PhoneIncoming className="animate-pulse shrink-0" size={14} />
+                                <span className="text-[10px] font-bold tracking-tight uppercase truncate">
+                                    {activeCall ? `In Call (${callStatus})` : "Ready to recieve call"}
+                                </span>
+                                </>
+                            ) : (
+                                <>
+                                <PhoneMissed className="animate-pulse shrink-0" size={14} />
+                                <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
+                                    {wsStatus || "Offline"}
+                                </span>
+                                </>
+                            )}
+                            </div>
+                        </div>
+
+                        {/* مؤشر الاتصال الصادر (Outbound) */}
+                        <div className="flex items-center w-36 sm:w-40 justify-center">
+                            <div className={`w-full py-2 px-2 rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-300 ${
+                            isOutboundConnected 
+                                ? "bg-sky-500/10 border-sky-500/20 text-sky-400" 
+                                : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                            }`}>
+                            {isOutboundConnected ? (
+                                <>
+                                <PhoneOutgoing className="animate-pulse shrink-0" size={14} />
+                                <span className="text-[10px] font-bold tracking-tight uppercase truncate">
+                                  Ready to Make  call
+                                </span>
+                                </>
+                            ) : (
+                                <>
+                                <PhoneMissed className="animate-pulse shrink-0" size={14} />
+                                <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
+                                    Out Offline
+                                </span>
+                                </>
+                            )}
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
                 {/* Main Grid Layout */}
@@ -55,7 +116,7 @@ const Profile = () => {
                             <span className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-[#101B22] rounded-full"></span>
                         </div>
                         
-                        <h2 className="text-xl font-semibold text-white mt-4">{user.firstName}{user.lastName}</h2>
+                        <h2 className="text-xl font-semibold text-white mt-4">{user.firstName} {user.lastName}</h2>
                         <span className="text-xs bg-[#0F172A] text-[#0D9EF2] border border-[#0D9EF2]/20 px-3 py-1 rounded-full mt-2 font-medium">
                             {user.type || "Software Engineer"}
                         </span>
@@ -88,7 +149,7 @@ const Profile = () => {
                                 <div>
                                     <label className="text-slate-500 block mb-1.5">Full Name</label>
                                     <div className="bg-[#0F172A] p-3 rounded-lg border border-slate-800 text-slate-300">
-                                        {user.firstName}{user.lastName}
+                                        {user.firstName} {user.lastName}
                                     </div>
                                 </div>
                                 <div>
@@ -96,12 +157,6 @@ const Profile = () => {
                                     <div className="bg-[#0F172A] p-3 rounded-lg border border-slate-800 text-slate-300">
                                         {user.email}
                                     </div>
-                                </div>
-                                <div>
-                                   
-                                </div>
-                                <div>
-                                  
                                 </div>
                             </div>
                         </div>
@@ -139,5 +194,7 @@ const Profile = () => {
         </div>
     );
 };
+
+Profile.displayName = "Profile";
 
 export default Profile;

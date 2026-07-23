@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Users, Loader2, AlertCircle } from "lucide-react";
 import { Tooltip } from "react-tooltip";
@@ -22,10 +22,14 @@ const ShowAllCustomers = () => {
     refetch
   } = useCustomers(token);
   console.log(Customers);
-  // 1. منطق تصفية العملاء بناءً على التبويب المحدد
+  
  
-
-  // إذا كنا في مسار فرعي (تفاصيل أو تاغات)، اعرض الـ Outlet فوراً
+  useEffect(() => {
+    if (!isSubRoute) {
+      refetch(); 
+    }
+  }, [isSubRoute, refetch]);
+ 
   if (isSubRoute) {
     return <Outlet />;
   }

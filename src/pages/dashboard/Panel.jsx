@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import SidBarAgent from '../../components/private/agent/SidBarAgent'
 import { Outlet } from 'react-router-dom'
 import SidBarAdmin from '../../components/common/SideBarAdmin';
+import FloatingAgentTerminal from '../Calling/FloatingAgentTerminal';
+
 
 function Panel() {
   // الحالة الافتراضية: true ليظهر السايد بار عند التحميل
@@ -33,6 +35,8 @@ function Panel() {
       <div className='flex-1 h-full overflow-y-auto custom-scrollbar bg-primary'>
         <Outlet context={{ toggleSidebar, showSidebar }} />
       </div>
+      {/* المكون العائم يراقب المحرك من الأعلى ويفلت فوق جميع الصفحات */}
+      <FloatingAgentTerminal/>
     </div>
   )
 }

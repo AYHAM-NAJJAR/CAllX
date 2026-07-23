@@ -4,7 +4,7 @@ import {
   startAgentInboundEngine,
   acceptIncomingCall,
   terminateOrRejectCall
-} from "../../services/realtime/stomp/stopm"; // تم التأكد من الاسم المعياري stomp
+} from "../../services/realtime/stomp/stopm";
 
 import { toggleMicrophone } from "../../services/call/Livekit/livekitService";
 import { CALL_STATUS } from "../../services/call/Livekit/livekitConstants";
@@ -18,13 +18,9 @@ export const CallProvider = ({ children }) => {
   const [callStatus, setCallStatus] = useState(CALL_STATUS.IDLE);
   const [isMuted, setIsMuted] = useState(false);
   const [wsStatus, setWsStatus] = useState("Disconnected");
-  const [agentEmail, setAgentEmail] = useState(""); // تخزين الهوية داخلياً لتغذية أوامر الحركة
+  const [agentEmail, setAgentEmail] = useState("");
 
-  /**
-   * دالة تهيئة المحرك واستقبال الأحداث العامة من الـ WebSocket
-   */
   const initInboundEngine = (token, queueId, email) => {
-    // حفظ بريد الوكيل في الـ State لاستخدامه في أزرار القبول والإنهاء
     setAgentEmail(email);
 
     startAgentInboundEngine(
@@ -43,31 +39,25 @@ export const CallProvider = ({ children }) => {
 
         console.log(`[Context Event]: ${message} -> Status: ${status}`);
 
-        // 1. تحديث حالة اتصال الـ WebSocket
         if (isWsConnected === true) setWsStatus("Connected");
         if (isWsConnected === false) setWsStatus("Disconnected");
 
-        // 2. تحديث الحالة العامة للمكالمة في الـ UI
         if (status) {
           setCallStatus(status);
         }
 
-        // 3. تخزين الـ Room الخاص بـ LiveKit عند الاتصال بنجاح
+        // تم الإصلاح: تحديث الحالة إلى CONNECTED لتفعيل المايك في الواجهة
         if (livekitRoom) {
           setRoom(livekitRoom);
+          setCallStatus(CALL_STATUS.CONNECTED); 
         }
 
-        // 4. التعامل مع حالة الرنين الوارد (RINGING)
         if (status === CALL_STATUS.RINGING) {
-          const newCall = {
-            callId,
-            callerIdentity,
-            status
-          };
+          const newCall = { callId, callerIdentity, status };
           addIncomingCall(newCall);
         }
 
-        // 5. التنظيف الشامل عند إنهاء المكالمة من أي طرف أو فشلها
+        // التنظيف الشامل إذا فصل العميل
         if (
           [
             CALL_STATUS.DISCONNECTED,
@@ -78,46 +68,38 @@ export const CallProvider = ({ children }) => {
             CALL_STATUS.MISSED
           ].includes(status)
         ) {
-          const idToRemove = callId || activeCall?.callId;
-          if (idToRemove) {
-            removeIncomingCall(idToRemove);
-          }
           resetCallState();
         }
       }
     );
   };
 
-  /**
-   * دالة قبول المكالمة (Accept Call)
-   */
   const handleAcceptCall = async (callId) => {
     const targetCall = incomingCalls.find((c) => c.callId === callId) || { callId };
 
     setActiveCall(targetCall);
     removeIncomingCall(callId);
+    setCallStatus(CALL_STATUS.CONNECTING_TO_ROOM);
 
-    // تم الإصلاح: تمرير الـ agentEmail المحفوظ كمعامل ثانٍ ليتوافق مع توقيع المحرك المحدث
     await acceptIncomingCall(callId, agentEmail, (uiUpdate) => {
       if (uiUpdate.status) {
         setCallStatus(uiUpdate.status);
       }
 
+      // تم الإصلاح: تفعيل حالة الاتصال عند استلام الغرفة
       if (uiUpdate.room) {
         setRoom(uiUpdate.room);
+        setCallStatus(CALL_STATUS.CONNECTED);
       }
 
-      if ([CALL_STATUS.FAILED, CALL_STATUS.DISCONNECTED].includes(uiUpdate.status)) {
+      // تنظيف الشاشة إذا فشل الاتصال أو فصل أثناء الرد
+      if ([CALL_STATUS.FAILED, CALL_STATUS.DISCONNECTED, CALL_STATUS.ENDED, CALL_STATUS.CANCELLED].includes(uiUpdate.status)) {
         resetCallState();
       }
     });
   };
 
-  /**
-   * دالة إنهاء المكالمة النشطة أو رفضها (Hang Up / Reject)
-   */
   const handleEndOrRejectCall = async () => {
-    // تم الإصلاح: تمرير الـ agentEmail كمعامل أول للمحرك ليتطابق مع بنية السيرفر المحدثة
     await terminateOrRejectCall(agentEmail, (uiUpdate) => {
       if (uiUpdate.status) {
         setCallStatus(uiUpdate.status);
@@ -126,21 +108,17 @@ export const CallProvider = ({ children }) => {
     });
   };
 
-  /**
-   * دالة التحكم بكتم الصوت (Mute / Unmute)
-   */
   const handleToggleMute = async () => {
     if (!room) return;
 
     const nextMuteState = !isMuted;
-    await toggleMicrophone(room, !nextMuteState); // true تعني الميكروفون مفتوح، false تعني مكتوم
+    await toggleMicrophone(room, !nextMuteState);
     setIsMuted(nextMuteState);
   };
 
   const addIncomingCall = (call) => {
     setIncomingCalls((prev) => {
-      const exists = prev.some((c) => c.callId === call.callId);
-      if (exists) return prev;
+      if (prev.some((c) => c.callId === call.callId)) return prev;
       return [...prev, call];
     });
   };
@@ -149,12 +127,17 @@ export const CallProvider = ({ children }) => {
     setIncomingCalls((prev) => prev.filter((c) => c.callId !== callId));
   };
 
-  const resetCallState = () => {
+  // تم الإصلاح: مسح جميع المكالمات المعلقة لضمان اختفاء الواجهة
+ const resetCallState = () => {
     setActiveCall(null);
     setRoom(null);
     setIsMuted(false);
-    setCallStatus(CALL_STATUS.IDLE);
-  };
+    setIncomingCalls([]); 
+    setCallStatus(CALL_STATUS.IDLE); // تأكد أن هذه تغير الحالة في الـ State
+    
+    // إضافي: فرض إعادة تصيير (Re-render) للواجهة إذا لزم الأمر
+    console.log("UI Reset: All states cleared");
+};
 
   const value = {
     incomingCalls,

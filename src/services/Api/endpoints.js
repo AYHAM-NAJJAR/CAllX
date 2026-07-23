@@ -1,5 +1,6 @@
 export const BASE_URL="https://callx.futxtech.com/api"
 export const  SECONDARY_URL="http://153.75.91.83:8080/api"
+export const  LIVEKIT_URL="ws://153.75.91.83:7880"
 
 
 
@@ -86,10 +87,31 @@ export const updatetenant= "/tenants/"
  //? customers
 export const getcustomers = "/v1/crm/customers" 
 export const createcustomer = "/v1/crm/customers" 
+export const customerprofile = "/v1/crm/customers/" 
+export const assigntag= "/v1/crm/customers/"
+export const deletecustomer= "/v1/crm/customers/"
+export const getagents = "/admin/users/filter"
+export const removetag = "/v1/crm/customers/"
+export const getonecustomer = "/v1/crm/customers/"
+export const updatecustomer = "/v1/crm/customers/"
+export const updatecustomernotes = "/v1/crm/customers/"
 //? tags
 export const createtag = "/v1/crm/tags";
 export const tags = "/v1/crm/tags";
 export const deletetags="/v1/crm/tags/"
+//?campaigns
+export const getcampaigns="/v1/crm/campaigns"
+export const deletecampaign="/v1/crm/campaigns/"
+export const createcampaign ="/v1/crm/campaigns"
+export const getonecampaign= "/v1/crm/campaigns/"
+export const updatecampaign= "/v1/crm/campaigns/"
+//?leads 
+export const createlead = "/v1/crm/leads"
+export const getleads = "/v1/crm/leads"
+export const getonelead="/v1/crm/leads/"
+export const updatelead = "/v1/crm/leads/"
+export const deletelead = "/v1/crm/leads/"
+export const convertlead = "/v1/crm/leads/"
 //*  —————————————————————————————————————————— *//
 
 //*  —————————————————————————————————————————— *//

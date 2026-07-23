@@ -221,9 +221,10 @@ const connectAgentToAudioRoom = async (livekitToken, onUiUpdate) => {
   try {
     currentRoom = initializeRoom();
 
-    // سجل الأحداث أولاً
+    
     currentRoom.on("participantConnected", (participant) => {
-      console.log("👤 participantConnected:", participant.identity);
+      // console.log(" participantConnected:", participant.identity);
+      console.log("👤",participant);
     });
 
     currentRoom.on("trackSubscribed", async (track, publication, participant) => {

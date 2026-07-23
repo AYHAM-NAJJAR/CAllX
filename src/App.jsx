@@ -32,11 +32,11 @@ import Profile from "./pages/profile/Profile";
 import GetAllRoles from "./pages/Roles&Permissions/GetAllRoles";
 import AllFields from "./pages/Ticketing/AllFields";
 import AllInActiveFields from "./pages/Ticketing/AllInActiveFields";
-import CallDashboard from "./pages/Calling/CallDashboard";
+import CallDashboard from "./pages/Calling/FloatingAgentTerminal";
 import CreateWorkFlowRules from "./pages/workflowEngine/CreateWorkFlowRules";
 import GetAllWorkFlowEngines from "./pages/workflowEngine/GetAllWorkFlowEngines";
 import WorkFlowDetail from "./pages/workflowEngine/WorkFlowDetail";
-import AgentTerminal from "./pages/Calling/CallDashboard";
+import AgentTerminal from "./pages/Calling/FloatingAgentTerminal";
 import MainPerformance from "./pages/performance/AgentsPerformance";
 import SystemStats from "./pages/dashboard/SystemStats";
 import TicketDetails from "./pages/Ticketing/Ticket Details";
@@ -46,13 +46,15 @@ import Monitory from "./pages/monitoring/Monitory";
 import AuditLogs from "./pages/monitoring/AuditLogs";
 import ShowAllTenants from "./pages/Tenants/ShowAllTenants";
 import MakeCall from "./pages/Calling/MakeCall";
-import WebSocketProvider from "./pages/Calling/provider/WebSocketProvider";
+
 
 import CustomerDetails from "./pages/Crm/customers/CustomerDetails";
 import GetAllTags from "./pages/Crm/Tags/GetAllTags";
-import ShowAllCampaigns from "./services/CRM/Campaigns/ShowAllCampaigns";
+import ShowAllCampaigns from "./pages/Crm/Campaigns/ShowAllCampaigns";
 import Documentation from "./pages/Documentation/Documentation";
 import ShowAllCustomers from "./pages/Crm/customers/ShowAllCustomers";
+import GetLeads from "./pages/Crm/leads/GetLeads";
+import CallRoom from "./pages/Calling/CallRoom";
 Modal.setAppElement('#root');
 
 function App() {
@@ -74,7 +76,7 @@ function App() {
     return <ServiceDown errorCode={errorInfo.code} message={errorInfo.message} />;
   }
   return (
-     <WebSocketProvider>
+     
     <QueryClientProvider client={queryClient}>
       <div dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
         <Routes>
@@ -116,6 +118,7 @@ function App() {
           <Route path="/main" element={<Panel/>}>
             <Route index element={<PermissionGuard requiredPermission=""><MainDashboard/></PermissionGuard>} />
             <Route path="calling" element={<AgentTerminal/>} />
+            <Route path="call-room" element={<CallRoom/>} />
             <Route path="calling/makecall" element={<MakeCall/>} />
             <Route path="workengine" element={<GetAllWorkFlowEngines/>}>
               <Route path="create" element={<CreateWorkFlowRules/>} />
@@ -153,9 +156,8 @@ function App() {
               <Route path="details/:id" element={<CustomerDetails/>} />
               <Route path="tags" element={<GetAllTags/>} />
             </Route>
-             <Route path="campaigns" element={<ShowAllCampaigns/>}>
-              
-            </Route>
+             <Route path="campaigns" element={<ShowAllCampaigns/>}/>
+             <Route path="leads" element={<GetLeads/>}/>
              <Route path="profile" element={<Profile/>} />
              <Route path="doc" element={<Documentation/>} />
           </Route>
@@ -163,7 +165,7 @@ function App() {
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-    </WebSocketProvider>
+  
   );
 }
 export default App;

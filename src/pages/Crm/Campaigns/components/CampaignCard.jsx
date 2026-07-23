@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '../../../../components/common/Button'; // تأكد من صحة مسار الاستيراد لديك
 
-function CampaignCard({ campaign, onDelete }) {
+function CampaignCard({ campaign, onDelete ,onUpdate }) {
   // دالة لمساندة تنسيق النصوص مثل تحويل COLD_CALL إلى Cold Call
   const formatText = (text) => text?.replace('_', ' ')?.toLowerCase();
 
@@ -58,12 +58,20 @@ function CampaignCard({ campaign, onDelete }) {
         </div>
         
         {/* زر الحذف المنسق */}
-        <Button 
+       <div className='flex items-center justify-between gap-2'>
+         <Button 
           onClick={onDelete}
           className="bg-red-500/10 hover:bg-red-600 border border-red-500/20 hover:border-red-600 text-red-400 hover:text-white px-4 py-1.5 text-xs font-bold rounded-full transition duration-200"
         >
           Delete
         </Button>
+        <Button 
+          onClick={onUpdate}
+          className="bg-customButton hover:bg-sky-400 border border-red-500/20  text-white  px-4 py-1.5 text-xs font-bold rounded-full transition duration-200"
+        >
+          Edit
+        </Button>
+       </div>
       </div>
        
     </div>

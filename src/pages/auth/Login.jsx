@@ -44,7 +44,8 @@ const Login = () => {
             autoClose: 3000,
             className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
           });
-        GO("/department");
+        // GO("/department");
+        GO("/main");
         
       }
      

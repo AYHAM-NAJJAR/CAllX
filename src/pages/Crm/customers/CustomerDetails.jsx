@@ -1,65 +1,193 @@
-import React, {useState } from 'react';
-import {useNavigate } from 'react-router-dom';
-
+import React, { useCallback, useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { PhoneCall, Copy, Check, Mail } from 'lucide-react'; // 👈 استيراد أيقونات الاتصال
 
 import Button from '../../../components/common/Button';
 import UpdateCustomerModal from './Modal/UpdateCustomerModal';
+import { GetCustomerProfile } from '../../../services/CRM/Customers/GetCustomerProfile';
+import AssignTagModal from './Modal/AssignTagModal';
+import { deleteCustomer } from '../../../services/CRM/Customers/deleteCustomer';
+import { deleteCustomerTag } from '../../../services/CRM/Customers/deleteCustomerTag'; 
+import { toast } from 'react-toastify';
+import { getOneCustomer } from '../../../services/CRM/Customers/getOneCustomer';
+import { updateCustomerNotes } from '../../../services/CRM/Customers/updateCustomerNotes';
 
 const CustomerDetails = () => {
-//   const { id } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
- 
-  const [isOpenModalUpdateTicket, setIsOpenModalUpdateTicket] = useState(false);
-//   const [isOpenModalDeleteTicket, setIsOpenModalDeleteTicket] = useState(false);
+  // States
+  const [customer, setCustomer] = useState(null);
+  const [oneCustomer, setOneCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [isOpenModalUpdateCustomer, setIsOpenModalUpdateCustomer] = useState(false);
+  const [isOpenModalCreateTag, setIsOpenModalCreateTag] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState('');
+  
+  const token = localStorage.getItem('Token'); 
+  const [isSavingNotes, setIsSavingNotes] = useState(false); // 👈 تم إصلاح التعريف هنا
+  const [copiedPhone, setCopiedPhone] = useState(false); // حالة نسخ الرقم
 
-  // 2. دمج البيانات الثابتة (Mock Data) وتجهيزها لتناسب التصميم والريسبونس المطلوب
-  const [ticket] = useState({
-    id: 101,
-    ticketId: "101",
-    title: "Enterprise Subscription Renewal Support", // عنوان افتراضي للتناسب مع التصميم
-    description: "The customer is requesting an urgent review of their subscription renewal terms for Q3. They require custom onboarding support as part of their VIP status benefits.", // وصف افتراضي
-    name: "Layla Haddad", // الاسم من الريسبونس الخاص بك
-    userName: "Layla Haddad", 
-    userEmail: "layla.haddad@enterprise.com",
-    type: "VIP", // النوع من الريسبونس
-    priority: "High", 
-    status: "Active", // الحالة من الريسبونس
-    ownerAgentId: 7, // معرف الوكيل المسؤول من الريسبونس
-    assignedToId: 7,
-    assignedToName: "Agent #7",
-    categoryName: "Subscription",
-    department: "Customer Success",
-    location: "Beirut, Lebanon",
-    tagNames: ["High Value", "Renewal Q3"], // الوسوم من الريسبونس
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    adminNotes: "VIP client. Ensure quick resolution and coordinate with the account manager.",
-    images: [] // مصفوفة المرفقات
-  });
+  const refreshCustomerDetails = useCallback(async () => {
+    if (!token || !id) return;
+    try {
+      setLoading(true);
+      setError(false);
+      
+      const data = await GetCustomerProfile(token, id);
+      setCustomer(data); 
+      setNotesValue(data.notes || '');
+    } catch (err) {
+      setError(true);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, id]);
 
-  // حساب التاريخ المنسق للعرض
-  const formattedDate = new Date(ticket.createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  useEffect(() => {
+    refreshCustomerDetails();
+  }, [refreshCustomerDetails]);
+
+  const refreshCustomerById = useCallback(async () => {
+    if (!token || !id) return;
+    try {
+      setLoading(true);
+      setError(false);
+      
+      const data = await getOneCustomer(token, id);
+      setOneCustomer(data); 
+    } catch (err) {
+      setError(true);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, id]);
+
+  useEffect(() => {
+    refreshCustomerById();
+  }, [refreshCustomerById]);
+
+  useEffect(() => {
+    if (customer) {
+      setNotesValue(customer.notes || '');
+    }
+  }, [customer]);
+
+  const handleDeleteCustomer = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this customer? This action cannot be undone.");
+    if (!confirmDelete) return;
+
+    try {
+      setLoading(true); 
+      const response = await deleteCustomer(id, token);
+
+      if (response && (response.success || response.status === 200 || response.status === 204)) {
+        toast.success(response.message || "Customer deleted successfully", {
+          position: "top-left",
+          autoClose: 3000,
+          className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
+        });
+        
+        navigate("/main/customers");
+      } else {
+        toast.error(response?.message || "Failed to delete customer");
+      }
+    } catch (err) {
+      console.error("Failed to delete customer:", err);
+      toast.error(err.response?.data?.message || "Error connecting to server while deleting");
+    } finally {
+      setLoading(false); 
+    }
+  };
+
+  const handleDeleteTag = async (tagId, tagName) => {
+    const confirmTagDelete = window.confirm(`Are you sure you want to remove the tag "${tagName}"?`);
+    if (!confirmTagDelete) return;
+
+    try {
+      await deleteCustomerTag(id, tagId, token);
+
+      toast.success(`Tag "${tagName}" removed successfully`, {
+        position: "top-left",
+        autoClose: 2000,
+        className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
+      });
+
+      refreshCustomerDetails(); 
+    } catch (err) {
+      console.error("Failed to delete tag:", err);
+      toast.error(err.response?.data?.message || "Error occurred while deleting the tag");
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    try {
+      setIsSavingNotes(true);
+      await updateCustomerNotes(id, notesValue, token);
+      toast.success("Notes updated successfully");
+      setIsEditingNotes(false);
+      refreshCustomerDetails();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update notes");
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
+
+  // 👈 دالة التعامل مع نسخ رقم الهاتف
+  const handleCopyPhone = (phone) => {
+    if (!phone) return;
+    navigator.clipboard.writeText(phone);
+    setCopiedPhone(true);
+    toast.info("Phone number copied!", { autoClose: 1500, position: 'top-center' });
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-primary flex items-center justify-center text-white">
+        <p className="text-xl font-semibold animate-pulse">Loading customer details...</p>
+      </div>
+    );
+  }
+
+  if (error || !customer) {
+    return (
+      <div className="min-h-screen bg-primary flex flex-col items-center justify-center text-white gap-4">
+        <p className="text-xl text-red-400">Failed to load customer details.</p>
+        <Button onClick={() => navigate("/main/customers")} className="bg-gray-800 px-6 py-2 rounded-full text-sm">
+          Back to List
+        </Button>
+      </div>
+    );
+  }
+
+  const primaryContact = customer.contacts?.find(c => c.isPrimary) || customer.contacts?.[0];
+  
+  // 👈 استخدام oneCustomer.phoneNumber كالمصدر الأساسي للرقم
+  const phoneNumber = oneCustomer?.phoneNumber || customer.phoneNumber || primaryContact?.phoneNumber;
 
   return (
     <div className="min-h-screen bg-primary text-gray-200 font-sans">
-     
+      
+      {/* Modals */}
       <UpdateCustomerModal
-        data={ticket} 
-        isOpen={isOpenModalUpdateTicket} 
-        onClose={() => setIsOpenModalUpdateTicket(false)}
+        data={oneCustomer} 
+        isOpen={isOpenModalUpdateCustomer} 
+        onClose={() => setIsOpenModalUpdateCustomer(false)}
+        onSuccess={refreshCustomerDetails} 
       />
-      {/* 
-     
-      <DeleteTicketModal 
-        data={ticket}  
-        isOpen={isOpenModalDeleteTicket} 
-        onClose={() => setIsOpenModalDeleteTicket(false)}
-      /> */}
+      <AssignTagModal
+        isOpen={isOpenModalCreateTag} 
+        onClose={() => setIsOpenModalCreateTag(false)}
+        customerId={id}
+        onSuccess={refreshCustomerDetails}
+      />
 
       <div className="container mx-auto px-10 py-12">
         
@@ -70,167 +198,243 @@ const CustomerDetails = () => {
           </div>
           <div className="flex items-center gap-3">
             <Button
-              onClick={() => navigate("/main/customers")}
-              className="bg-[#151D29] border border-gray-800 rounded-full ease-in transition-colors px-6 py-2.5 text-sm font-semibold hover:bg-gray-800"
+              onClick={() => setIsOpenModalCreateTag(true)}
+              className="bg-sky-800 rounded-full ease-in transition-colors px-6 py-2.5 text-sm font-semibold hover:bg-sky-600 text-white"
             >
-              Back to List
+              Add Tag
             </Button>
             <Button
-              onClick={() => setIsOpenModalUpdateTicket(true)}
+              onClick={() => setIsOpenModalUpdateCustomer(true)}
               className="rounded-full bg-customButton hover:bg-sky-400 ease-in transition-colors px-6 py-2.5 text-sm font-bold text-white"
             >
-              Edit Customers details
+              Edit Customer
             </Button>
             <Button
-            //   onClick={() => setIsOpenModalDeleteTicket(true)}
-              className="rounded-full text-white bg-red-400 hover:bg-red-600 ease-in transition-colors px-6 py-2.5 text-sm font-bold"
+              onClick={handleDeleteCustomer}
+              className="rounded-full text-white bg-red-500 hover:bg-red-600 ease-in transition-colors px-6 py-2.5 text-sm font-bold"
             >
-              Delete Customers
+              Delete Customer
             </Button>
           </div>
         </header>
 
-        {/* Ticket Header Info & Badges */}
+        {/* Customer Header Info & Badges */}
         <section className="mb-10">
           <div className="flex flex-wrap gap-2.5 mb-5">
-            {/* عرض شارة VIP / النوع */}
             <span className="bg-[#153444] text-[#81D4FA] text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-              {ticket.type} Status
+              {customer.type}
             </span>
-            {/* عرض الحالة */}
             <span className="bg-[#1E3A2E] text-[#66BB6A] text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-              {ticket.status}
+              {customer.status}
             </span>
-            {/* عرض وسوم tagNames القادمة من الريسبونس */}
-            {ticket.tagNames && ticket.tagNames.map((tag, idx) => (
-              <span key={idx} className="bg-gray-800 text-gray-300 text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-                {tag}
-              </span>
+            
+            {customer.tags && customer.tags.map((tag, idx) => (
+              <Button 
+                onClick={() => handleDeleteTag(tag.id || tag, tag.name || tag)}
+                key={idx} 
+                className="bg-gray-800 hover:bg-red-950/40 hover:text-red-400 group flex items-center gap-1.5 transition-all text-gray-300 text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider"
+                title="Click to remove tag"
+              >
+                <span>{tag.name || tag}</span>
+                <span className="text-gray-500 group-hover:text-red-400 font-normal ml-0.5">×</span>
+              </Button>
             ))}
           </div>
           
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
             <div>
               <div className="flex items-center justify-start gap-4">
                 <span className="text-gray-500 text-lg font-mono block mb-1">
-                  Ticket #{ticket.id}
+                  Customer ID #{customer.id}
                 </span>
-                <p className="bg-slate-600 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-sky-600 transition shrink-0">
-                  {ticket.ownerAgentId ? `Assigned Agent ID: ${ticket.ownerAgentId}` : 'Assign Agent'}
+                <p className="bg-slate-600 text-white px-3 py-1 rounded-full text-sm font-semibold shrink-0">
+                  {customer.ownerAgentName ? `Assigned Agent: ${customer.ownerAgentName}` : 'No Agent Assigned'}
                 </p>
               </div>
-              <h2 className="text-4xl font-black text-white tracking-tight leading-tight">
-                {ticket.title}
+              <h2 className="text-4xl font-black text-white tracking-tight leading-tight mt-1">
+                {customer.name}
               </h2>
-              <p className="text-gray-500 mt-2 text-sm">Created on {formattedDate}</p>
+              {customer.originatingCampaignName && (
+                <p className="text-gray-500 mt-2 text-sm">
+                  Campaign: <span className="text-gray-300 font-medium">{customer.originatingCampaignName}</span>
+                </p>
+              )}
             </div>
+            
+            {/* 📞 CALL CENTER QUICK CONTACT BAR - التصميم المنسق والصحيح */}
+            <div className="bg-[#111821] border border-[#0D9EF2]/40 p-4 rounded-2xl flex flex-wrap sm:flex-nowrap items-center gap-4  hover:border-green-500 transition-all duration-300">
+              <div className="w-12 h-12 rounded-xl bg-[#0D9EF2]/10 border border-[#0D9EF2]/30 flex items-center justify-center text-[#0D9EF2] shrink-0">
+                <PhoneCall size={24} className="animate-pulse" />
+              </div>
+              
+              <div className="flex-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-0.5">
+                  Direct Line
+                </span>
+                <p className="text-xl font-mono font-bold text-white tracking-wider">
+                  {phoneNumber || "No Phone"}
+                </p>
+              </div>
+
+              {phoneNumber && (
+                <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                  <button
+                    onClick={() => handleCopyPhone(phoneNumber)}
+                    title="Copy Phone Number"
+                    className="p-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition-all border border-gray-700 active:scale-95 flex items-center justify-center"
+                  >
+                    {copiedPhone ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
+                  </button>
+                  <a
+                    href={`tel:${phoneNumber}`}
+                    className="flex-1 sm:flex-none justify-center bg-green-500 hover:bg-green-600 text-white font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 transition-all  active:scale-95"
+                  >
+                    <PhoneCall size={16} />
+                    <span>Call Now</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
           </div>
         </section>
 
-        {/* Customer Profile Section */}
-        <section className="bg-[#111821] border border-gray-800 w-fit rounded-3xl p-10 flex items-center justify-between gap-10 mb-10">
+        {/* Primary Contact Section */}
+        <section className="bg-[#111821] border border-gray-800 w-fit rounded-3xl p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-10 mb-10">
           <div className="space-y-6 flex-1">
             <div>
               <p className="text-[#00A3FF] text-xs font-bold tracking-widest uppercase mb-1.5">
-                Created By
+                Primary Contact
               </p>
-              <h3 className="text-3xl font-extrabold text-white">{ticket.name}</h3>
-              <p className="text-gray-400 text-sm mt-1.5">
-                Department: <span className="text-white font-semibold">{ticket.department || 'N/A'}</span>
-              </p>
+              <h3 className="text-3xl font-extrabold text-white">
+                {primaryContact ? `${primaryContact.firstName} ${primaryContact.lastName}` : 'N/A'}
+              </h3>
             </div>
-            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-gray-300 text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-gray-300 text-sm">
               <div className="flex items-center gap-3">
-                <span className="text-lg text-gray-500">✉</span>
-                <span>{ticket.userEmail}</span>
+                <Mail size={18} className="text-gray-500 shrink-0" />
+                <span>{primaryContact?.email || 'No Email'}</span>
               </div>
-              {ticket.location && (
-                <div className="flex items-center gap-3">
-                  <span className="text-lg text-gray-500">📍</span>
-                  <span>{ticket.location}</span>
+              <div className="flex items-center gap-3">
+                <PhoneCall size={18} className="text-gray-500 shrink-0" />
+                <span className="font-mono">{phoneNumber || 'No Phone'}</span>
+              </div>
+              {customer.totalOpportunityValue !== undefined && (
+                <div className="flex items-center gap-3 md:col-span-2">
+                  <span className="text-lg text-gray-500">💰</span>
+                  <span>Total Opportunity: <strong className="text-emerald-400">${customer.totalOpportunityValue.toLocaleString()}</strong></span>
                 </div>
               )}
             </div>
           </div>
         </section>
 
-        {/* Content Body Grid */}
-        <div className="grid grid-cols-3 gap-10">
-          
-          {/* Main Content Area (Left Column) */}
-          <section className="col-span-2 space-y-10">
-            
-            {/* Primary Ticket Description Box */}
+        {/* Main Grid Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <section className="lg:col-span-2 space-y-10">
+            {/* Notes Section */}
             <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10 space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-gray-800/60">
-                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Issue Description</h4>
+              <div className="flex items-center justify-between pb-4 border-b border-gray-800/60">
+                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Customer Notes</h4>
+                <Button
+                  onClick={() => isEditingNotes ? handleSaveNotes() : setIsEditingNotes(true)}
+                  disabled={isSavingNotes}
+                  className={`${isEditingNotes ? 'bg-emerald-600' : 'bg-customButton'} hover:opacity-80 transition-all text-gray-300 text-[10px] font-bold px-4 py-1.5 rounded uppercase tracking-wider`}
+                >
+                  {isSavingNotes ? 'Saving...' : isEditingNotes ? 'Save' : 'Edit'}
+                </Button>
               </div>
-              <div className="text-gray-200 text-base leading-relaxed bg-[#151D29]/40 p-6 rounded-2xl border border-gray-800/50 whitespace-pre-line min-h-[150px]">
-                {ticket.description || <span className="text-gray-500 italic">No description provided.</span>}
-              </div>
+              
+              {isEditingNotes ? (
+                <textarea
+                  value={notesValue}
+                  onChange={(e) => setNotesValue(e.target.value)}
+                  className="w-full bg-[#151D29] text-gray-200 p-4 rounded-xl border border-gray-600 focus:outline-none focus:border-sky-500"
+                  rows={5}
+                  autoFocus 
+                />
+              ) : (
+                <div className="text-gray-200 text-base leading-relaxed bg-[#151D29]/40 p-6 rounded-2xl border border-gray-800/50 whitespace-pre-line min-h-[120px]">
+                  {customer.notes || <span className="text-gray-500 italic">No notes provided for this customer.</span>}
+                </div>
+              )}
             </div>
 
-            {/* Images / Attachments Section */}
-            {ticket.images && ticket.images.length > 0 && (
-              <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
-                <div className="flex items-center gap-3 mb-8">
-                  <span className="text-2xl text-[#00A3FF]">📎</span>
-                  <h4 className="text-xl font-bold text-white uppercase tracking-wider">Attachments ({ticket.images.length})</h4>
-                </div>
-                <div className="flex flex-wrap gap-5">
-                  {ticket.images.map((img, index) => (
-                    <div key={index} className="w-40 h-40 bg-[#151D29] border border-gray-800 rounded-xl overflow-hidden group cursor-pointer hover:border-[#1E88E5] transition">
-                      <img src={img} alt={`Attachment ${index + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+            {/* Interactions History */}
+            <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10 space-y-6">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-800/60">
+                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Interactions History</h4>
+              </div>
+              {customer.interactions && customer.interactions.length > 0 ? (
+                <div className="space-y-4">
+                  {customer.interactions.map((interaction) => (
+                    <div key={interaction.id} className="bg-[#151D29]/60 border border-gray-800 p-5 rounded-2xl flex justify-between items-center">
+                      <div>
+                        <span className="bg-blue-500/20 text-blue-400 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider mr-3">
+                          {interaction.type}
+                        </span>
+                        <span className="text-gray-400 text-xs">Ref: {interaction.externalRefId}</span>
+                        <p className="text-gray-300 mt-2 text-sm">
+                          Conducted by: <span className="text-white font-medium">{interaction.agentName}</span>
+                        </p>
+                      </div>
+                      <span className="text-gray-500 text-xs font-mono">
+                        {new Date(interaction.occurredAt).toLocaleString('en-US')}
+                      </span>
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              ) : (
+                <p className="text-gray-500 italic">No interactions recorded.</p>
+              )}
+            </div>
           </section>
 
-          {/* Sidebar Area (Right Column) */}
+          {/* Sidebar */}
           <aside className="space-y-10">
-            
-            {/* Ticket Stats */}
             <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Ticket Stats</h4>
-              <div className="space-y-5 text-base">
-                <div className="flex justify-between items-center pb-5 border-b border-gray-800/60">
-                  <span className="text-gray-500">Assigned To</span>
-                  <span className={`text-white font-semibold flex items-center gap-2 ${!ticket.assignedToId ? 'text-gray-500 font-normal' : ''}`}>
-                    {!ticket.assignedToId && <div className="w-7 h-7 bg-gray-700 rounded-full flex items-center justify-center text-[10px] text-gray-400 font-bold">UA</div>}
-                    Agent #{ticket.ownerAgentId}
-                  </span>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Active Opportunities</h4>
+              {customer.opportunities && customer.opportunities.length > 0 ? (
+                <div className="space-y-5">
+                  {customer.opportunities.map((opp) => (
+                    <div key={opp.id} className="pb-5 border-b border-gray-800/60 last:border-b-0 last:pb-0">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="bg-emerald-500/10 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-full">
+                          {opp.stageName}
+                        </span>
+                        <span className="text-white font-bold text-lg">
+                          ${opp.value.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>Expected Close</span>
+                        <span>{new Date(opp.expectedCloseDate).toLocaleDateString('en-US')}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between items-center pb-5 border-b border-gray-800/60">
-                  <span className="text-gray-500">Category</span>
-                  <span className="text-white font-semibold">{ticket.categoryName || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Last Update</span>
-                  <span className="text-white font-semibold text-sm">
-                    {new Date(ticket.updatedAt).toLocaleDateString('en-US')}
-                  </span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-gray-500 italic text-sm">No opportunities available.</p>
+              )}
             </div>
 
-            {/* Admin Notes */}
-            {ticket.adminNotes && (
+            {customer.originatingCampaignName && (
               <div className="bg-[#111821] border border-gray-800 rounded-3xl p-8 border-l-4 border-l-[#1E88E5]">
                 <div className="flex gap-3">
-                  <span className="text-2xl text-[#1E88E5]">ⓘ</span>
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">Admin Notes</h4>
-                    <p className="text-gray-400 text-base font-mono leading-relaxed">
-                      "{ticket.adminNotes}" 
+                  <span className="text-2xl text-[#1E88E5]">🎯</span>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">Originating Campaign</h4>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      {customer.originatingCampaignName}
                     </p>
+                    {customer.originatingLeadId && (
+                      <span className="text-[11px] text-gray-500 font-mono block">Lead ID: #{customer.originatingLeadId}</span>
+                    )}
                   </div>
                 </div>
               </div>
             )}
           </aside>
-          
         </div>
       </div>
     </div>

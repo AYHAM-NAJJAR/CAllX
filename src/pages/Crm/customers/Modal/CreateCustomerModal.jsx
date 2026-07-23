@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import Select from 'react-select'; // استيراد الـ Select المخصص
 import Button from '../../../../components/common/Button';
@@ -6,6 +6,7 @@ import LoadingInButton from '../../../../components/common/LoadingInButton';
 import { toast } from 'react-toastify';
 import { createCustomer } from '../../../../services/CRM/Customers/CreateCustomer';
 import { useRoles } from '../../../../hooks/useRoles';
+import { getAgents } from '../../../../services/CRM/Customers/getaAents';
 
 // خيارات الـ Type المحدثة
 const typeOptions = [
@@ -24,11 +25,35 @@ const statusOptions = [
 const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("Token");
-  
+  const [agents, setAgents] = useState([]);
+  const [isAgentsLoading, setIsAgentsLoading] = useState(false);
   // جلب الأدوار من الكاش
   const { data: roles = [], isLoading: isRolesLoading } = useRoles(token);
+  useEffect(() => {
+  const fetchAgents = async () => {
+    if (!isOpen) return; // لا نقوم بالجلب إذا كان المودال مغلقاً
+    setIsAgentsLoading(true);
+    try {
+      const data = await getAgents(token);
+      // نتحقق من أن البيانات عبارة عن مصفوفة قبل تخزينها
+      if (Array.isArray(data)) {
+        setAgents(data);
+      }
+    } catch (error) {
+      toast.error("Failed to load agents.");
+    } finally {
+      setIsAgentsLoading(false);
+    }
+  };
 
-  // تهيئة الـ State بجميع الحقول المطلوبة في الـ Request بدون ديبارتمنت
+  fetchAgents();
+}, [isOpen, token]);
+
+  const agentOptions = agents.map(agent => ({
+    value: agent.id,
+    label: `${agent.firstName} ${agent.lastName}`
+  }));
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -37,7 +62,7 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
     phoneNumber: '',
     userType: 'CUSTOMER',     
     roleIds: [],          // مصفوفة فارغة في البداية لتخزين الـ IDs المختارة
-    ownerAgentId: 87,     
+    ownerAgentId: '',  
     type: 'Individual',   // القيمة الافتراضية
     status: 'Active'      // القيمة الافتراضية
   });
@@ -235,7 +260,22 @@ const CreateCustomerModal = ({ isOpen, onClose, onSuccess }) => {
               />
             </div>
           </div>
-
+            {/* Row 5: Owner Agent Selection */}
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Owner Agent</label>
+                <Select
+                  value={agentOptions.find(opt => opt.value === formData.ownerAgentId) || null}
+                  options={agentOptions}
+                  styles={customStyles}
+                  isLoading={isAgentsLoading}
+                  onChange={(opt) => handleSelectChange(opt, 'ownerAgentId')}
+                  placeholder="Select Owner Agent..."
+                  className="text-sm"
+                  isClearable // يتيح للمستخدم إمكانية إلغاء التحديد وإرجاعه فارغاً
+                />
+              </div>
+            </div>
         </div>
 
         {/* Action Buttons */}

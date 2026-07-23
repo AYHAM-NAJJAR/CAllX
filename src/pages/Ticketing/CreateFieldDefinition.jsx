@@ -109,7 +109,7 @@ const CreateFieldDefinition = ({inSystem}) => {
       autoClose: 3000,
       className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
     });
-    console.log("Field Created:", response);
+    localStorage.removeItem("setup_flow");
   } catch (error) {
     console.error(error);
     toast.error(`${error}`, {
