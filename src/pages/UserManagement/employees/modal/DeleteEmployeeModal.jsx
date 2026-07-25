@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import LoadingCircle from '../../../../components/common/LoadingCircle';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import LoadingInButton from '../../../../components/common/LoadingInButton';
 const DeleteEmployeeModal = ({isOpen,onClose , data}) => {
   const queryClient = useQueryClient();
   const GO =  useNavigate()
@@ -46,7 +47,7 @@ const DeleteEmployeeModal = ({isOpen,onClose , data}) => {
         className="rounded-full text-white  bg-red-400 hover:bg-red-600 ease-in transition-colors   px-6 py-2.5 text-sm font-bold  ">
            {
             loading ? (
-              <LoadingCircle/>
+              <LoadingInButton/>
             ) : (
               <p>Yes , Delete</p>
             )

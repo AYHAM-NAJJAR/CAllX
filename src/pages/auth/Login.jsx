@@ -71,7 +71,7 @@ const Login = () => {
   }
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0B1118] font-sans p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#0B1118] font-sans p-16">
       
       {/* Top Left Logo */}
       <div className="absolute flex items-center gap-2 top-8 left-8">

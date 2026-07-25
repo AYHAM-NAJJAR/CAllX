@@ -3,7 +3,8 @@ import WorkFlowCard from './components/WorkFlowCard';
 import { allRules } from '../../services/workflowEngine/getAllActiveRules';
 import Button from '../../components/common/Button';
 import { Outlet, useLocation } from 'react-router-dom';
-
+import LoadingError from '../../components/common/LoadingError';
+import LoadingCircle from '../../components/common/LoadingCircle';
 const GetAllWorkFlowEngines = () => {
   const [workflows, setWorkflows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,13 @@ const GetAllWorkFlowEngines = () => {
   if (isSubCreate) {
     return <Outlet/>
   }
+   if (loading) {
+    return <LoadingCircle Phrase={"Rules"} />;
+  }
 
+  if (error) {
+    return <LoadingError Phrase={"Rules"} />;
+  }
   return (
     <div className="w-full max-w-6xl mx-auto p-12">
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
@@ -49,17 +56,9 @@ const GetAllWorkFlowEngines = () => {
       </div>
 
       <div>
-        {loading && (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0D9EF2]"></div>
-          </div>
-        )}
+       
 
-        {error && (
-          <div className="bg-red-950/40 border border-red-500/50 text-red-200 p-4 rounded-xl text-center my-6">
-            <p>Error: {error}</p>
-          </div>
-        )}
+        
 
         {!loading && !error && (
           workflows?.length > 0 ? (

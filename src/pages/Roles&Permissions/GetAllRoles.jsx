@@ -55,8 +55,12 @@ function GetAllRoles() {
     // 3. الواجهة الأساسية عند اكتمال جلب البيانات
     return (
         <div className="min-h-screen bg-[#0F172A] text-slate-200 p-6 md:p-12 font-sans flex justify-center items-start">
-            <CreateRoleModal onSuccess={() => refetch()} isOpen={isCreateRoleModalOpen} onClose={setIsCreateRoleModalOpen}  />
-            <div className="w-full max-w-6xl space-y-8">
+        <CreateRoleModal 
+            onSuccess={() => refetch()} 
+            isOpen={isCreateRoleModalOpen} 
+            onClose={() => setIsCreateRoleModalOpen(false)} 
+        />            
+        <div className="w-full max-w-6xl space-y-8">
                 
                 {/* هيدر الصفحة */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800/80 pb-6 gap-4">

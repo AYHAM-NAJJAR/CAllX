@@ -1,11 +1,13 @@
-import { Download } from 'lucide-react';
+import { Download, Menu } from 'lucide-react';
 import React from 'react';
 import Button from '../../components/common/Button';
 import { Tooltip } from 'react-tooltip';
 import { exportAnalyticsPDF } from '../../services/Analytics&Reports/ExportAnalyticsReport(PDF)';
+import { useOutletContext } from 'react-router-dom';
 
 const MainDashboard = () => {
   const token = localStorage.getItem('Token');
+  const { toggleSidebar, showSidebar } = useOutletContext();
   const mockStats = {
     activeRooms: 2,
     totalParticipants: 5,
@@ -36,7 +38,15 @@ const MainDashboard = () => {
   return (
     <div className="min-h-screen bg-[#0F172A] p-10 text-white">
       <div className='flex flex-row items-center justify-between mb-10'>
-        <h1 className="text-2xl font-bold  border-l-4 border-[#0D9EF2] pl-4">Main Dashboard</h1>
+      <div className='flex flex-row items-center  justify-center'>
+          <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-white  hover:text-sky-500 transition-colors duration-300 ease-in"
+        >
+          <Menu size={30} />
+        </Button>
+        <h1 className="text-2xl font-bold ml-2">Main Dashboard</h1>
+      </div>
       <Button
             onClick={handleExportClick}
             dataTooltipId="export-tickets-tooltip"

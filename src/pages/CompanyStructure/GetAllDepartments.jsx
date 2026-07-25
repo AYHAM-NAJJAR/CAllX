@@ -34,7 +34,7 @@ console.log(departments.categories);
   return (
     <div className="bg-[#0F172A] min-h-screen p-8">
       <CreatDepartmentModal onSuccess={() => refetch()}  isOpen={isCreateDepartmentModalOpen} onClose={setIsCreateDepartmentModalOpen} />
-      <div className="flex flex-row items-center justify-between mb-10">
+      <div className="flex flex-col lg:flex-row items-center justify-between mb-10">
           <h1 className="text-white text-3xl font-bold ">Departments List</h1>
           <Button 
           onClick={() => setIsCreateDepartmentModalOpen(true)}

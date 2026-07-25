@@ -20,10 +20,11 @@ export const getallFields = "/ticket-field-definitions/list/all"
 export const getallInActiveFields = "/ticket-field-definitions/list/inactive"
 export const disable = "/ticket-field-definitions/"
 export const activate = "/ticket-field-definitions/"
+export const getone = "/ticket-field-definitions/"
 //*  —————————————————————————————————————————— *//
 //* TICKETING SYSTEM *//
 export const getAllTickets = "/admin/tickets"
-export const createticket= "/tickets"
+export const createticket= "/admin/tickets"
 export const getoneticket= "/admin/tickets/"
 export const updateticket = "/admin/tickets/"
 export const deleteticket = "/admin/tickets/"

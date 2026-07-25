@@ -12,7 +12,7 @@ import { toast } from 'react-toastify';
 import LoadingInButton from '../../../components/common/LoadingInButton';
 // import { updateTicket } from '../../../services/Tickets/UpdateTicket'; 
 
-function UpdateTicketModal({ data, isOpen, onClose }) {
+function UpdateTicketModal({ data, isOpen, onClose ,onSuccess }) {
   const token = localStorage.getItem("Token");
   const [isLoading, setIsLoading] = useState(false);
   
@@ -101,7 +101,8 @@ function UpdateTicketModal({ data, isOpen, onClose }) {
                 autoClose: 3000,
                 className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
         });
-              onClose(true); 
+             if (onSuccess) await onSuccess(); // إعادة جلب البيانات فوراً
+            onClose(false);
       }
       
     } catch (error) {

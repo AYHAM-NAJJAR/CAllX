@@ -5,8 +5,9 @@ import { useEmployees } from '../../../hooks/useEmployees'; // تأكد من ا�
 import LoadingCircle from '../../../components/common/LoadingCircle';
 import EmployeeCard from './components/EmployeeCard';
 import CreateEmployeeModal from './modal/CreateEmployeeModal';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useOutletContext } from 'react-router-dom';
 import LoadingError from '../../../components/common/LoadingError';
+import { Menu } from 'lucide-react';
 
 
 const GetAllEmployees = () => {
@@ -15,7 +16,7 @@ const GetAllEmployees = () => {
     const { data: employees, isLoading, error , refetch} = useEmployees(token);
     const location = useLocation();
     const isSubRoute = location.pathname !== '/main/system/employee' && location.pathname !== '/main/system/employee/';
-  
+    const { toggleSidebar, showSidebar } = useOutletContext();
       if (isLoading) {
     return (
       <LoadingCircle Phrase={"Employess"}/>
@@ -35,20 +36,27 @@ const GetAllEmployees = () => {
     <div className="min-h-screen bg-[#0f172a]  text-white font-sans">
      
       <CreateEmployeeModal onSuccess={() => refetch()} onClose={setIsOpenModalAddEmployee} isOpen={isOpenModalAddEmployee}/>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-semibold">Employees Overview</h1>
-          <p className="text-gray-400 text-sm">Monitoring Your Employees.</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="bg-blue-500 px-6 py-2 rounded-md text-sm font-bold">REPORT</button>
-          <Button 
-          onClick={() => setIsOpenModalAddEmployee(true)}
-          className="bg-[#1e293b] border border-blue-500 px-6 py-2 rounded-md text-sm font-bold text-blue-400">
-            Add Employee
-          </Button>
-        </div>
-      </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+ 
+  <div>
+    <h1 className="text-2xl sm:text-3xl font-semibold text-white">
+      Employees Overview
+    </h1>
+    <p className="text-gray-400 text-xs sm:text-sm mt-1">
+      Monitoring Your Employees.
+    </p>
+  </div>
+
+  {/* الأزرار */}
+  <div className="flex items-center gap-3 w-full sm:w-auto">
+    <Button 
+      onClick={() => setIsOpenModalAddEmployee(true)}
+      className="flex-1 sm:flex-initial bg-[#1e293b] hover:bg-[#2b394e] border border-blue-500 px-4 sm:px-6 py-2.5 rounded-md text-xs sm:text-sm font-bold text-blue-400 transition-colors duration-200"
+    >
+      Add Employee
+    </Button>
+  </div>
+</div>
 
       {/* Stats Summary */}
       <div className="flex gap-4 mb-8">

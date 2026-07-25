@@ -9,19 +9,19 @@ export const useInboundWS = () => useContext(InboundWSContext);
 export default function InboundWSProvider({ children }) {
   const { initInboundEngine } = useCall();
 
-  useEffect(() => {
-    const token = localStorage.getItem("Token");
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!token || !user?.email) return;
+  // useEffect(() => {
+  //   const token = localStorage.getItem("Token");
+  //   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  //   if (!token || !user?.email) return;
 
-    const queueId = "1";
-    const agentIdentity = user.email;
+  //   const queueId = "1";
+  //   const agentIdentity = user.email;
 
     
-    initInboundEngine(token, queueId, agentIdentity);
+  //   initInboundEngine(token, queueId, agentIdentity);
 
    
-  }, []);
+  // }, []);
 
   return (
     <InboundWSContext.Provider value={{}}>

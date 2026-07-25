@@ -1,14 +1,16 @@
 import React from 'react';
 import * as Progress from '@radix-ui/react-progress';
-import { Users, Ticket, AlertTriangle, Layers, Activity, ShieldAlert, Loader2, AlertCircle, BarChart3 } from 'lucide-react';
+import { Users, Ticket, AlertTriangle, Layers, Activity, ShieldAlert, Loader2, AlertCircle, BarChart3, Menu } from 'lucide-react';
 import { useSystemStats } from '../../hooks/useSystemStats';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import LoadingError from '../../components/common/LoadingError';
+import Button from '../../components/common/Button';
+import { useOutletContext } from 'react-router-dom';
 
 function SystemStats() {
   const token = localStorage.getItem("Token");
   const { data: stats, isLoading, isError } = useSystemStats(token);
-
+  const { toggleSidebar, showSidebar } = useOutletContext();
   // 1. حالة التحميل (Loading State)
     if (isLoading) {
     return (
@@ -45,12 +47,13 @@ function SystemStats() {
       
       {/* الهيدر أو رأس الصفحة */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div>
-          <h2 className="text-xl font-semibold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
+        <div className=''>
+            <h2 className="text-xl font-semibold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
             <Activity size={20} />
             System Statistics
           </h2>
           <p className="text-xs text-slate-400 mt-1">Core system metrics, ticket analysis and configuration data.</p>
+          
         </div>
       </div>
 

@@ -1,5 +1,4 @@
 import React, {useState } from 'react';
-
 import Button from '../../../components/common/Button';
 import { createRoleService } from '../../../services/Role&Permission/createRole';
 import { toast } from 'react-toastify';
@@ -11,17 +10,16 @@ import LoadingCircle from '../../../components/common/LoadingCircle';
 
 function CreateRoleModal({isOpen , onClose , onSuccess}) {
   const [roleName, setRoleName] = useState('');
-  const GO = useNavigate()
+  const GO = useNavigate();
   const [loading , setLoading] = useState(false);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const token = localStorage.getItem('Token');
-    // 2. جلب البيانات باستخدام Hook الـ React Query الذي أنشأناه
-    const { 
+  
+  const { 
     data: permissionsData = [], 
     isLoading, 
     isError 
   } = usePermissions(token);
-
 
   const togglePermission = (id) => {
     setSelectedPermissions(prev =>
@@ -41,10 +39,11 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
 
   const selectedCount = selectedPermissions.length;
   
-    async function handleCreateRole() {
-      console.log("اه");
-      setLoading(true)
-      const response = await createRoleService(roleName,selectedPermissions,token);
+  async function handleCreateRole() {
+    try {
+      setLoading(true);
+      const response = await createRoleService(roleName, selectedPermissions, token);
+      
       if (response.success) {
         toast.success(response.message, {
           position: "top-left",
@@ -52,22 +51,32 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
           className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
         });
         setRoleName("");
-        setSelectedPermissions([])
-        onSuccess();
-        onClose();
-        setLoading(false)
-        console.log("اه");
+        setSelectedPermissions([]);
+        if (onSuccess) onSuccess();
+        if (onClose) onClose(); // إغلاق المودل هنا عند النجاح
+      } else {
+        toast.error(response.message || "Failed to create role", {
+          position: "top-left",
+          autoClose: 3000,
+        });
       }
+    } catch (error) {
+      toast.error("An unexpected error occurred", {
+        position: "top-left",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
     }
+  }
+
   return (
-     <Modal
-                isOpen={isOpen}
-                onRequestClose={onClose}
-                className="outline-none"
-                overlayClassName="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
-            >
-                        
-       
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      className="outline-none"
+      overlayClassName="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm p-4"
+    >
       <div className="bg-[#171A21] rounded-xl border border-[#2A2E37] p-4 w-full max-w-2xl flex flex-col gap-6 shadow-3xl max-h-[80vh] overflow-auto custom-scrollbar">
         
         <div>
@@ -104,6 +113,7 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-[#FFFFFF]">Select All</span>
                 <button
+                  type="button"
                   onClick={toggleSelectAll}
                   className={`${isAllSelected ? 'bg-[#6366F1]' : 'bg-[#555555]'} relative inline-flex h-5 w-10 items-center rounded-full transition-colors outline-none`}
                 >
@@ -114,36 +124,32 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
           </div>
           {
             isLoading ? (
-            <div className="w-full max-w-sm flex justify-center items-center">
-              <p className="text-blue-400 animate-pulse text-center p-10 ">Loading Permissions...</p>
-            </div>
-          ) :
-            (
-              (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mb-6">
-            {permissionsData.map((permission) => {
-              const isSelected = selectedPermissions.includes(permission.id);
-              return (
-                <div
-                  key={permission.id}
-                  onClick={() => togglePermission(permission.id)}
-                  className={`bg-[#1A1D24] border min-w-fit ${isSelected ? 'border-[#6366F1]' : 'border-[#2A2E37]'} rounded-xl p-3.5 flex items-start gap-3 cursor-pointer hover:border-[#6366F1] transition`}
-                >
-                  <div className={`w-5 h-5 flex-shrink-0 rounded border ${isSelected ? 'bg-[#6366F1] border-[#6366F1]' : 'bg-[#2A2E37] border-[#3F4451]'} flex items-center justify-center mt-0.5 transition`}>
-                    {isSelected && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-[#FFFFFF] mb-0.5">{permission.code}</h3>
-                    <p className="text-[11px] text-[#999999] leading-tight">{permission.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-            )
+              <div className="w-full max-w-sm flex justify-center items-center">
+                <p className="text-blue-400 animate-pulse text-center p-10 ">Loading Permissions...</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 mb-6">
+                {permissionsData.map((permission) => {
+                  const isSelected = selectedPermissions.includes(permission.id);
+                  return (
+                    <div
+                      key={permission.id}
+                      onClick={() => togglePermission(permission.id)}
+                      className={`bg-[#1A1D24] border min-w-fit ${isSelected ? 'border-[#6366F1]' : 'border-[#2A2E37]'} rounded-xl p-3.5 flex items-start gap-3 cursor-pointer hover:border-[#6366F1] transition`}
+                    >
+                      <div className={`w-5 h-5 flex-shrink-0 rounded border ${isSelected ? 'bg-[#6366F1] border-[#6366F1]' : 'bg-[#2A2E37] border-[#3F4451]'} flex items-center justify-center mt-0.5 transition`}>
+                        {isSelected && <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium text-[#FFFFFF] mb-0.5">{permission.code}</h3>
+                        <p className="text-[11px] text-[#999999] leading-tight">{permission.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )
           }
-         
 
           <div className="bg-[#E0E7FF] rounded-lg px-4 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -160,27 +166,28 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
             <p className="text-xs text-[#F87171]">Users will be updated instantly.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-5 py-2 rounded-lg text-sm font-medium border border-[#3F4451] hover:bg-[#2A2E37] transition text-[#FFFFFF]">Cancel</button>
-            <Button 
-            className="px-5 py-2 rounded-lg text-sm font-medium bg-[#A5B4FC] hover:bg-[#C7D2FE] transition text-[#111827]"
-            onClick={handleCreateRole}
+            {/* تمت إضافة onClick هنا لإغلاق المودل عند النقر على Cancel */}
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="px-5 py-2 rounded-lg text-sm font-medium border border-[#3F4451] hover:bg-[#2A2E37] transition text-[#FFFFFF]"
             >
-
-                 {loading ? (
-                            <>
-                                <LoadingCircle/>
-                            </>
-                            ):(
-                                <p>Create Role</p>
-                            )}
+              Cancel
+            </button>
+            <Button 
+              className="px-5 py-2 rounded-lg text-sm font-medium bg-[#A5B4FC] hover:bg-[#C7D2FE] transition text-[#111827]"
+              onClick={handleCreateRole}
+            >
+               {loading ? (
+                  <LoadingCircle/>
+                ) : (
+                  <p>Create Role</p>
+                )}
             </Button>
           </div>
         </div>
       </div>
-
-
-
-            </Modal>
+    </Modal>
   );
 }
 

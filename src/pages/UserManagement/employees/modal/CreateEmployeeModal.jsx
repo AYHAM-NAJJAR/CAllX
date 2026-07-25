@@ -5,7 +5,7 @@ import { useRoles } from '../../../../hooks/useRoles';
 import CheckBox from '../../../../components/common/CheckBox';
 import { createUser } from '../../../../services/UserManagement/CreateNewUser';
 import { toast } from 'react-toastify';
-import LoadingCircle from '../../../../components/common/LoadingCircle';
+import LoadingInButton from '../../../../components/common/LoadingInButton';
 import Button from '../../../../components/common/Button';
 import Modal from 'react-modal';
 const CreateEmployeeModal = ({isOpen,onClose,onSuccess}) => {
@@ -101,8 +101,8 @@ const CreateEmployeeModal = ({isOpen,onClose,onSuccess}) => {
             });
           // 2. تصفير الـ Roles
           setSelectedRoles([]);
-          onSuccess();
-          
+          await onSuccess();
+          onClose()
           setLoading(false)
     } else {
       alert(`Error: ${response.message}`);
@@ -269,7 +269,7 @@ const CreateEmployeeModal = ({isOpen,onClose,onSuccess}) => {
           type="submit" className="bg-blue-300 hover:bg-blue-400 text-slate-900 px-8 py-3 rounded-lg font-bold text-sm transition-all shadow-lg active:scale-95">
                  {loading ? (
                             <>
-                                <LoadingCircle/>
+                                <LoadingInButton/>
                             </>
                             ):(
                               <p>Add Employee</p> 

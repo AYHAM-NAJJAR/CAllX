@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom"; 
+import { useLocation, useNavigate } from "react-router-dom"; 
 import Button from "../../../components/common/Button";
 import { SoftDeleteField } from "../../../services/TicketingStructure/SoftDeleteField";
 import { toast } from "react-toastify";
@@ -8,15 +8,12 @@ import { ActivateField } from "../../../services/TicketingStructure/ActivateFiel
 const FieldsTable = ({ fields }) => {
   const token = localStorage.getItem("Token");
   const location = useLocation(); 
+  const navigate = useNavigate();
 
-  // التحقق من أن المسار يحتوي على active وليس inactive من خلال النفي
   const isActiveFieldsPage = location.pathname.includes("active") && !location.pathname.includes("inactive");
-  
-  // التحقق من الحقول غير النشطة
   const isInactiveFieldsPage = location.pathname.includes("inactive");
-  
-  // التحقق من كل الحقول
   const isAllFieldsPage = location.pathname.includes("allFields");
+
   const renderOptions = (optionsStr, fieldType) => {
     if (!optionsStr || fieldType !== "SELECT") {
       return <span className="text-gray-500 text-xs">—</span>;
@@ -24,7 +21,6 @@ const FieldsTable = ({ fields }) => {
 
     try {
       const parsed = JSON.parse(optionsStr);
-
       if (parsed?.values) {
         return parsed.values.map((val, idx) => (
           <span
@@ -91,12 +87,9 @@ const FieldsTable = ({ fields }) => {
               <th className="px-5 py-4 text-left text-xs font-bold tracking-wider text-slate-300 uppercase">
                 Options
               </th>
-              {/* تظهر فقط إذا لم نكن في صفحة كل الحقول */}
-              {!isAllFieldsPage && (
-                <th className="px-5 py-4 text-left text-xs font-bold tracking-wider text-slate-300 uppercase">
-                  Action
-                </th>
-              )}
+              <th className="px-5 py-4 text-left text-xs font-bold tracking-wider text-slate-300 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
 
@@ -106,8 +99,14 @@ const FieldsTable = ({ fields }) => {
                 key={field.id}
                 className="border-b border-slate-800 hover:bg-[#0F172A]/60 transition-all duration-200"
               >
+                {/* جعلنا اسم الحقل قابلاً للضغط ليأخذك للتفاصيل أيضاً */}
                 <td className="px-5 py-4">
-                  <span className="font-semibold text-white">{field.fieldName}</span>
+                  <span 
+                    onClick={() => navigate(`/field-details/${field.id}`)}
+                    className="font-semibold text-white cursor-pointer hover:text-[#0D9EF2] transition-colors"
+                  >
+                    {field.fieldName}
+                  </span>
                 </td>
                 <td className="px-5 py-4 text-slate-300">{field.fieldLabel}</td>
                 <td className="px-5 py-4">
@@ -130,32 +129,37 @@ const FieldsTable = ({ fields }) => {
                   </div>
                 </td>
                 
-                {/* تظهر الأزرار فقط إذا لم نكن في صفحة كل الحقول */}
-                {!isAllFieldsPage && (
-                  <td className="px-5 py-4">
-                    <div className="flex flex-row gap-2">
-                      {/* تظهر فقط في الحقول غير النشطة */}
-                      {isInactiveFieldsPage && (
-                        <Button
-                          onClick={() => Activate(field.id)}
-                          className="flex-1 bg-customButton hover:bg-sky-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
-                        >
-                          Activate
-                        </Button>
-                      )}
+                {/* عمود الأكشن الأساسي الثابت في كل الصفحات */}
+                <td className="px-5 py-4">
+                  <div className="flex flex-row items-center gap-2">
+                    {/* زر Details الأساسي */}
+                    <Button
+                      onClick={() => navigate(`/main/system/tickets/structure/single/${field.id}`)}
+                      className="bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                    >
+                      Details
+                    </Button>
 
-                      {/* تظهر فقط في الحقول النشطة */}
-                      {isActiveFieldsPage && (
-                        <Button
-                          onClick={() => Disable(field.id)}
-                          className="flex-1 bg-red-500 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
-                        >
-                          Disable
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                )}
+                    {/* أزرار التنشيط والتعطيل تظهر فقط بحسب الصفحة ولا تؤثر على زر الـ Details */}
+                    {isInactiveFieldsPage && (
+                      <Button
+                        onClick={() => Activate(field.id)}
+                        className="bg-customButton hover:bg-sky-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                      >
+                        Activate
+                      </Button>
+                    )}
+
+                    {isActiveFieldsPage && (
+                      <Button
+                        onClick={() => Disable(field.id)}
+                        className="bg-red-500 hover:bg-red-700 text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors"
+                      >
+                        Disable
+                      </Button>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

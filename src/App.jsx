@@ -55,6 +55,7 @@ import Documentation from "./pages/Documentation/Documentation";
 import ShowAllCustomers from "./pages/Crm/customers/ShowAllCustomers";
 import GetLeads from "./pages/Crm/leads/GetLeads";
 import CallRoom from "./pages/Calling/CallRoom";
+import FieldDefinitionDetails from "./pages/Ticketing/FieldDefinitionDetails";
 Modal.setAppElement('#root');
 
 function App() {
@@ -138,6 +139,7 @@ function App() {
                 <Route path="structure" element={<BuildTicketStructrue/>}>
                   <Route index element={<Navigate to="createField" replace />} />
                   <Route path="createField" element={<CreateFieldDefinition inSystem={true}/>} />
+                  <Route path="single/:fieldID" element={<FieldDefinitionDetails/>} />
                   <Route path="allFields" element={<AllFields/>} />
                   <Route path="active" element={<AllActiveFields/>} />
                   <Route path="inactive" element={<AllInActiveFields/>} />
