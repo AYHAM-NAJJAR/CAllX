@@ -9,7 +9,6 @@ import {
 } from '@floating-ui/react';
 
 import { useState } from 'react';
-
 import detail from '../../../../assets/details.png';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,13 +19,14 @@ function EmployeeCard({
   email,
   phone,
   departmentName,
+  userType, // 1. استقبال الـ userType هنا
   roles = [],
 }) {
 
   const controls = useAnimation();
   const GO = useNavigate();
 
-  // 1. فحص ما إذا كانت مصفوفة الأدوار تحتوي على "Admin"
+  // فحص ما إذا كان الأدمن يحتوي على ADMIN
   const isAdmin = roles.includes('ADMIN');
 
   // =========================
@@ -48,70 +48,53 @@ function EmployeeCard({
     ],
   });
 
-  // =========================
-  // Hover Interaction
-  // =========================
   const hover = useHover(context);
+  const { getReferenceProps, getFloatingProps } = useInteractions([hover]);
 
-  const { getReferenceProps, getFloatingProps } =
-    useInteractions([hover]);
+  const handleHoverStart = () => { controls.start('hover'); };
+  const handleHoverEnd = () => { controls.start('rest'); };
 
-  // =========================
-  // Hover Animation
-  // =========================
-  const handleHoverStart = () => {
-    controls.start('hover');
-  };
-
-  const handleHoverEnd = () => {
-    controls.start('rest');
-  };
-
-  // =========================
-  // Variants
-  // =========================
   const titleVariants = {
     rest: { x: 0 },
-
     hover: {
       x: 4,
-      transition: {
-        type: 'spring',
-        stiffness: 300,
-      },
+      transition: { type: 'spring', stiffness: 300 },
     },
   };
 
   const imageVariants = {
-    rest: {
-      scale: 1,
-      rotate: 0,
-    },
-
+    rest: { scale: 1, rotate: 0 },
     hover: {
       scale: 1.15,
       rotate: 45,
-
-      transition: {
-        type: 'spring',
-        stiffness: 400,
-        damping: 10,
-      },
+      transition: { type: 'spring', stiffness: 400, damping: 10 },
     },
+  };
+
+  // دالة لتحديد لون شارة الـ UserType بناءً على قيمته
+  const getUserTypeBadgeStyle = (type) => {
+    switch (type) {
+      case 'ADMIN':
+        return 'bg-purple-500/20 text-purple-400 border border-purple-500/30';
+      case 'AGENT':
+        return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+      case 'CUSTOMER':
+        return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      default:
+        return 'bg-slate-700 text-slate-300';
+    }
   };
 
   return (
     <div
       key={id}
-      // 2. تطبيق الكلاسات الشرطية على الكرت بالكامل بناءً على قيمة isAdmin
       className={`p-4 rounded border transition-all duration-300 ${
         isAdmin 
-          ? ' bg-[#1e2531] border-sky-500 ' // كرت الأدمن: خلفية داكنة مميزة وإطار ذهبي مضيء
-          : 'bg-[#1e293b] border-[#334155]' // الكرت الافتراضي لباقي الموظفين
+          ? 'bg-[#1e2531] border-sky-500' 
+          : 'bg-[#1e293b] border-[#334155]'
       }`}
     >
       <div className="flex items-center justify-between flex-row">
-
         {/* TITLE */}
         <motion.h3
           className="font-bold text-lg text-white"
@@ -134,7 +117,7 @@ function EmployeeCard({
           initial="rest"
           onHoverStart={handleHoverStart}
           onHoverEnd={handleHoverEnd}
-          onClick={()=>GO(`/main/system/employee/details/${id}`)}
+          onClick={() => GO(`/main/system/employee/details/${id}`)}
         />
 
         {/* TOOLTIP */}
@@ -143,20 +126,21 @@ function EmployeeCard({
             ref={(node) => refs.setFloating(node)}
             style={floatingStyles}
             {...getFloatingProps()}
-            className="
-              bg-sky-600
-              text-white
-              text-xs
-              px-3
-              py-1
-              rounded
-              shadow-lg
-              z-50
-            "
+            className="bg-sky-600 text-white text-xs px-3 py-1 rounded shadow-lg z-50"
           >
             Employee Details
           </div>
         )}
+      </div>
+
+      {/* عرض User Type كشعار مميز */}
+      <div className="flex items-center gap-2 mt-2">
+        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider ${getUserTypeBadgeStyle(userType)}`}>
+          {userType || 'UNKNOWN'}
+        </span>
+        <span className="text-blue-400 text-xs">
+          • {departmentName || 'No Department'}
+        </span>
       </div>
 
       <p className="text-gray-400 text-sm mt-2">
@@ -164,28 +148,29 @@ function EmployeeCard({
       </p>
 
       <p className="text-gray-400 text-sm">
-        {phone}
+        {phone || 'No Phone Number'}
       </p>
 
-      <p className="text-blue-400 text-xs mt-2">
-        {departmentName || 'No Department'}
-      </p>
-
-      <div className="mt-2">
+      {/* Roles Section */}
+      <div className="mt-3 pt-3 border-t border-slate-700/50">
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Roles:</div>
         <div className="flex flex-wrap gap-1">
-          {roles.map((role, idx) => (
-            <span
-              key={idx}
-              // 3. تطبيق كلاس شرطي داخل الـ map لتمييز شارة الأدمن بلون مختلف عن بقية الأدوار
-              className={`text-[10px] px-2 py-1 rounded font-medium ${
-                role === 'ADMIN' 
-                  ? 'bg-sky-500 text-white' // شارة الأدمن باللون الذهبي/البرتقالي
-                  : 'bg-gray-700 text-gray-200' // باقي الشارات باللون الرمادي الاعتيادي
-              }`}
-            >
-              {role}
-            </span>
-          ))}
+          {roles && roles.length > 0 ? (
+            roles.map((role, idx) => (
+              <span
+                key={idx}
+                className={`text-[10px] px-2 py-1 rounded font-medium ${
+                  role === 'ADMIN' 
+                    ? 'bg-sky-500 text-white' 
+                    : 'bg-gray-700 text-gray-200'
+                }`}
+              >
+                {role}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] text-slate-500 italic">No roles assigned</span>
+          )}
         </div>
       </div>
     </div>

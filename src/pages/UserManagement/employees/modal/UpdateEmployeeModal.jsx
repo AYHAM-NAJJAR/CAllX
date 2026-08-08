@@ -4,10 +4,11 @@ import Select from 'react-select';
 import { useRoles } from '../../../../hooks/useRoles';
 import CheckBox from '../../../../components/common/CheckBox';
 import { toast } from 'react-toastify';
-import LoadingCircle from '../../../../components/common/LoadingCircle';
+
 import Button from '../../../../components/common/Button';
 import Modal from 'react-modal';
 import { updateEmployee } from '../../../../services/UserManagement/updateEmployee';
+import LoadingInButton from '../../../../components/common/LoadingInButton';
 
 
 const UpdateEmployeeModal = ({isOpen,onClose , onSuccess , data}) => {
@@ -284,7 +285,7 @@ const UpdateEmployeeModal = ({isOpen,onClose , onSuccess , data}) => {
           type="submit" className="bg-blue-300 hover:bg-blue-400 text-slate-900 px-8 py-3 rounded-lg font-bold text-sm transition-all shadow-lg active:scale-95">
                   {loading ? (
                             <>
-                                <LoadingCircle/>
+                                  <LoadingInButton/>
                             </>
                             ):(
                               <p>Update</p> 

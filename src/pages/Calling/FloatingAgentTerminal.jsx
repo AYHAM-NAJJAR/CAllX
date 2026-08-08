@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useHotkeys } from 'react-hotkeys-hook'; // 👈 1. استيراد المكتبة
 import { 
   User, 
   Ticket, 
@@ -15,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useCall } from '../../context/Call/CallContext';
 import { CALL_STATUS } from '../../services/call/Livekit/livekitConstants';
+
+import ringtoneAudioFile from '../../assets/universfield-ringtone-085-496369.mp3';
 
 const FloatingAgentTerminal = () => {
   const navigate = useNavigate();
@@ -31,8 +34,42 @@ const FloatingAgentTerminal = () => {
   } = useCall();
 
   const nodeRef = useRef(null);
+  const ringtoneRef = useRef(null);
 
-  // 1. التثبت هل توجد مكالمة جارية أم لا
+  // تهيئة كائن الصوت وتشغيله/إيقافه بشكل آمن داخل useEffect
+  useEffect(() => {
+    if (!ringtoneRef.current) {
+      ringtoneRef.current = new Audio(ringtoneAudioFile);
+      ringtoneRef.current.loop = true;
+    }
+
+    const ringtone = ringtoneRef.current;
+    const isRinging = callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0;
+
+    if (isRinging) {
+      ringtone.play().catch((error) => {
+        console.warn("Ringtone autoplay was prevented by browser policy:", error);
+      });
+    } else {
+      ringtone.pause();
+      ringtone.currentTime = 0;
+    }
+
+    return () => {
+      if (ringtone) {
+        ringtone.pause();
+        ringtone.currentTime = 0;
+      }
+    };
+  }, [callStatus, incomingCalls]);
+
+  const stopAudioPlayback = () => {
+    if (ringtoneRef.current) {
+      ringtoneRef.current.pause();
+      ringtoneRef.current.currentTime = 0;
+    }
+  };
+
   const hasLiveCall =
     callStatus !== CALL_STATUS.IDLE &&
     callStatus !== CALL_STATUS.CANCELLED &&
@@ -43,23 +80,50 @@ const FloatingAgentTerminal = () => {
       callStatus === CALL_STATUS.CONNECTED ||
       !!activeCall);
 
-  // 2. التحقق مما إذا كان الموظف داخل غرفة المكالمات حالياً
   const isInCallRoom = location.pathname.includes('/main/call-room');
 
-  // إذا لم تكن هناك مكالمة حية OR كان الموظف بالفعل داخل غرفة المكالمات -> اختفاء النافذة العائمة فوراً
-  if (!hasLiveCall || isInCallRoom) return null;
-
-  const callerIdentity = activeCall 
-    ? activeCall.callerIdentity || activeCall.callId.substring(0, 8)
-    : incomingCalls[0]?.callerIdentity || "+95684455";
-
-  // قبول المكالمة والانتقال لغرفة المكالمات
   const onAnswerClick = () => {
+    stopAudioPlayback();
+
     if (incomingCalls[0]?.callId) {
       handleAcceptCall(incomingCalls[0].callId);
     }
     navigate('/main/call-room');
   };
+
+  // 👈 2. دالة إنهاء المكالمة
+  const onEndCallClick = () => {
+    stopAudioPlayback();
+    handleEndOrRejectCall();
+  };
+
+  // 👈 3. إضافة الاختصارات هنا
+  // الرقم 1: للرد على المكالمة
+  useHotkeys('1', () => {
+    if (callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0) {
+      onAnswerClick();
+    }
+  }, { enableOnFormTags: false });
+
+  // الرقم 2: للـ Mute/Unmute
+  useHotkeys('2', () => {
+    if (callStatus === CALL_STATUS.CONNECTED) {
+      handleToggleMute();
+    }
+  }, { enableOnFormTags: false });
+
+  // الرقم 3: لإنهاء / فصل المكالمة
+  useHotkeys('3', () => {
+    if (hasLiveCall) {
+      onEndCallClick();
+    }
+  }, { enableOnFormTags: false });
+
+  if (!hasLiveCall || isInCallRoom) return null;
+
+  const callerIdentity = activeCall 
+    ? activeCall.callerIdentity || activeCall.callId.substring(0, 8)
+    : incomingCalls[0]?.callerIdentity || "+95684455";
 
   return (
     <Draggable nodeRef={nodeRef} handle=".drag-header" bounds="body">
@@ -68,12 +132,10 @@ const FloatingAgentTerminal = () => {
         className="fixed z-50 w-[340px] bg-[#0b1329] text-white rounded-3xl shadow-2xl border border-slate-800/80 p-5 font-sans overflow-hidden select-none"
         style={{ bottom: '40px', left: '40px' }}
       >
-        {/* Header Drag Handle */}
         <div className="drag-header cursor-move w-full flex justify-center py-1 -mt-2 mb-2">
           <div className="w-12 h-1 bg-slate-700/60 rounded-full" />
         </div>
 
-        {/* Customer Avatar Section */}
         <div className="flex flex-col items-center justify-center mt-2 mb-4">
           <div className="relative mb-3">
             <div className="w-20 h-20 rounded-full border-2 border-cyan-500/80 flex items-center justify-center bg-cyan-950/20 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
@@ -95,7 +157,6 @@ const FloatingAgentTerminal = () => {
           </button>
         </div>
 
-        {/* Forward To Section */}
         <div className="my-5">
           <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase block mb-2 px-1">
             FORWARD TO
@@ -133,7 +194,6 @@ const FloatingAgentTerminal = () => {
           </div>
         </div>
 
-        {/* Action Buttons Section */}
         {callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0 ? (
           <div className="grid grid-cols-3 gap-2 mt-4 pt-2 border-t border-slate-800/50">
             <button className="flex flex-col items-center justify-center py-2.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
@@ -141,7 +201,6 @@ const FloatingAgentTerminal = () => {
               <span className="text-[10px] font-bold tracking-wider">FORWARD</span>
             </button>
 
-            {/* Answer Button */}
             <button 
               onClick={onAnswerClick}
               className="flex flex-col items-center justify-center py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold transition-colors shadow-lg shadow-emerald-500/20"
@@ -151,7 +210,7 @@ const FloatingAgentTerminal = () => {
             </button>
 
             <button 
-              onClick={handleEndOrRejectCall}
+              onClick={onEndCallClick}
               className="flex flex-col items-center justify-center py-2.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors"
             >
               <PhoneOff className="w-4 h-4 mb-1 text-slate-400" />
@@ -174,7 +233,7 @@ const FloatingAgentTerminal = () => {
             </button>
 
             <button 
-              onClick={handleEndOrRejectCall}
+              onClick={onEndCallClick}
               className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-lg shadow-rose-600/20"
             >
               <PhoneOff className="w-4 h-4" />

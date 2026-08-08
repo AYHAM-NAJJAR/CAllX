@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { GetSystemStatsHealth } from '../../services/Monitoring/GetSystemStatsHealth';
-import { Activity, Users, Server, HardDrive, Clock, Database, CheckCircle, AlertTriangle, Ban, SendHorizontal, MessageSquareReply, SquareStack } from 'lucide-react';
+import { Activity, Users, Server, HardDrive, Clock, Database, CheckCircle, AlertTriangle, Ban, SendHorizontal, MessageSquareReply, SquareStack, Menu } from 'lucide-react';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import LoadingError from '../../components/common/LoadingError';
 import { GetPerformanceMetrics } from '../../services/Monitoring/GetPerformanceMetrics';
+import { useOutletContext } from 'react-router-dom';
+import Button from '../../components/common/Button';
 
 function Monitory() {
   const token = localStorage.getItem("Token");
   const [stats, setStats] = useState({}); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-
+     const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
   const metrics = useCallback(async () => {
   if (!token) return;
   try {
@@ -50,7 +53,14 @@ function Monitory() {
     <div className="space-y-8 animate-fade-in text-slate-100 p-6">
       
       {/* الهيدر */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="flex flex-col items-start justify-between border-b border-slate-800 p-4">
+        <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+          aria-label="Toggle Sidebar"
+        >
+          <Menu size={22} />
+        </Button>
         <div>
           <h2 className="text-xl font-semibold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
             <Activity size={20} />

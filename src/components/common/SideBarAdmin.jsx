@@ -1,10 +1,45 @@
-import { ChevronDown, PhoneIncoming, PhoneMissed, PhoneOutgoing } from "lucide-react";
+import { 
+  ChevronDown, 
+  PhoneIncoming, 
+  PhoneMissed, 
+  PhoneOutgoing, 
+  Power,
+  LayoutDashboard,
+  Phone,
+  Layers,
+  Settings,
+  Users,
+  GitFork,
+  Cpu,
+  BarChart3,
+  HeartHandshake,
+  Workflow,
+  ShieldCheck,
+  UserCheck,
+  HelpCircle,
+  LogOut,
+  Sliders,
+  Sparkles,
+  Blocks,
+  User
+} from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useCall } from "../../context/Call/CallContext"; 
 
 import Button from "./Button";
 import { useOutboundWS } from "../../pages/Calling/context/OutboundWSContext";
+import { updateAgentPresence } from "../../services/realtime/stomp/stopm";
+
+// دالة مساعدة للتحقق من وجود الصلاحية لدى المستخدم
+const hasPermission = (requiredPermission) => {
+  const permissions = JSON.parse(localStorage.getItem("permissions") || "[]");
+  if (!requiredPermission) return true;
+  if (Array.isArray(requiredPermission)) {
+    return requiredPermission.some((perm) => permissions.includes(perm));
+  }
+  return permissions.includes(requiredPermission);
+};
 
 const SidebarItem = ({
   children,
@@ -26,7 +61,7 @@ const SidebarItem = ({
   >
     <div
       className={`transition-colors duration-300 ${
-        isActive ? "text-white" : "text-gray-400"
+        isActive ? "text-white" : "text-gray-400 hover:text-white"
       }`}
     >
       {children}
@@ -34,7 +69,7 @@ const SidebarItem = ({
 
     <span
       className={`uppercase tracking-widest text-[12px] font-bold transition-colors duration-300 ${
-        isActive ? "text-white" : "text-gray-400"
+        isActive ? "text-white" : "text-gray-400 hover:text-white"
       }`}
     >
       {label}
@@ -124,6 +159,17 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
 
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
+
+  // دالة التعامل مع حالة Go Live / Go Offline للوكيل
+  const handleToggleGoLive = (isGoLive) => {
+    if (!user || !user.email) return;
+    
+    const targetStatus = isGoLive ? "AVAILABLE" : "OFFLINE";
+    console.log(`تم تغيير الحالة إلى: ${targetStatus}`);
+    
+    
+     updateAgentPresence(user.email, targetStatus, user.queueId || "1");
+  };
   
   return (
     <>
@@ -144,184 +190,225 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           lg:static lg:translate-x-0 lg:w-full
         `}
       >
-        {/* Profile Section */}
-        {user && 
-          <div className="flex flex-col items-center mb-10 px-6 text-center">
-            {user.image && 
-              <div className="relative mb-4">
-                <div className="w-24 h-24 rounded-2xl bg-gray-600 border-2 border-gray-700 shadow-lg" />
-                <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-[#0f172a] rounded-full" />
-              </div>
-            }
-            <div className="space-y-0.5 ">
-              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">
-                {user.type}
-              </p>
-            </div>
-            <p className="text-white font-black text-lg tracking-wider uppercase ">
-              {user.firstName} {user.lastName}
-            </p>
-            <p className="text-gray-700 font-black tracking-wider mb-2">
-              {user.email}
-            </p>
+              {/* Profile Section */}
+              {user && 
+                <div className="flex flex-col items-center mb-6 px-6 text-center">
+                {user.image && (
+        <div className="relative mb-4">
+          <div className="w-24 h-24 rounded-2xl bg-gray-600 border-2 border-gray-700 shadow-lg overflow-hidden" />
+          <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-[#0f172a] rounded-full" />
+        </div>
+      )}
 
-            {/* Status Dropdown */}
-            <div className="relative flex flex-col items-center">
-              <div
-                className={`${currentStatus.bg} px-4 py-1 rounded-full mb-2 transition-all duration-300`}
-              >
-                <button
-                  onClick={() => setIsClickStatus((prev) => !prev)}
-                  className={`text-[10px] font-bold uppercase flex items-center gap-2 ${currentStatus.textColor}`}
-                >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full animate-pulse ${currentStatus.dot}`}
-                  />
-                  {currentStatus.text}
-                </button>
-              </div>
+      <div className="space-y-2">
+        {/* نوع المستخدم في الأعلى */}
+        <div>
+          <span className="inline-block bg-sky-600 px-2.5 py-0.5 text-white rounded-full text-[10px] font-bold uppercase tracking-[0.2em]">
+            {user.type}
+          </span>
+        </div>
 
-              <div
-                className={`
-                  overflow-hidden transition-all duration-300 ease-in-out
-                  flex flex-col gap-2
-                  ${
-                    isclickStatus
-                      ? "max-h-40 opacity-100 translate-y-0"
-                      : "max-h-0 opacity-0 -translate-y-2"
-                  }
-                `}
+        {/* الاسم والبريد معاً بدون مسافة فاصلة (space-y-0) */}
+        <div className="space-y-0">
+          <h2 className="text-white font-black text-lg tracking-wider uppercase leading-none mb-1">
+            {user.firstName} {user.lastName}
+          </h2>
+          <p className="text-gray-400 font-medium text-sm tracking-wide">
+            {user.email}
+          </p>
+        </div>
+      </div>
+
+            {/* أزرار Go Live / Go Offline */}
+            <div className="flex items-center gap-2 w-full mt-1">
+              <button
+                onClick={() => handleToggleGoLive(true)}
+                className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-1.5 px-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
               >
-                {otherStatuses.map((status) => (
-                  <div
-                    key={status.id}
-                    className={`${status.bg}  px-4 py-1 rounded-full transition-all duration-300 `}
-                  >
-                    <button
-                      onClick={() => handleStatusChange(status)}
-                      className={`text-[10px]  cursor-pointer font-bold uppercase flex items-center gap-2 ${status.textColor}`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full animate-pulse ${status.dot}`}
-                      />
-                      {status.text}
-                    </button>
-                  </div>
-                ))}
-              </div>
+                <Power size={12} />
+                AVAILABLE
+              </button>
+              <button
+                onClick={() => handleToggleGoLive(false)}
+                className="flex-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-400 py-1.5 px-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
+              >
+                <Power size={12} />
+                OFFLINE
+              </button>
             </div>
+
           </div>
         }
 
         {/* Main Navigation */}
         <nav className="flex-1 flex flex-col space-y-2">
           {/* حاوية مؤشرات الاتصال (الوارد والصادر) بجانب بعضهما */}
-<div className="flex flex-row items-center justify-between gap-2 px-2 mb-3 w-full">
-  
-  {/* مؤشر الاتصال الوارد (Inbound) */}
-  <div className="flex items-center w-1/2 justify-center">
-    <div className={`w-full py-2 px-1.5 rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-300 ${
-      isConnected 
-        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-        : "bg-rose-500/10 border-rose-500/20 text-rose-400"
-    }`}>
-      {isConnected ? (
-        <>
-          <PhoneIncoming className="animate-pulse shrink-0" size={14} />
-          <span className="text-[10px] font-bold tracking-tight uppercase truncate">
-            {activeCall ? `In Call (${callStatus})` : "Incoming"}
-          </span>
-        </>
-      ) : (
-        <>
-          <PhoneMissed className="animate-pulse shrink-0" size={14} />
-          <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
-            {wsStatus || "Offline"}
-          </span>
-        </>
-      )}
-    </div>
-  </div>
+          <div className="flex flex-row items-center justify-between gap-2 px-2 mb-3 w-full">
+            
+            {/* مؤشر الاتصال الوارد (Inbound) */}
+            <div className="flex items-center w-1/2 justify-center">
+              <div className={`w-full py-2 px-1.5 rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-300 ${
+                isConnected 
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                  : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+              }`}>
+                {isConnected ? (
+                  <>
+                    <PhoneIncoming className="animate-pulse shrink-0" size={14} />
+                    <span className="text-[10px] font-bold tracking-tight uppercase truncate">
+                      {activeCall ? `In Call (${callStatus})` : "Incoming"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <PhoneMissed className="animate-pulse shrink-0" size={14} />
+                    <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
+                      {wsStatus || "Offline"}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
 
-  {/* مؤشر الاتصال الصادر (Outbound) */}
-  <div className="flex items-center w-1/2 justify-center">
-    <div className={`w-full py-2 px-1.5 rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-300 ${
-      isOutboundConnected 
-        ? "bg-sky-500/10 border-sky-500/20 text-sky-400" 
-        : "bg-rose-500/10 border-rose-500/20 text-rose-400"
-    }`}>
-      {isOutboundConnected ? (
-        <>
-          <PhoneOutgoing  className="animate-pulse shrink-0" size={14} />
-          <span className="text-[10px] font-bold tracking-tight uppercase truncate">
-            Outgoing
-          </span>
-        </>
-      ) : (
-        <>
-          <PhoneMissed className="animate-pulse shrink-0" size={14} />
-          <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
-            Out Offline
-          </span>
-        </>
-      )}
-    </div>
-  </div>
+            {/* مؤشر الاتصال الصادر (Outbound) */}
+            <div className="flex items-center w-1/2 justify-center">
+              <div className={`w-full py-2 px-1.5 rounded-xl flex items-center justify-center gap-1.5 border transition-all duration-300 ${
+                isOutboundConnected 
+                  ? "bg-sky-500/10 border-sky-500/20 text-sky-400" 
+                  : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+              }`}>
+                {isOutboundConnected ? (
+                  <>
+                    <PhoneOutgoing  className="animate-pulse shrink-0" size={14} />
+                    <span className="text-[10px] font-bold tracking-tight uppercase truncate">
+                      Outgoing
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <PhoneMissed className="animate-pulse shrink-0" size={14} />
+                    <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
+                      Out Offline
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
 
-</div>
+          </div>
+
           <SidebarItem 
             path={'/main'}
-            label="Dashboard" 
+            label="DashBoard" 
             isActive={location.pathname === "/main"} 
-          />
-
-          <SidebarItem 
-            path={'/main/calling'}
-            label="Calling" 
-            isActive={location.pathname === "/main/calling"} 
-          />
-
-          <SidebarItem 
-            path={"/main/system"}
-            label="System"
-            isActive={location.pathname.startsWith("/main/system")}
-          />
-          <SidebarItem 
-            path={"/main/tenants"}
-            label="Tenants Management"
-            isActive={location.pathname.startsWith("/main/tenants")}
-          />
-          <SidebarItem 
-            path={"/main/flow"}
-            label="IVR Builder and Flows"
-            isActive={location.pathname.startsWith("/main/flow")}
-          />
-          <SidebarItem 
-            path={"/main/workengine"}
-            label="Workflow Rules"
-            isActive={location.pathname.startsWith("/main/workengine")}
-          />
-          
-          <SidebarDropdown 
-            label="Analytical" 
-            activePaths={["/main/performance", "/main/monitory", "/main/audit"]}
           >
-            <SidebarItem
-              path={"/main/performance"}
-              label="Agents Performance"
-              isActive={location.pathname.startsWith("/main/performance")}
-            />
-            <SidebarItem
-              path={"/main/monitory"}
-              label="Monitoring"
-              isActive={location.pathname.startsWith("/main/monitory")}
-            />
-            <SidebarItem
-              path={"/main/audit"}
-              label="Auditing Logs"
-              isActive={location.pathname.startsWith("/main/audit")}
-            />
-          </SidebarDropdown>
+            <LayoutDashboard size={18} className="text-white" />
+          </SidebarItem>
+
+          <SidebarItem 
+            path={'/main/calls'}
+            label="Calls" 
+            isActive={location.pathname === "/main/calls"} 
+          >
+            <Phone size={18} className="text-white" />
+          </SidebarItem>
+
+          <SidebarItem 
+            path={'/main/queue'}
+            label="Queues" 
+            isActive={location.pathname === "/main/queue"} 
+          >
+            <Layers size={18} className="text-white" />
+          </SidebarItem>
+
+{hasPermission([
+  "MANAGE_USERS", 
+  "VIEW_ALL_TICKETS", 
+  "VIEW_COMPANY_STRUCTURE", 
+  "MANAGE_ROLES", 
+  "VIEW_ANALYTICS",
+  "VIEW_ASSIGNED_TICKETS",
+  "UPDATE_TICKET_STATUS",
+  "ADD_NOTE"
+]) && (
+  <SidebarItem 
+    path={
+      hasPermission(["VIEW_ASSIGNED_TICKETS", "UPDATE_TICKET_STATUS", "ADD_NOTE"]) &&
+      !hasPermission(["MANAGE_USERS", "VIEW_ALL_TICKETS", "VIEW_COMPANY_STRUCTURE", "MANAGE_ROLES", "VIEW_ANALYTICS"])
+        ? "/main/system/tickets"
+        : "/main/system"
+    }
+    label="System"
+    isActive={location.pathname.startsWith("/main/system")}
+  >
+    <Settings size={18} className="text-white" />
+  </SidebarItem>
+)}
+
+          {hasPermission(["VIEW_TENANTS", "MANAGE_TENANT_STATUS", "CREATE_TENANT"]) && (
+            <SidebarItem 
+              path={"/main/tenants"}
+              label="Tenants Management"
+              isActive={location.pathname.startsWith("/main/tenants")}
+            >
+              <Users size={18} className="text-white" />
+            </SidebarItem>
+          )}
+
+          {hasPermission(["MANAGE_WORKFLOWS", "VIEW_WORKFLOWS"]) && (
+            <SidebarItem 
+              path={"/main/flow"}
+              label="IVR Builder and Flows"
+              isActive={location.pathname.startsWith("/main/flow")}
+            >
+              <GitFork size={18} className="text-white" />
+            </SidebarItem>
+          )}
+
+          {hasPermission(["VIEW_WORKFLOWS", "MANAGE_WORKFLOWS"]) && (
+            <SidebarItem 
+              path={"/main/workengine"}
+              label="Workflow Rules"
+              isActive={location.pathname.startsWith("/main/workengine")}
+            >
+              <Cpu size={18} className="text-white" />
+            </SidebarItem>
+          )}
+          
+          {hasPermission(["VIEW_ANALYTICS", "VIEW_MONITORING", "VIEW_AUDIT_LOGS"]) && (
+            <SidebarDropdown 
+              label="Analytical" 
+              activePaths={["/main/performance", "/main/monitory", "/main/audit"]}
+            >
+              {hasPermission(["VIEW_ANALYTICS", "VIEW_MONITORING"]) && (
+                <SidebarItem
+                  path={"/main/performance"}
+                  label="Agents Performance"
+                  isActive={location.pathname.startsWith("/main/performance")}
+                >
+                  <BarChart3 size={16} className="text-white" />
+                </SidebarItem>
+              )}
+              {hasPermission("VIEW_MONITORING") && (
+                <SidebarItem
+                  path={"/main/monitory"}
+                  label="Monitoring"
+                  isActive={location.pathname.startsWith("/main/monitory")}
+                >
+                  <Workflow size={16} className="text-white" />
+                </SidebarItem>
+              )}
+              {hasPermission("VIEW_AUDIT_LOGS") && (
+                <SidebarItem
+                  path={"/main/audit"}
+                  label="Auditing Logs"
+                  isActive={location.pathname.startsWith("/main/audit")}
+                >
+                  <ShieldCheck size={16} className="text-white" />
+                </SidebarItem>
+              )}
+            </SidebarDropdown>
+          )}
 
           <SidebarDropdown 
             label="CRM Module" 
@@ -331,35 +418,57 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
               path={"/main/customers"}
               label="Customers"
               isActive={location.pathname.startsWith("/main/customers")}
-            />
+            >
+              <UserCheck size={16} className="text-white" />
+            </SidebarItem>
             <SidebarItem
               path={"/main/campaigns"}
               label="Campaigns"
               isActive={location.pathname.startsWith("/main/campaigns")}
-            />
+            >
+              <Sparkles size={16} className="text-white" />
+            </SidebarItem>
             <SidebarItem
               path={"/main/leads"}
               label="Leads"
               isActive={location.pathname.startsWith("/main/leads")}
-            />
+            >
+              <Sliders size={16} className="text-white" />
+            </SidebarItem>
           </SidebarDropdown>
         </nav>
 
         {/* Bottom Actions */}
         <div className="mt-auto border-t border-gray-800 pt-6">
-          <SidebarItem label="Support" isBottom={true} />
+          <SidebarItem 
+            label="Integrations"
+            isBottom={true}
+            path={'/main/integration'}
+            isActive={location.pathname === "/main/integration"} 
+          >
+            <Blocks size={18} className="text-white" />
+          </SidebarItem>
+          
           <SidebarItem 
             path={'/main/profile'}
             label="My Profile" 
             isActive={location.pathname === "/main/profile"} 
-          />
+          >
+            <User size={18} className="text-white" />
+          </SidebarItem>
+          
           <SidebarItem
             path={'/main/doc'}
-            label="Documentation CAllX" 
+            label="Documentation CALLX" 
             isBottom={true} 
             isActive={location.pathname === "/main/doc"} 
-          />
-          <SidebarItem label="Logout" isBottom={true} />
+          >
+            <HelpCircle size={18} className="text-white" />
+          </SidebarItem>
+          
+          <SidebarItem label="Logout" isBottom={true}>
+            <LogOut size={18} className="text-white" />
+          </SidebarItem>
         </div>
       </div>
     </>

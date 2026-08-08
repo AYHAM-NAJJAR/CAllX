@@ -29,6 +29,7 @@ import { exportCSV } from "../../services/Analytics&Reports/ExportTicketsData(CS
 import LoadingError from "../../components/common/LoadingError";
 import LoadingCircle from "../../components/common/LoadingCircle";
 import { useDepartments } from "../../hooks/useDepartments";
+import { SearchInput } from "../../components/common/SearchInput";
 
 const customSelectStyles = {
   control: (base, state) => ({
@@ -90,7 +91,7 @@ const ShowAllTickets = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("");
   const [selectedSort, setSelectedSort] = useState("createdAt,desc"); // 👈 حالة الترتيب
-
+  const [search, setSearch] = useState("");
   const pageSize = 20;
 
   const location = useLocation();
@@ -109,7 +110,8 @@ const ShowAllTickets = () => {
     selectedDepartment, 
     selectedStatus, 
     selectedPriority,
-    selectedSort // 👈 تمرير قيمة الترتيب
+    selectedSort, 
+    search
   ); 
 
   const { 
@@ -206,6 +208,8 @@ const ShowAllTickets = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row p-4 sm:items-center justify-between gap-4 mb-8 sm:mb-12">
 <CreateTicketModal isOpen={isCreateTicketModalOpen} onClose={setIsCreateTicketModalOpen} onSuccess={() => refetch()} />        
+        
+       
         <div className="flex items-center gap-3">
           <div>
             <Ticket className="text-sky-600 " />
@@ -242,6 +246,14 @@ const ShowAllTickets = () => {
           >
             Structure
           </Button>
+           <SearchInput
+           placeholder={"Search About Ticket name"} 
+          value={search} 
+          onChange={(val) => {
+            setSearch(val);
+            setCurrentPage(0); 
+          }} 
+        />
         </div>
       </div>
 

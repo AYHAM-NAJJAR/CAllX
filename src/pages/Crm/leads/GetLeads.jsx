@@ -1,12 +1,13 @@
 // pages/leads/ShowAllLeads.jsx
 import React, { useCallback, useEffect, useState } from "react";
-import { Users, Loader2, AlertCircle, Plus, Inbox } from "lucide-react";
+import { Users, Loader2, AlertCircle, Plus, Inbox, Menu } from "lucide-react";
 import Button from "../../../components/common/Button";
 import LeadCard from "./components/LeadCard";
 
 import { getLeads } from "../../../services/CRM/Leads/getLeads";
 import CreateLeadModal from "./Modal/CreateLeadModal";
 import UpdateLeadModal from "./Modal/UpdateLeadModal";
+import { useOutletContext } from "react-router-dom";
 
 const GetLeads = () => {
   const token = localStorage.getItem("Token");
@@ -18,7 +19,8 @@ const GetLeads = () => {
    const [isModalCreateLeadOpen,setIsModalCreateLeadOpen]=useState(false)
    const [isModalUpdateLeadOpen,setIsModalUpdateLeadOpen]=useState(false)
    const [selectedLeadId, setSelectedLeadId] = useState(null); // 1. إضافة State للـ ID
-
+     const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
 // 2. تحديث دالة فتح المودال عند الضغط على الـ Card
 const handleOpenUpdateModal = (id) => {
   setSelectedLeadId(id);
@@ -66,9 +68,15 @@ const handleOpenUpdateModal = (id) => {
       />
       <div className="flex items-center justify-between mb-10">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-[#101B22] border border-[#1e293b] flex items-center justify-center">
-            <Users className="text-[#0D9EF2]" size={24} />
-          </div>
+          
+             <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+          aria-label="Toggle Sidebar"
+        >
+          <Menu size={22} />
+        </Button>
+          
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Leads Management</h1>
             <p className="text-gray-500 text-sm">Track and manage your potential customers</p>
@@ -78,7 +86,7 @@ const handleOpenUpdateModal = (id) => {
         <Button 
         onClick={() => setIsModalCreateLeadOpen(true)}
         className="bg-[#0D9EF2] hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-all">
-          <Plus size={18} /> Create Lead
+          Create Lead
         </Button>
       </div>
 

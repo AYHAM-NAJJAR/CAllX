@@ -3,16 +3,48 @@ import { NavLink, useOutletContext } from 'react-router-dom'
 import Button from './Button'
 import { Bell, Menu } from 'lucide-react'
 
+// دالة مساعدة للتحقق من وجود الصلاحية لدى المستخدم (مطابقة لنفس الدالة في SidebarAdmin)
+const hasPermission = (requiredPermission) => {
+  const permissions = JSON.parse(localStorage.getItem("permissions") || "[]");
+  if (!requiredPermission) return true;
+  if (Array.isArray(requiredPermission)) {
+    return requiredPermission.some((perm) => permissions.includes(perm));
+  }
+  return permissions.includes(requiredPermission);
+};
+
 function AppBar() {
   const navLinks = [
-    { to: "/main/system/stats", label: "Stats" },
-    { to: "/main/system/employee", label: "Employees" },
-    { to: "/main/system/tickets", label: "Tickets" },
-    { to: "/main/system/departments", label: "Departments" },
-    { to: "/main/system/roles", label: "Roles" },
+    { 
+      to: "/main/system/stats", 
+      label: "Stats", 
+      permission: "VIEW_ANALYTICS" 
+    },
+    { 
+      to: "/main/system/employee", 
+      label: "Employees", 
+      permission: "MANAGE_USERS" 
+    },
+    { 
+      to: "/main/system/tickets", 
+      label: "Tickets", 
+      permission: ["VIEW_ALL_TICKETS", "VIEW_ASSIGNED_TICKETS", "UPDATE_TICKET_STATUS", "ADD_NOTE"] 
+    },
+    { 
+      to: "/main/system/departments", 
+      label: "Departments", 
+      permission: "VIEW_COMPANY_STRUCTURE" 
+    },
+    { 
+      to: "/main/system/roles", 
+      label: "Roles", 
+      permission: "MANAGE_ROLES" 
+    },
   ];
 
-  // أضفنا القيمة الافتراضية للـ Context لتجنب الأخطاء في حال عدم التمرير
+  // فلترة الروابط بناءً على صلاحيات المستخدم المخزنة في localStorage
+  const visibleNavLinks = navLinks.filter((link) => hasPermission(link.permission));
+
   const context = useOutletContext() || {};
   const { toggleSidebar } = context;
 
@@ -25,15 +57,15 @@ function AppBar() {
         {/* زر السايدبار */}
         <Button 
           onClick={toggleSidebar} 
-          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+          className="p-2 text-slate-300 hover:text-sky-400 rounded-lg transition-all shrink-0"
           aria-label="Toggle Sidebar"
         >
           <Menu size={20} />
         </Button>
 
-        {/* قائمة الروابط النافذة */}
+        {/* قائمة الروابط المفلترة */}
         <div className="flex items-center gap-1 sm:gap-2">
-          {navLinks.map((link) => (
+          {visibleNavLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -49,13 +81,6 @@ function AppBar() {
             </NavLink>
           ))}
         </div>
-      </div>
-
-      {/* القسم الأيمن: زر الإشعارات */}
-      <div className="shrink-0">
-        <Button className="p-2 text-yellow-500 hover:bg-slate-800/60 rounded-lg transition-all flex items-center justify-center">
-          <Bell className="w-5 h-5" />
-        </Button>
       </div>
 
     </nav>

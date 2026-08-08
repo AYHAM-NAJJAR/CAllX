@@ -11,6 +11,9 @@ import LoadingError from '../../components/common/LoadingError';
 import CreateTenantModal from './Modal/CreateTenantModal';
 import { updateTenant } from '../../services/Tenants/updateTenant';
 import CreateAdminTenant from './Modal/CreateAdminTenant';
+import { useOutletContext } from 'react-router-dom';
+import Button from '../../components/common/Button';
+import { Menu } from 'lucide-react';
 
 
 function ShowAllTenants() {
@@ -20,8 +23,8 @@ function ShowAllTenants() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalAdminOpen, setIsModalAdminOpen] = useState(false);
   const token = localStorage.getItem("Token");
-
-
+  const { toggleSidebar, showSidebar } = useOutletContext();
+  
   const refreshFlows = useCallback(async () => {
     if (!token) return;
     try {
@@ -54,12 +57,19 @@ function ShowAllTenants() {
     return <LoadingError Phrase={"Tenants"} />;
   }
      async function openUpdate(tenant) {
-        
-        const data = await updateTenant(tenant.tenantId,token);
-        if (data.success) {
-          alert(data.message)
-        }
-      }
+  // عكس الحالة الحالية (إذا كان true يصبح false والعكس)
+  const newStatus = !tenant.active; 
+
+  const data = await updateTenant(tenant.tenantId, token, newStatus);
+  if (data.success) {
+    
+    
+    refreshFlows(); // استدعاء دالة تحديث البيانات
+  } else {
+    console.log(data.message);
+    alert(data.message);
+  }
+}
 
   return (
     <>
@@ -77,9 +87,17 @@ function ShowAllTenants() {
         
       <div className="max-w-6xl p-20 mx-auto">
         <div className="flex justify-between items-center mb-8">
-        <div>
+        <div className='flex items-start justify-start'>
+        <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-white  hover:text-sky-500 transition-colors duration-300 ease-in"
+        >
+          <Menu size={30} />
+        </Button>
+           <div className='flex flex-col'>
             <h1 className="text-3xl text-white font-bold">Company Tenants</h1>
             <p className="text-slate-400">Manage your organization's tenants and their status from here.</p>
+            </div> 
         </div>
 
           <div  className='flex gap-2 items-center' >

@@ -70,9 +70,9 @@ const CreateTenantModal = ({ isOpen, onClose, onSuccess }) => {
         <h2 className="text-2xl font-semibold text-white">Create New Tenant</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Tenant ID</label>
+            <label className="block text-xs font-bold uppercase text-slate-400 mb-2">Tenant IDentity</label>
             <input
-              placeholder='oreints-tenant(String)'
+              placeholder='oreints-tenant(TEXT)'
               name="tenantId"
               value={formData.tenantId}
               onChange={handleInputChange}
@@ -88,6 +88,7 @@ const CreateTenantModal = ({ isOpen, onClose, onSuccess }) => {
               onChange={handleInputChange}
               className="w-full text-white bg-[#1e293b] border border-slate-700 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
               required
+              placeholder='United-Tech(TEXT)'
             />
           </div>
         </div>

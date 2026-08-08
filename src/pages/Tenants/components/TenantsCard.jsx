@@ -16,12 +16,12 @@ const TenantsCard = ({ tenant ,openUpdate  }) => {
         </div>
         
         <Button
-        onClick={()=>openUpdate(tenant)}
-        className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold 
-          ${tenant.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          {tenant.active ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
-          {tenant.active ? 'Active' : 'Inactive'}
-        </Button>
+  onClick={() => openUpdate(tenant)}
+  className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer
+    ${tenant.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+  {tenant.active ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+  {tenant.active ? 'Active' : 'Inactive'}
+</Button>
       </div>
       
       {/* Body Section */}

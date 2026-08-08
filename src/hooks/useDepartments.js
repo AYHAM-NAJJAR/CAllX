@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { allDepartments } from '../services/CompanyStructure/getAllDepartments';
 
-export const useDepartments = (token, isForSelect = false) => {
+// 1. هوك جلب الأقسام مع دعم البحث المحلي
+export const useDepartments = (token, isForSelect = false, search = "") => {
   return useQuery({
     queryKey: ['departments'], 
     queryFn: () => allDepartments(token), 
@@ -9,21 +10,32 @@ export const useDepartments = (token, isForSelect = false) => {
     select: (response) => {
       const departments = response.departments || [];
 
+      // 👈 منطق البحث المحلي في الأقسام (يدعم العربية والإنجليزية في كل حقول القسم)
+      const filteredDepartments = departments.filter((dept) => {
+        if (!search || search.trim() === "") return true;
+        const query = search.trim().toLowerCase();
+        return Object.values(dept).some((value) => {
+          if (value === null || value === undefined) return false;
+          return String(value).toLowerCase().includes(query);
+        });
+      });
+
       // إذا أرسلنا المتغير true، قم بتحويل البيانات لتناسب react-select
       if (isForSelect) {
-        return departments.map((dept) => ({
+        return filteredDepartments.map((dept) => ({
           value: dept.id,   // القيمة التي ستخزن (Id)
           label: dept.name, // النص الذي سيظهر للمستخدم (Name)
         }));
       }
 
-      // إذا لم نرسله (أو كان false)، أرجع المصفوفة العادية كما هي
-      return departments;
+      // إذا لم نرسله (أو كان false)، أرجع المصفوفة المصفاة كما هي
+      return filteredDepartments;
     },
   });
 };
-// 2. هوك جلب التصنيفات بناءً على القسم المختار
-export const useDepartmentCategories = (token, selectedDepartmentId, isForSelect = false) => {
+
+// 2. هوك جلب التصنيفات بناءً على القسم المختار مع دعم البحث المحلي
+export const useDepartmentCategories = (token, selectedDepartmentId, isForSelect = false, search = "") => {
   return useQuery({
     queryKey: ['departments'], // نفس الكي لضمان الكاش
     queryFn: () => allDepartments(token),
@@ -36,18 +48,28 @@ export const useDepartmentCategories = (token, selectedDepartmentId, isForSelect
         (dept) => String(dept.id) === String(selectedDepartmentId)
       );
 
-      // استخراج مصفوفة الـ categories التابعة له، أو إرجاع مصفوفة فارغة لو لم تُوجد
+      // استخراج مصفوفة الـ categories التابعة له
       const categories = currentDept?.categories || [];
 
+      // 👈 منطق البحث المحلي في التصنيفات التابعة للقسم
+      const filteredCategories = categories.filter((cat) => {
+        if (!search || search.trim() === "") return true;
+        const query = search.trim().toLowerCase();
+        return Object.values(cat).some((value) => {
+          if (value === null || value === undefined) return false;
+          return String(value).toLowerCase().includes(query);
+        });
+      });
+
       if (isForSelect) {
-        // عمل الخريطة على الـ categories نفسها وليس على الـ departments
-        return categories.map((cat) => ({
-          value: cat.id, // القيمة المستهدفة (مثال: "Hrlevel1")
+        // عمل الخريطة على الـ filteredCategories المصفاة
+        return filteredCategories.map((cat) => ({
+          value: cat.id, // القيمة المستهدفة
           label: cat.name, // النص المعروض
         }));
       }
       
-      return categories;
+      return filteredCategories;
     },
   });
 };

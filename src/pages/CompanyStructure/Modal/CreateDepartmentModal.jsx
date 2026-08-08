@@ -7,7 +7,7 @@ import Input from '../../../components/common/Input';
 import { createDepartmentService } from '../../../services/CompanyStructure/CreateDepartment';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
-import LoadingCircle from '../../../components/common/LoadingCircle';
+import  LoadingInButton from '../../../components/common/LoadingInButton';
 
 // import useReactRouterBreadcrumbs from 'use-react-router-breadcrumbs';
 
@@ -90,7 +90,7 @@ const CreatDepartmentModal = ({isOpen , onClose ,onSuccess}) => {
                                 className="rounded-lg bg-customButton px-2.5 py-2.5 text-sm font-bold text-[#0f172a] hover:bg-[#c5d3ff] transition-all"
                             >
                                 {loading ? (
-                                    <LoadingCircle />
+                                      <LoadingInButton/>
                                 ) : (
                                     t('department.generateButton')
                                 )}

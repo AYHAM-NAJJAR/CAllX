@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
-import timer from "../../../assets/timer.png"
-import Button from '../../common/Button';
+import timer from "../../assets/timer.png"
+import Button from '../../components/common/Button';
 Modal.setAppElement('#root');
 
 const labelStyle = "block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2";

@@ -32,7 +32,7 @@ const UpdateFlowModal = ({ isOpen, onClose, onSuccess, flowData }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    
     setLoading(true);
 
     const payload = {

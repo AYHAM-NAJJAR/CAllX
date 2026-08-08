@@ -28,6 +28,7 @@ export const createticket= "/admin/tickets"
 export const getoneticket= "/admin/tickets/"
 export const updateticket = "/admin/tickets/"
 export const deleteticket = "/admin/tickets/"
+export const ticketstats = "/admin/tickets/stats"
 //*  —————————————————————————————————————————— *//
 //* Company Structure *//
 export const createDepartment = "/structure/departments"
@@ -38,6 +39,8 @@ export const createCategory = "/structure/departments/"
 export const createRole= "/roles"
 export const allRoles= "/roles"
 export const getAllPermissions = "/roles/permissions"
+export const updaterole = "/roles/"
+export const deleterole = "/roles/"
 //*  —————————————————————————————————————————— *//
 //* User management  *//
 export const createuser= "/admin/users"
@@ -81,6 +84,7 @@ export const runaudio = "/ivr/audio/static/tenant_1/"
 //* Tenants Management *//
 export const alltenants= "/tenants"
 export const createtenant= "/tenants"
+export const createadmintenant= "/super-admin/tenant-admins"
 export const updatetenant= "/tenants/"
 
 //*  —————————————————————————————————————————— *//
@@ -115,8 +119,24 @@ export const deletelead = "/v1/crm/leads/"
 export const convertlead = "/v1/crm/leads/"
 //*  —————————————————————————————————————————— *//
 
+//* —————————————————————————————————————————— *//
+//*Integration *//
+export const integrationsetting = "/settings"
+export const allactive = "/settings/list/active"
 //*  —————————————————————————————————————————— *//
+//* live stats *//
+export const stats = "/stats/live"
+export const roomshistory = "/stats/history"
+export const summary = "/stats/summary"
+
+//* Calls*/
+export const getallcalls = "/calls"
+//* *//
 
 
+//*Queues */
+export const createqueue= "/queues"
+export const getallqueues= "/queues"
+//** */
 // ** ENDPOINTS END ** //
 

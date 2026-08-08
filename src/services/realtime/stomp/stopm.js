@@ -119,7 +119,7 @@ const subscribeAgentChannel = (agentEmail, onUiUpdate) => {
     try {
       const payload = JSON.parse(msg.body);
       console.log("📩 تم استقبال حدث من قناة الوكيل:", payload);
-
+      
       // أ. التنبيه بمكالمة واردة (RINGING)
       if (payload.status === "RINGING" || payload.status === "ASSIGNED") {
         currentCallId = payload.callId;

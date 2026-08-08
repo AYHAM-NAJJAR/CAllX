@@ -1,12 +1,15 @@
 import React from 'react';
-import { Clock, Trophy, Smile, Users, BarChart2, Loader2, AlertCircle } from 'lucide-react';
+import { Clock, Trophy, Smile, Users, BarChart2, Loader2, AlertCircle, Menu } from 'lucide-react';
 import { useAgentsPerformanceMetrics } from '../../hooks/useAgentsPerformanceMetrics';
 import LoadingCircle from '../../components/common/LoadingCircle';
+import { useOutletContext } from 'react-router-dom';
+import Button from '../../components/common/Button';
 
 function AgentsPerformance() {
   // جلب التوكن من الـ LocalStorage أو من الـ Auth Context حسب إعدادات مشروعك
   const token = localStorage.getItem("Token"); 
-
+   const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
   // استدعاء الـ Hook وجلب البيانات الحقيقية
   const { data: performanceData, isLoading, isError, error } = useAgentsPerformanceMetrics(token);
 
@@ -15,7 +18,6 @@ function AgentsPerformance() {
     return (
       <div className="min-h-screen bg-primary text-slate-100 flex flex-col items-center justify-center gap-3">
         <LoadingCircle/>
-       
       </div>
     );
   }
@@ -41,8 +43,18 @@ function AgentsPerformance() {
     <div className="min-h-screen bg-primary text-slate-100 p-6 font-sans">
       
       {/* الهيدر أو رأس الصفحة */}
-      <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-5">
-        <div>
+      <div className="flex flex-col items-start justify-between mb-8 border-b border-slate-800 pb-5">
+        
+         <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+          aria-label="Toggle Sidebar"
+        >
+          <Menu size={22} />
+        </Button>
+        <div className='flex flex-row items-center p-4 justify-center'>
+          
+          <div className='flex  flex-col '>
           <h1 className="text-2xl font-bold tracking-wide uppercase flex items-center gap-2">
             <BarChart2 className="text-[#10B981]" size={24} />
               Agents Performance
@@ -51,6 +63,9 @@ function AgentsPerformance() {
             Real-time analytics and agent productivity metrics.
           </p>
         </div>
+        </div>
+        
+        
         
         {/* مؤشر تحديث البيانات تلقائياً أو فلتر */}
         <div className="flex items-center gap-2 text-xs bg-primary border border-slate-800 px-3 py-1.5 rounded-md text-slate-400">

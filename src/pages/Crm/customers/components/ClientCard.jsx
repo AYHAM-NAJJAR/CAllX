@@ -1,10 +1,10 @@
-import React from "react";
+
 import { User, ShieldCheck, Tag, ArrowUpRight, PhoneCall, Mail } from "lucide-react";
 import Button from "../../../../components/common/Button";
 
-const ClientCard = ({ client }) => {
+const ClientCard = ({ client,onCall }) => {
   const { id, name, type, status, ownerAgentId, tagNames, phoneNumber, email } = client;
-
+  
   return (
     <div className="bg-[#101B22] border border-[#1e293b] rounded-xl p-5 shadow-xl flex flex-col justify-between transition-all duration-300 hover:border-[#0D9EF2]/40 group">
       <div>
@@ -56,14 +56,14 @@ const ClientCard = ({ client }) => {
           </div>
 
           {phoneNumber && (
-            <a
-              href={`tel:${phoneNumber}`}
-              onClick={(e) => e.stopPropagation()}
+            <Button
+
+              onClick={onCall}
               className="shrink-0 px-2.5 py-1 rounded-md bg-[#0D9EF2]/10 hover:bg-[#0D9EF2] text-[#0D9EF2] hover:text-white border border-[#0D9EF2]/30 text-[10px] font-bold transition-all duration-200 flex items-center gap-1"
             >
-              <span>Call</span>
+              Call
               <PhoneCall size={10} />
-            </a>
+            </Button>
           )}
         </div>
 

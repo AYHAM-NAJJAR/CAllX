@@ -5,6 +5,8 @@ import axios from "axios";
 import { SECONDARY_URL, updateflow } from "../../../Api/endpoints";
 
 export const updateFlow = async (flowId, data, token) => {
+  console.log(flowId);
+  
   try {
     const response = await axios.put(
       `${SECONDARY_URL}${updateflow}${flowId}`,

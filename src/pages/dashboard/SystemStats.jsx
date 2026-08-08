@@ -5,13 +5,14 @@ import { useSystemStats } from '../../hooks/useSystemStats';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import LoadingError from '../../components/common/LoadingError';
 import Button from '../../components/common/Button';
-import { useOutletContext } from 'react-router-dom';
+import TicketStats from './TicketStats';
+
 
 function SystemStats() {
   const token = localStorage.getItem("Token");
   const { data: stats, isLoading, isError } = useSystemStats(token);
-  const { toggleSidebar, showSidebar } = useOutletContext();
   // 1. حالة التحميل (Loading State)
+  console.log(stats);
     if (isLoading) {
     return (
       <LoadingCircle Phrase={"System Stats"}/>
@@ -44,7 +45,7 @@ function SystemStats() {
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-100">
-      
+      <TicketStats token={token}/>
       {/* الهيدر أو رأس الصفحة */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <div className=''>

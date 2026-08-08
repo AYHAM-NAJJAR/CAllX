@@ -7,6 +7,7 @@ import Modal from 'react-modal';
 import role from "../../../assets/role.png"
 import { usePermissions } from '../../../hooks/usePermissions';
 import LoadingCircle from '../../../components/common/LoadingCircle';
+import LoadingInButton from '../../../components/common/LoadingInButton';
 
 function CreateRoleModal({isOpen , onClose , onSuccess}) {
   const [roleName, setRoleName] = useState('');
@@ -41,6 +42,14 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
   
   async function handleCreateRole() {
     try {
+      if (!roleName) {
+        toast.error("You must Write Role", {
+                position: "top-left",
+                autoClose: 3000,
+                className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
+              });
+      }
+       
       setLoading(true);
       const response = await createRoleService(roleName, selectedPermissions, token);
       
@@ -92,6 +101,7 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
           <input
             id="roleName"
             type="text"
+            required
             value={roleName}
             onChange={(e) => setRoleName(e.target.value)}
             className="w-full bg-[#111318] border border-[#2A2E37] rounded-lg px-4 py-2.5 text-sm text-[#FFFFFF] outline-none focus:ring-1 focus:ring-[#6366F1] transition"
@@ -179,7 +189,7 @@ function CreateRoleModal({isOpen , onClose , onSuccess}) {
               onClick={handleCreateRole}
             >
                {loading ? (
-                  <LoadingCircle/>
+                  <LoadingInButton/>
                 ) : (
                   <p>Create Role</p>
                 )}

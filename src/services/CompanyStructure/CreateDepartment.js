@@ -19,7 +19,7 @@ export const createDepartmentService = async (department, token) => {
     if (response.status === 200 || response.status === 201) {
       return {
         success: true,
-        message: response.data.message,
+        message: "Create Department Done",
       };
     }
 

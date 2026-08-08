@@ -5,17 +5,18 @@ import TagCard from './components/TagCard';
 import { useTags } from '../../../hooks/useTags';
 import { deleteTag } from '../../../services/CRM/Tags/DeleteTag';
 import { toast } from 'react-toastify';
+import { SearchInput } from '../../../components/common/SearchInput';
 
 function GetAllTags() {
   const [isOpenModalCreateTag, setIsOpenModalCreateTag] = useState(false);
   const token = localStorage.getItem("Token");
-  
+  const [search, setSearch] = useState("");
   // 1. استخراج دالة التحديث (refetch) من الـ hook 
   // (تأكد أن الـ hook الخاص بك يرجع هذه الدالة، قد يكون اسمها mutate إذا كنت تستخدم SWR أو React Query)
   const { 
       data: tags = [], 
       refetch 
-    } = useTags(token);
+    } = useTags(token,search);
 
   // تم تغيير اسم الدالة إلى handleDelete كأفضل ممارسة في React
   async function handleDelete(id) {
@@ -58,12 +59,21 @@ function GetAllTags() {
               Organize and categorize support tickets and accounts for smarter, faster routing.
             </p>
           </div>
-          <Button 
+          <div className='flex gap-2'>
+            <Button 
             onClick={() => setIsOpenModalCreateTag(true)}
             className="bg-[#0D9EF2] hover:bg-sky-500 text-white font-bold px-5 py-2.5 rounded-full transition ease-in text-sm shrink-0 shadow-lg shadow-[#0D9EF2]/20"
           >
-            + Create New Tag
+            Create New Tag
           </Button>
+           <SearchInput
+                        placeholder={"Search About Tag name"} 
+                        value={search} 
+                        onChange={(val) => {
+                        setSearch(val);
+                    }} 
+                  />
+          </div>
         </header>
 
         {/* Educational Concept Box */}

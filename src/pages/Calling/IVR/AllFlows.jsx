@@ -6,6 +6,9 @@ import { allFlows } from '../../../services/call/IVR/Flow/getAllFlows';
 import LoadingCircle from '../../../components/common/LoadingCircle';
 import LoadingError from '../../../components/common/LoadingError';
 import UpdateFlowModal from './Modal/UpdateFlowModal';
+import { useOutletContext } from 'react-router-dom';
+import { Menu } from 'lucide-react';
+import Button from '../../../components/common/Button';
 
 function AllFlows() {
   const [flows, setFlows] = useState([]);
@@ -15,7 +18,8 @@ function AllFlows() {
   const token = localStorage.getItem("Token");
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [selectedFlow, setSelectedFlow] = useState("");
-
+   const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
   const refreshFlows = useCallback(async () => {
     if (!token) return;
     try {
@@ -69,12 +73,21 @@ function AllFlows() {
           onSuccess={refreshFlows}
         />
         )}
-      <div className="max-w-6xl p-6 mx-auto">
+      <div className="max-w-6xl p-10 mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <div>
+       <div className='flex items-start justify-start'>
+           <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+          aria-label="Toggle Sidebar"
+        >
+          <Menu size={20} />
+        </Button>
+          <div  className='flex flex-col'>
             <h1 className="text-3xl text-white font-bold">IVR Flows</h1>
             <p className="text-slate-100">Manage your automated call flows from here.</p>
           </div>
+       </div>
 
           <button
             onClick={() => setIsModalOpen(true)}

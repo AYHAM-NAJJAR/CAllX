@@ -8,7 +8,8 @@ import { motion } from 'framer-motion';
 import role from "../../assets/role.png"
 import { usePermissions } from '../../hooks/usePermissions';
 import { h1 } from 'framer-motion/client';
-import LoadingCircle from '../../components/common/LoadingCircle';
+import LoadingInButton from '../../components/common/LoadingInButton';
+
 
 function CreateRole() {
   const [roleName, setRoleName] = useState('');
@@ -129,6 +130,7 @@ function CreateRole() {
           </div>
           <input
             id="roleName"
+            required
             type="text"
             value={roleName}
             onChange={(e) => setRoleName(e.target.value)}
@@ -215,7 +217,7 @@ function CreateRole() {
 
                  {loading ? (
                             <>
-                                <LoadingCircle/>
+                                <LoadingInButton/>
                             </>
                             ):(
                                 <p>Create Role</p>

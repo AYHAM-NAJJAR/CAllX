@@ -19,7 +19,7 @@ import Panel from "./pages/dashboard/Panel"
 import ServiceDown from "./pages/common/ServiceDown";
 import GetAllEmployees from "./pages/UserManagement/employees/GetAllEmployees";
 import Modal from 'react-modal';
-import MainDashboard from "./pages/dashboard/MainDashboard";
+
 import System from "./pages/dashboard/System";
 import ShowAllTickets from "./pages/Ticketing/ShowAllTickets";
 import EmployeeDetails from "./pages/UserManagement/employees/EmployeeDetails";
@@ -56,6 +56,14 @@ import ShowAllCustomers from "./pages/Crm/customers/ShowAllCustomers";
 import GetLeads from "./pages/Crm/leads/GetLeads";
 import CallRoom from "./pages/Calling/CallRoom";
 import FieldDefinitionDetails from "./pages/Ticketing/FieldDefinitionDetails";
+import Integration from "./pages/Integrations/Integration";
+import ShowAllSettings from "./pages/Integrations/ShowAllSettings";
+import CallSYS from "./pages/Calling/CallSYS";
+import StickyNotesManager from "./components/common/StickyNotesManager";
+import GetAllCalls from "./pages/Calling/GetAllCalls";
+import GetCallDetails from "./pages/Calling/GetCallDetails";
+import CreateQueue from "./pages/Queues/CreateQueue";
+import GetAllQueus from "./pages/Queues/GetAllQueus";
 Modal.setAppElement('#root');
 
 function App() {
@@ -80,6 +88,7 @@ function App() {
      
     <QueryClientProvider client={queryClient}>
       <div dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}>
+        <StickyNotesManager />
         <Routes>
           <Route 
             path="/" 
@@ -89,15 +98,15 @@ function App() {
           {/* المسارات الخاصة بك */}
           <Route 
             path="/department" 
-            element={<PermissionGuard requiredPermission="MANAGE_USERS"><CreateDepartment/></PermissionGuard>} 
+            element={<PermissionGuard requiredPermission="MANAGE_COMPANY_STRUCTURE"><CreateDepartment/></PermissionGuard>} 
           />
           <Route 
             path="/department/category" 
-            element={<PermissionGuard requiredPermission="MANAGE_USERS"><CreateCategoryToDepartment/></PermissionGuard>} 
+            element={<PermissionGuard requiredPermission="MANAGE_COMPANY_STRUCTURE"><CreateCategoryToDepartment/></PermissionGuard>} 
           />
           <Route 
             path="/roles" 
-            element={<PermissionGuard requiredPermission="MANAGE_USERS"><CreateRole/></PermissionGuard>} 
+            element={<PermissionGuard requiredPermission="MANAGE_ROLES"><CreateRole/></PermissionGuard>} 
           />
           <Route 
             path="/employees" 
@@ -105,7 +114,7 @@ function App() {
           />
           <Route 
             path="/ticketing" 
-            element={<PermissionGuard requiredPermission="MANAGE_USERS"><CreateFieldDefinition inSystem={false}/></PermissionGuard>} 
+            element={<PermissionGuard requiredPermission="MANAGE_FIELD_DEFINITIONS"><CreateFieldDefinition inSystem={false}/></PermissionGuard>} 
           />
          
           {/* <Route 
@@ -114,46 +123,52 @@ function App() {
           /> */}
           <Route 
             path="/ivr/:flowId" 
-            element={<PermissionGuard requiredPermission="MANAGE_USERS"><IVR/></PermissionGuard>} 
+            element={<PermissionGuard requiredPermission="MANAGE_WORKFLOWS"><IVR/></PermissionGuard>} 
           />
           <Route path="/main" element={<Panel/>}>
-            <Route index element={<PermissionGuard requiredPermission=""><MainDashboard/></PermissionGuard>} />
-            <Route path="calling" element={<AgentTerminal/>} />
+            <Route index element={<CallSYS/>} />
+            <Route path="calls" element={<GetAllCalls/>}>
+            <Route path="details/:cid" element={<GetCallDetails/>} />
+            </Route>
+            <Route path="queue" element={<CreateQueue/>} >
+              <Route path="all" element={<GetAllQueus/>} />
+            </Route>
+            
             <Route path="call-room" element={<CallRoom/>} />
             <Route path="calling/makecall" element={<MakeCall/>} />
-            <Route path="workengine" element={<GetAllWorkFlowEngines/>}>
-              <Route path="create" element={<CreateWorkFlowRules/>} />
-              <Route path="details/:id" element={<WorkFlowDetail/>} />
+            <Route path="workengine" element={<PermissionGuard requiredPermission={["VIEW_WORKFLOWS", "MANAGE_WORKFLOWS"]}><GetAllWorkFlowEngines/></PermissionGuard>}>
+              <Route path="create" element={<PermissionGuard requiredPermission="MANAGE_WORKFLOWS"><CreateWorkFlowRules/></PermissionGuard>} />
+              <Route path="details/:id" element={<PermissionGuard requiredPermission="VIEW_WORKFLOWS"><WorkFlowDetail/></PermissionGuard>} />
             </Route>
-              <Route path="flow" element={<PermissionGuard requiredPermission=""><AllFlows/></PermissionGuard>} />
+              <Route path="flow"  element={<PermissionGuard requiredPermission="MANAGE_WORKFLOWS"><AllFlows/></PermissionGuard>}  />
             <Route path="system" element={<System/>}>
               {/* <Route index element={<Navigate to="employee" replace />} /> */}
               <Route index element={<Navigate to="stats" replace />} />
-              <Route path="stats" element={<SystemStats/>} />
-              <Route path="employee" element={<GetAllEmployees/>}>
+              <Route path="stats" element={<PermissionGuard requiredPermission={["VIEW_ANALYTICS", "VIEW_MONITORING"]}><SystemStats/></PermissionGuard>} />
+              <Route path="employee" element={<PermissionGuard requiredPermission="MANAGE_USERS"><GetAllEmployees/></PermissionGuard>}>
                 <Route path="details/:id" element={<EmployeeDetails/>} />
               </Route>
               
-              <Route path="tickets" element={<ShowAllTickets/>}>
+              <Route path="tickets" element={<PermissionGuard requiredPermission={["VIEW_ALL_TICKETS", "VIEW_OWN_TICKETS", "VIEW_ASSIGNED_TICKETS"]}><ShowAllTickets/></PermissionGuard> }>
                 <Route  path="details/:id" element={<TicketDetails/>}  />
-                <Route path="structure" element={<BuildTicketStructrue/>}>
+                <Route path="structure" element={<PermissionGuard requiredPermission={["MANAGE_FIELD_DEFINITIONS", "VIEW_FIELD_DEFINITIONS"]}><BuildTicketStructrue/></PermissionGuard>}>
                   <Route index element={<Navigate to="createField" replace />} />
-                  <Route path="createField" element={<CreateFieldDefinition inSystem={true}/>} />
-                  <Route path="single/:fieldID" element={<FieldDefinitionDetails/>} />
-                  <Route path="allFields" element={<AllFields/>} />
-                  <Route path="active" element={<AllActiveFields/>} />
-                  <Route path="inactive" element={<AllInActiveFields/>} />
+                  <Route path="createField" element={<PermissionGuard requiredPermission="MANAGE_FIELD_DEFINITIONS"><CreateFieldDefinition inSystem={true}/></PermissionGuard>} />
+                  <Route path="single/:fieldID" element={<PermissionGuard requiredPermission="VIEW_FIELD_DEFINITIONS"><FieldDefinitionDetails/></PermissionGuard>} />
+                  <Route path="allFields" element={<PermissionGuard requiredPermission="VIEW_FIELD_DEFINITIONS"><AllFields/></PermissionGuard>} />
+                  <Route path="active" element={<PermissionGuard requiredPermission="VIEW_FIELD_DEFINITIONS"><AllActiveFields/></PermissionGuard>} />
+                  <Route path="inactive" element={<PermissionGuard requiredPermission="VIEW_FIELD_DEFINITIONS"><AllInActiveFields/></PermissionGuard>} />
                 </Route>
               </Route>
-              <Route path="departments" element={<GetAllDepartments/>} />
-              <Route path="roles" element={<GetAllRoles/>}>
+              <Route path="departments" element={<PermissionGuard requiredPermission={["VIEW_COMPANY_STRUCTURE", "MANAGE_COMPANY_STRUCTURE"]}><GetAllDepartments/></PermissionGuard>} />
+              <Route path="roles" element={<PermissionGuard requiredPermission="MANAGE_ROLES"><GetAllRoles/></PermissionGuard>}>
                 
               </Route>
             </Route>
-            <Route path="tenants" element={<ShowAllTenants/>}></Route>
-            <Route path="performance" element={<AgentsPerformance/>}></Route>
-            <Route path="monitory" element={<Monitory/>}></Route>
-            <Route path="audit" element={<AuditLogs/>}></Route>
+            <Route path="tenants" element={<PermissionGuard requiredPermission={["VIEW_TENANTS", "MANAGE_TENANT_STATUS", "CREATE_TENANT"]}><ShowAllTenants/></PermissionGuard>}></Route>
+            <Route path="performance" element={<PermissionGuard requiredPermission={["VIEW_ANALYTICS", "VIEW_MONITORING"]}><AgentsPerformance/></PermissionGuard>}></Route>
+            <Route path="monitory" element={<PermissionGuard requiredPermission="VIEW_MONITORING"><Monitory/></PermissionGuard>}></Route>
+            <Route path="audit" element={<PermissionGuard requiredPermission="VIEW_AUDIT_LOGS"><AuditLogs/></PermissionGuard>}></Route>
             <Route path="customers" element={<ShowAllCustomers/>}>
               <Route path="details/:id" element={<CustomerDetails/>} />
               <Route path="tags" element={<GetAllTags/>} />
@@ -161,109 +176,16 @@ function App() {
              <Route path="campaigns" element={<ShowAllCampaigns/>}/>
              <Route path="leads" element={<GetLeads/>}/>
              <Route path="profile" element={<Profile/>} />
+             <Route path="integration" element={<Integration/>} >
+              <Route path="all" element={<ShowAllSettings/>} />
+             </Route>
              <Route path="doc" element={<Documentation/>} />
           </Route>
         </Routes>
       </div>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   
   );
 }
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from "react";
-// import { Navigate, Route, Routes } from "react-router-dom";
-// import Modal from "react-modal";
-
-// // Imports
-// import Login from "./pages/auth/Login";
-// import Panel from "./pages/agent/Panel";
-// import Tickets from "./pages/agent/Tickets";
-// import Dashboard from "./pages/agent/Dashboard";
-// import ShowAllTickets from "./pages/agent/ShowAllTickets";
-// import TicketDetails from "./pages/agent/Ticket Details";
-// import OutboundCall from "./pages/agent/OutboundCall";
-// import Customers from "./pages/agent/Customers";
-// import CallRoom from "./pages/agent/CallRoom";
-// import AdminPanel from "./pages/admin/AdminPanel";
-// import AdminDashboard from "./pages/admin/AdminDashboard";
-// import CreateFieldDefinition from "./pages/admin/CreateFieldDefinition";
-
-// import CreateDepartment from "./pages/admin/CreateDepartment";
-
-// Modal.setAppElement("#root");
-
-// function App() {
-//   // جلب الـ role من التخزين المحلي (هنا وضعنا قيمة افتراضية للتجربة)
-//   const [role] = useState(localStorage.getItem("role"));
-
-//   return (
-//     <Routes>
-//       {/* صفحة تسجيل الدخول: إذا مسجل دخول، حوله حسب الرتبة */}
-//       <Route 
-//         path="/" 
-//         element={
-//           !role ? 
-//           <Login />
-          
-//           : <Navigate to={role === "admin" ? "/admin" : "/main"} replace />
-//         } 
-//       />
-
-//       {/* 1. مسارات الـ Agent والـ Supervisor (صلاحيات مشتركة أو خاصة) */}
-//       {(role === "agent") && (
-//         <Route path="/main" element={<Panel/>}>
-//           <Route index element={<Dashboard />} />
-//           <Route path="callroom" element={<CallRoom />} />
-//           <Route path="makecall" element={<OutboundCall />} />
-//           <Route path="customers" element={<Customers />} />
-          
-//           <Route path="tickets" element={<Tickets />}>
-//             <Route path="alltickets" element={<ShowAllTickets />}>
-//               <Route path="ticketdetails" element={<TicketDetails />} />
-//             </Route>
-//           </Route>
-
-//           {/* ميزة خاصة فقط بالـ Supervisor داخل لوحة الـ Agent */}
-//           {role === "supervisor" && (
-//             <Route path="reports" element={<div>تقارير المشرفين</div>} />
-//           )}
-//         </Route>
-//       )}
-
-//       {/* 2. مسارات الـ Admin فقط */}
-//       {role === "admin" && (
-//        <>
-//          <Route path="/admin" element={<CreateFieldDefinition/>}/>
-//          <Route path="/department" element={<CreateDepartment/>}/>
-//           <Route path="/panel" element={<AdminPanel/>}>
-//             <Route index element={<AdminDashboard/>} />
-//             <Route path="live"/>
-//           </Route>
-//        </>
-        
-//       )}
-
-//       {/* 3. الحماية: إذا حاول أي شخص دخول رابط غير مسموح له */}
-//       <Route path="*" element={<Navigate to="/" replace />} />
-//     </Routes>
-//   );
-// }
-
-// export default App;

@@ -10,9 +10,15 @@ const PermissionGuard = ({ children, requiredPermission }) => {
     return <Navigate to="/" replace />;
   }
 
-  // 2. إذا كان هناك توكن ولكن لا يملك الصلاحية المطلوبة
-  if (requiredPermission && !permissions.includes(requiredPermission)) {
-    return <Navigate to="/main" replace />; // أو صفحة "ليس لديك صلاحية"
+  // 2. التحقق من الصلاحيات (سواء كانت مفردة أو مصفوفة)
+  if (requiredPermission) {
+    const hasPermission = Array.isArray(requiredPermission)
+      ? requiredPermission.some((perm) => permissions.includes(perm))
+      : permissions.includes(requiredPermission);
+
+    if (!hasPermission) {
+      return <Navigate to="/main" replace />; // أو صفحة "ليس لديك صلاحية"
+    }
   }
 
   return children;

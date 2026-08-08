@@ -2,8 +2,9 @@ import axios from "axios";
 import { BASE_URL, updatetenant } from "../Api/endpoints";
 
 export const updateTenant = async (tenantId, token, Status) => {
+  
   try {
-    const response = await axios.put(
+    const response = await axios.patch(
       `${BASE_URL}${updatetenant}${tenantId}/status?active=${Status}`,
       {}, 
       {

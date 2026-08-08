@@ -36,12 +36,12 @@ export default function OutboundWSProvider({ children }) {
     setIsConnected(false);
   };
 
-  // useEffect(() => {
-  //   connect();
-  //   return () => {
-  //     disconnect();
-  //   };
-  // }, []);
+  useEffect(() => {
+    connect();
+    return () => {
+      disconnect();
+    };
+  }, []);
 
   return (
     <OutboundWSContext.Provider value={{ isConnected, connect, disconnect }}>

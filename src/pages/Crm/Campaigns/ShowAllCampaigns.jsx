@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { Megaphone, Info } from 'lucide-react'; // أيقونات معبرة
+import { Megaphone, Info, Menu } from 'lucide-react'; // أيقونات معبرة
 import Button from '../../../components/common/Button';
 import CampaignCard from './components/CampaignCard';
 import { getAllCampaigns } from '../../../services/CRM/Campaigns/getAllCampaigns';
@@ -7,6 +7,7 @@ import { deleteCampaign } from '../../../services/CRM/Campaigns/deleteCampaign';
 import { toast } from 'react-toastify';
 import CreateCampaignModal from './Modal/CreateCampaignModel';
 import UpdateCampaignModal from './Modal/UpdateCampaignModal';
+import { useOutletContext } from 'react-router-dom';
 
 
 function ShowAllCampaigns() {
@@ -17,7 +18,8 @@ function ShowAllCampaigns() {
   const [isModalCreateCampaignOpen,setIsModalCreateCampaignOpen]=useState(false)
   const [isModalUpdateCampaignOpen,setIsModalUpdateCampaignOpen]=useState(false)
   const [selectedCampaignId, setSelectedCampaignId] = useState(null);
-
+     const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
   const handleOpenUpdateModal = (id) => {
   setSelectedCampaignId(id); // تخزين الـ id
   setIsModalUpdateCampaignOpen(true); // فتح المودال
@@ -79,9 +81,15 @@ function ShowAllCampaigns() {
         {/* Header Section */}
         <div className="flex items-center justify-between border-b border-gray-800 pb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#101B22] border border-[#1e293b] flex items-center justify-center">
-              <Megaphone className="text-[#0D9EF2]" size={20} />
-            </div>
+           
+                <Button 
+          onClick={toggleSidebar} 
+          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+          aria-label="Toggle Sidebar"
+        >
+          <Menu size={22} />
+        </Button>
+            
             <h1 className="text-2xl text-white font-bold tracking-wide">All Campaigns</h1>
           </div>
 
