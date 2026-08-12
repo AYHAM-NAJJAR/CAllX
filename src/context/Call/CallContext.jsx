@@ -19,6 +19,9 @@ export const CallProvider = ({ children }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [wsStatus, setWsStatus] = useState("Disconnected");
   const [agentEmail, setAgentEmail] = useState("");
+  
+  // 🟢 State جديدة لحفظ بيانات العميل المتصل الحالي وتوفيرها للواجهة
+  const [currentCustomer, setCurrentCustomer] = useState(null);
 
   const initInboundEngine = (token, queueId, email) => {
     setAgentEmail(email);
@@ -32,6 +35,7 @@ export const CallProvider = ({ children }) => {
           status,
           callId,
           callerIdentity,
+          customer, // 🟢 التقاط كائن العميل القادم من الـ Service
           room: livekitRoom,
           message,
           isWsConnected
@@ -46,18 +50,25 @@ export const CallProvider = ({ children }) => {
           setCallStatus(status);
         }
 
-        // تم الإصلاح: تحديث الحالة إلى CONNECTED لتفعيل المايك في الواجهة
         if (livekitRoom) {
           setRoom(livekitRoom);
           setCallStatus(CALL_STATUS.CONNECTED); 
         }
 
         if (status === CALL_STATUS.RINGING) {
-          const newCall = { callId, callerIdentity, status };
+          const newCall = { 
+            callId, 
+            callerIdentity, 
+            status,
+            customer: customer || null // حفظ بيانات العميل داخل المكالمة الواردة أيضاً
+          };
           addIncomingCall(newCall);
+          
+          if (customer) {
+            setCurrentCustomer(customer);
+          }
         }
 
-        // التنظيف الشامل إذا فصل العميل
         if (
           [
             CALL_STATUS.DISCONNECTED,
@@ -78,6 +89,12 @@ export const CallProvider = ({ children }) => {
     const targetCall = incomingCalls.find((c) => c.callId === callId) || { callId };
 
     setActiveCall(targetCall);
+    
+    // 🟢 نقل بيانات العميل للمكالمة النشطة عند القبول
+    if (targetCall.customer) {
+      setCurrentCustomer(targetCall.customer);
+    }
+
     removeIncomingCall(callId);
     setCallStatus(CALL_STATUS.CONNECTING_TO_ROOM);
 
@@ -86,13 +103,11 @@ export const CallProvider = ({ children }) => {
         setCallStatus(uiUpdate.status);
       }
 
-      // تم الإصلاح: تفعيل حالة الاتصال عند استلام الغرفة
       if (uiUpdate.room) {
         setRoom(uiUpdate.room);
         setCallStatus(CALL_STATUS.CONNECTED);
       }
 
-      // تنظيف الشاشة إذا فشل الاتصال أو فصل أثناء الرد
       if ([CALL_STATUS.FAILED, CALL_STATUS.DISCONNECTED, CALL_STATUS.ENDED, CALL_STATUS.CANCELLED].includes(uiUpdate.status)) {
         resetCallState();
       }
@@ -127,17 +142,15 @@ export const CallProvider = ({ children }) => {
     setIncomingCalls((prev) => prev.filter((c) => c.callId !== callId));
   };
 
-  // تم الإصلاح: مسح جميع المكالمات المعلقة لضمان اختفاء الواجهة
- const resetCallState = () => {
+  const resetCallState = () => {
     setActiveCall(null);
     setRoom(null);
     setIsMuted(false);
     setIncomingCalls([]); 
-    setCallStatus(CALL_STATUS.IDLE); // تأكد أن هذه تغير الحالة في الـ State
-    
-    // إضافي: فرض إعادة تصيير (Re-render) للواجهة إذا لزم الأمر
+    setCurrentCustomer(null); // 🟢 مسح بيانات العميل عند انتهاء المكالمة
+    setCallStatus(CALL_STATUS.IDLE); 
     console.log("UI Reset: All states cleared");
-};
+  };
 
   const value = {
     incomingCalls,
@@ -147,6 +160,7 @@ export const CallProvider = ({ children }) => {
     isMuted,
     wsStatus,
     agentEmail,
+    currentCustomer, // 🟢 تصدير بيانات العميل للاستخدام المباشر في أي واجهة
     initInboundEngine,
     handleAcceptCall,
     handleEndOrRejectCall,

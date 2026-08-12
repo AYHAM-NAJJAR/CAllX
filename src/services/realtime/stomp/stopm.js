@@ -119,17 +119,26 @@ const subscribeAgentChannel = (agentEmail, onUiUpdate) => {
     try {
       const payload = JSON.parse(msg.body);
       console.log("📩 تم استقبال حدث من قناة الوكيل:", payload);
-      
-      // أ. التنبيه بمكالمة واردة (RINGING)
-      if (payload.status === "RINGING" || payload.status === "ASSIGNED") {
-        currentCallId = payload.callId;
+      console.log("📦 RAW STOMP MSG BODY:", msg.body);
+      console.log("📑 STOMP HEADERS:", msg.headers);
+      console.log("📩 PARSED PAYLOAD:", payload);
+      console.table(payload);
+
+      // أ. التنبيه بمكالمة واردة (RINGING) أو تحديث بيانات العميل
+      if (payload.status === "RINGING" || payload.status === "ASSIGNED" || payload.type === "CUSTOMER_INFO") {
+        console.log("🫡🫡🫡 تم استقبال حدث أو بيانات العميل:", payload);
+        
+        currentCallId = payload.callId || currentCallId;
         currentCallState = CALL_STATUS.RINGING;
 
         onUiUpdate({
           status: CALL_STATUS.RINGING,
           callId: payload.callId,
           callerIdentity: payload.callerIdentity,
-          message: "مكالمة واردة جديدة..."
+          calleeIdentity: payload.calleeIdentity,
+          // 🟢 هنا يتم تمرير كائن الـ customer بوضوح (سواء كان مرسلاً ككائن مستقل أو الـ payload بأكمله)
+          customer: payload.customer || payload,
+          message: "مكالمة واردة ومعلومات العميل..."
         });
         return;
       }
@@ -151,7 +160,6 @@ const subscribeAgentChannel = (agentEmail, onUiUpdate) => {
     }
   });
 };
-
 /**
  * الإجراء الصادر 2: قبول المكالمة الواردة (Accept Call)
  */

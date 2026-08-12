@@ -12,15 +12,14 @@ export default function InboundWSProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("Token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!token || !user?.email) return;
+    
+    // التحقق من وجود التوكن، الإيميل، وأن الإيميل ليس superadmin@gmail.com
+    if (!token || !user?.email || user.email === "superadmin@gmail.com") return;
 
     const queueId = "1";
     const agentIdentity = user.email;
 
-    
     initInboundEngine(token, queueId, agentIdentity);
-
-   
   }, []);
 
   return (

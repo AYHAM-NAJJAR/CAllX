@@ -64,6 +64,8 @@ import GetAllCalls from "./pages/Calling/GetAllCalls";
 import GetCallDetails from "./pages/Calling/GetCallDetails";
 import CreateQueue from "./pages/Queues/CreateQueue";
 import GetAllQueus from "./pages/Queues/GetAllQueus";
+import QueueDetails from "./pages/Queues/QueueDetails";
+import MyCall from "./pages/Calling/MyCall";
 Modal.setAppElement('#root');
 
 function App() {
@@ -128,10 +130,13 @@ function App() {
           <Route path="/main" element={<Panel/>}>
             <Route index element={<CallSYS/>} />
             <Route path="calls" element={<GetAllCalls/>}>
-            <Route path="details/:cid" element={<GetCallDetails/>} />
+              <Route path="mycall" element={<MyCall/>} />
+              <Route path="details/:cid" element={<GetCallDetails/>} />
             </Route>
             <Route path="queue" element={<CreateQueue/>} >
-              <Route path="all" element={<GetAllQueus/>} />
+              <Route path="all" element={<GetAllQueus/>}>
+              <Route path="details/:qid" element={<QueueDetails/>} />
+              </Route>
             </Route>
             
             <Route path="call-room" element={<CallRoom/>} />

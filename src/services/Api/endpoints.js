@@ -131,12 +131,18 @@ export const summary = "/stats/summary"
 
 //* Calls*/
 export const getallcalls = "/calls"
+export const getcallparticipant = "/calls/participant"
 //* *//
 
 
 //*Queues */
 export const createqueue= "/queues"
 export const getallqueues= "/queues"
+export const getonequeue= "/queues/"
+export const deletequeue= "/queues/"
+export const updatestatus= "/queues/"
+export const assignagent= "/queues/"
+
 //** */
 // ** ENDPOINTS END ** //
 

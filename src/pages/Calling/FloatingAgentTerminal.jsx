@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useHotkeys } from 'react-hotkeys-hook'; // 👈 1. استيراد المكتبة
+import { useHotkeys } from 'react-hotkeys-hook';
 import { 
   User, 
   Ticket, 
@@ -12,7 +12,9 @@ import {
   MicOff, 
   Building2, 
   Users, 
-  Headphones 
+  Headphones,
+  Mail,
+  Hash
 } from 'lucide-react';
 import { useCall } from '../../context/Call/CallContext';
 import { CALL_STATUS } from '../../services/call/Livekit/livekitConstants';
@@ -28,40 +30,22 @@ const FloatingAgentTerminal = () => {
     activeCall,
     callStatus,
     isMuted,
+    currentCustomer,
     handleAcceptCall,
     handleEndOrRejectCall,
     handleToggleMute,
   } = useCall();
 
+
+  console.group("🔎 [FloatingAgentTerminal Debugging]");
+  console.log("1. callStatus:", callStatus);
+  console.log("2. currentCustomer:", currentCustomer);
+  console.log("3. incomingCalls:", incomingCalls);
+  console.table(incomingCalls);
+  console.groupEnd();
+
   const nodeRef = useRef(null);
   const ringtoneRef = useRef(null);
-
-  // تهيئة كائن الصوت وتشغيله/إيقافه بشكل آمن داخل useEffect
-  useEffect(() => {
-    if (!ringtoneRef.current) {
-      ringtoneRef.current = new Audio(ringtoneAudioFile);
-      ringtoneRef.current.loop = true;
-    }
-
-    const ringtone = ringtoneRef.current;
-    const isRinging = callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0;
-
-    if (isRinging) {
-      ringtone.play().catch((error) => {
-        console.warn("Ringtone autoplay was prevented by browser policy:", error);
-      });
-    } else {
-      ringtone.pause();
-      ringtone.currentTime = 0;
-    }
-
-    return () => {
-      if (ringtone) {
-        ringtone.pause();
-        ringtone.currentTime = 0;
-      }
-    };
-  }, [callStatus, incomingCalls]);
 
   const stopAudioPlayback = () => {
     if (ringtoneRef.current) {
@@ -70,15 +54,41 @@ const FloatingAgentTerminal = () => {
     }
   };
 
-  const hasLiveCall =
+  useEffect(() => {
+    if (!ringtoneRef.current) {
+      ringtoneRef.current = new Audio(ringtoneAudioFile);
+      ringtoneRef.current.loop = true;
+    }
+
+    const ringtone = ringtoneRef.current;
+    const isRinging = callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0 && currentCustomer;
+
+    if (isRinging) {
+      ringtone.play().catch((error) => {
+        console.warn("Ringtone autoplay was prevented by browser policy:", error);
+      });
+    } else {
+      stopAudioPlayback();
+    }
+
+    return () => {
+      stopAudioPlayback();
+    };
+  }, [callStatus, incomingCalls, currentCustomer]);
+
+  // 🟢 شرط صارم للتحقق من وجود مكالمة نشطة حقاً (يتم إخفاؤها فوراً إذا ألغى العميل أو انتهت)
+  const isCallActiveState = 
     callStatus !== CALL_STATUS.IDLE &&
     callStatus !== CALL_STATUS.CANCELLED &&
     callStatus !== CALL_STATUS.ENDED &&
-    callStatus !== CALL_STATUS.DISCONNECTED &&
-    ((callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0) ||
-      callStatus === CALL_STATUS.CONNECTING_TO_ROOM ||
-      callStatus === CALL_STATUS.CONNECTED ||
-      !!activeCall);
+    callStatus !== CALL_STATUS.DISCONNECTED;
+
+  const hasValidData = 
+    (incomingCalls && incomingCalls.length > 0) || 
+    currentCustomer || 
+    activeCall;
+
+  const hasLiveCall = isCallActiveState && hasValidData;
 
   const isInCallRoom = location.pathname.includes('/main/call-room');
 
@@ -88,48 +98,61 @@ const FloatingAgentTerminal = () => {
     if (incomingCalls[0]?.callId) {
       handleAcceptCall(incomingCalls[0].callId);
     }
-    navigate('/main/call-room');
+    navigate('/main/call-room', { 
+    state: { 
+      customerEmail: currentCustomer?.email,
+      customerUserId: currentCustomer?.userId,
+      customerPhone: currentCustomer?.phone,
+      customerTenantId: currentCustomer?.tenantId
+    } 
+  });
   };
 
-  // 👈 2. دالة إنهاء المكالمة
   const onEndCallClick = () => {
     stopAudioPlayback();
     handleEndOrRejectCall();
   };
 
-  // 👈 3. إضافة الاختصارات هنا
-  // الرقم 1: للرد على المكالمة
   useHotkeys('1', () => {
     if (callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0) {
       onAnswerClick();
     }
   }, { enableOnFormTags: false });
 
-  // الرقم 2: للـ Mute/Unmute
   useHotkeys('2', () => {
     if (callStatus === CALL_STATUS.CONNECTED) {
       handleToggleMute();
     }
   }, { enableOnFormTags: false });
 
-  // الرقم 3: لإنهاء / فصل المكالمة
   useHotkeys('3', () => {
     if (hasLiveCall) {
       onEndCallClick();
     }
   }, { enableOnFormTags: false });
 
-  if (!hasLiveCall || isInCallRoom) return null;
+  // إذا لم تكن هناك مكالمة حقيقية أو بيانات صالحة، أو كنا داخل غرفة المكالمة، يتم إخفاء النافذة تماماً وإيقاف الصوت
+  if (!hasLiveCall || !currentCustomer || isInCallRoom) {
+    stopAudioPlayback();
+    return null;
+  }
 
-  const callerIdentity = activeCall 
-    ? activeCall.callerIdentity || activeCall.callId.substring(0, 8)
-    : incomingCalls[0]?.callerIdentity || "+95684455";
+  // 🟢 استخراج البيانات بشكل آمن ومرن تماماً لمنع أخطاء الـ Undefined
+  const activeCallData = incomingCalls[0] || {};
+  
+  const displayPhone = activeCallData.callerIdentity || currentCustomer?.phone || "+95684455";
+  const displayEmail = currentCustomer?.email || "غير متوفر";
+  
+  const userIdVal = currentCustomer?.userId || activeCallData.customer?.userId;
+  const displayUserId = userIdVal ? `ID: ${userIdVal}` : "";
+  
+  const tenantIdVal = currentCustomer?.tenantId || activeCallData.customer?.tenantId || "1";
 
   return (
     <Draggable nodeRef={nodeRef} handle=".drag-header" bounds="body">
       <div
         ref={nodeRef}
-        className="fixed z-50 w-[340px] bg-[#0b1329] text-white rounded-3xl shadow-2xl border border-slate-800/80 p-5 font-sans overflow-hidden select-none"
+        className="fixed z-50 w-[360px] bg-[#0b1329] text-white rounded-3xl shadow-2xl border border-slate-800/80 p-5 font-sans overflow-hidden select-none"
         style={{ bottom: '40px', left: '40px' }}
       >
         <div className="drag-header cursor-move w-full flex justify-center py-1 -mt-2 mb-2">
@@ -144,12 +167,20 @@ const FloatingAgentTerminal = () => {
             <span className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 border-2 border-[#0b1329] rounded-full" />
           </div>
 
-          <h2 className="text-xl font-semibold text-slate-100 tracking-wide">
-            {callerIdentity.includes('+') ? 'Customer' : callerIdentity}
+          <h2 className="text-xl font-semibold text-slate-100 tracking-wide font-mono">
+            {displayPhone}
           </h2>
-          <p className="text-xs text-slate-400 font-mono mt-0.5">
-            {callerIdentity.includes('+') ? callerIdentity : '+95684455'}
-          </p>
+
+          <div className="flex flex-col items-center gap-1 mt-1">
+            <p className="text-xs text-cyan-400 font-mono flex items-center gap-1">
+              <Mail className="w-3.5 h-3.5" /> {displayEmail}
+            </p>
+            {displayUserId && (
+              <p className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                <Hash className="w-3 h-3" /> {displayUserId} | Tenant: {tenantIdVal}
+              </p>
+            )}
+          </div>
 
           <button className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-800/50 text-[11px] font-medium text-cyan-400 hover:bg-cyan-900/50 transition-colors">
             <Ticket className="w-3.5 h-3.5" />

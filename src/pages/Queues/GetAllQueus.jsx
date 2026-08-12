@@ -1,29 +1,44 @@
 // GetAllQueus.jsx
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom'; // نستخدم هذا الهوك لمراقبة تغير مسار الصفحة
-import { Layers, AlertCircle } from 'lucide-react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'; // أضفنا useNavigate
+import { Layers, AlertCircle, ArrowLeft } from 'lucide-react';
 import { useActiveQueues } from '../../hooks/useQueues';
 import QueueCard from './components/QueueCard';
 
 function GetAllQueus() {
-  
   const token = localStorage.getItem('Token'); 
   const location = useLocation(); 
+  const navigate = useNavigate(); // تعريف الـ navigate لاستخدام زر الرجوع
   
+  const isSubCreate = location.pathname.includes("/main/queue/all/");
   const { data: queues, isLoading, isError, error, refetch } = useActiveQueues(token);
-
   
   useEffect(() => {
     refetch();
   }, [location.pathname, refetch]);
 
+  if (isSubCreate) {
+    return <Outlet />;
+  }
+
   return (
     <div className="bg-[#0F172A] min-h-screen text-white px-5 py-10 font-sans">
       {/* Container max-width للتنسيق */}
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1200px] mx-auto space-y-6">
         
+        {/* زر الرجوع للوراء في مكان منفصل ونظيف أعلى الهيدر */}
+        <div>
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer text-sm font-medium"
+          >
+            <ArrowLeft size={18} />
+            <span>Back</span>
+          </button>
+        </div>
+
         {/* Header Section */}
-        <header className="flex flex-wrap justify-between items-center mb-10 gap-5">
+        <header className="flex flex-wrap justify-between items-center gap-5">
           <div className="flex items-center gap-3.5">
             <div className="bg-[#0D9EF2]/10 p-3 rounded-xl flex items-center justify-center">
               <Layers size={32} className="text-[#0D9EF2]" />

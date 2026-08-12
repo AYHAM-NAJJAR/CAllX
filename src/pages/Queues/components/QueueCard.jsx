@@ -1,10 +1,17 @@
 // QueueCard.jsx
-import React from 'react';
-import { UserCheck, Clock, ShieldCheck, ShieldAlert, Key } from 'lucide-react';
+import React, { useState } from 'react';
+import { UserCheck, Clock, Key, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
+import Button from '../../../components/common/Button';
+import { updateQueueStatus } from '../../../services/Queue/updateStatus';
 
 function QueueCard({ queue }) {
   const { name, queueKey, waitingCount, active, createdAt } = queue;
 
+  // حالة محليّة لإدارة حالة النشاط والتحميل
+  const [isActive, setIsActive] = useState(active);
+  const [loading, setLoading] = useState(false);
+   // جلب التوكن من التخزين المحلي
+    const token = localStorage.getItem('Token'); 
   // تنسيق التاريخ لشكل مقروء
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -12,109 +19,100 @@ function QueueCard({ queue }) {
     day: 'numeric',
   });
 
+  // دالة تغيير الحالة عند النقر
+  const handleToggleStatus = async (e) => {
+    e.stopPropagation(); // منع انتشار الحدث إذا كانت البطاقة قابلة للنقر
+    if (loading) return;
+
+    const nextStatus = !isActive;
+    setLoading(true);
+
+    try {
+      await updateQueueStatus(queueKey, nextStatus,token);
+      setIsActive(nextStatus); // تحديث الحالة عند نجاح الطلب
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      // يمكن إضافة إشعار خطأ هنا (Toast)
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div 
-      style={{
-        backgroundColor: '#101B22', // secondary color
-        borderRadius: '12px',
-        padding: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-        cursor: 'pointer',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.3)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-      }}
-    >
+    <div className="bg-[#101B22] rounded-xl p-5 border border-white/5 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       {/* Header Info */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+      <div className="flex justify-between items-start mb-4">
         <div>
-          <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: '600', color: '#FFFFFF' }}>
+          <h3 className="m-0 mb-1 text-[18px] font-semibold text-white">
             {name}
           </h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94A3B8', fontSize: '13px' }}>
-            <Key size={14} color="#0D9EF2" />
+          <div className="flex items-center gap-1.5 text-slate-400 text-[13px]">
+            <Key size={14} className="text-[#0D9EF2]" />
             <span>{queueKey}</span>
           </div>
         </div>
-        
-        {/* Status Badge */}
-        <span style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          padding: '4px 8px',
-          borderRadius: '20px',
-          fontSize: '12px',
-          fontWeight: '500',
-          backgroundColor: active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          color: active ? '#10B981' : '#EF4444',
-        }}>
-          {active ? <ShieldCheck size={14} /> : <ShieldAlert size={14} />}
-          {active ? 'Active' : 'Inactive'}
-        </span>
+
+        {/* Status Toggle Button */}
+        <button
+          onClick={handleToggleStatus}
+          disabled={loading}
+          title={isActive ? 'Deactivate Queue' : 'Activate Queue'}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
+            isActive
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
+              : 'bg-rose-500/10 text-rose-400 border-rose-500/20 hover:bg-rose-500/20'
+          } ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        >
+          {loading ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : isActive ? (
+            <ToggleRight size={18} className="text-emerald-400" />
+          ) : (
+            <ToggleLeft size={18} className="text-rose-400" />
+          )}
+          <span>{isActive ? 'Active' : 'Inactive'}</span>
+        </button>
       </div>
 
       {/* Divider */}
-      <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.08)', margin: '0 0 16px 0' }} />
+      <hr className="border-none border-t border-white/[0.08] mb-4" />
 
       {/* Content Stats */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex flex-col gap-3">
         {/* Waiting Count */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94A3B8' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-slate-400">
             <UserCheck size={18} />
-            <span style={{ fontSize: '14px' }}>Waiting Customers</span>
+            <span className="text-sm">Waiting Customers</span>
           </div>
-          <span style={{ 
-            fontSize: '16px', 
-            fontWeight: '700', 
-            color: waitingCount > 0 ? '#0D9EF2' : '#FFFFFF',
-            backgroundColor: waitingCount > 0 ? 'rgba(13, 158, 242, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-            padding: '2px 8px',
-            borderRadius: '6px'
-          }}>
+          <span className={`text-base font-bold px-2 py-0.5 rounded-md ${
+            waitingCount > 0 
+              ? 'text-[#0D9EF2] bg-[#0D9EF2]/10' 
+              : 'text-white bg-white/5'
+          }`}>
             {waitingCount}
           </span>
         </div>
 
         {/* Created At */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94A3B8' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-slate-400">
             <Clock size={18} />
-            <span style={{ fontSize: '14px' }}>Created Date</span>
+            <span className="text-sm">Created Date</span>
           </div>
-          <span style={{ fontSize: '14px', color: '#CBD5E1', fontWeight: '500' }}>
+          <span className="text-sm text-slate-300 font-medium">
             {formattedDate}
           </span>
         </div>
       </div>
 
       {/* Action Button */}
-      <button style={{
-        marginTop: '20px',
-        width: '100%',
-        backgroundColor: '#0D9EF2', // customButton color
-        color: '#FFFFFF',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '10px 16px',
-        fontSize: '14px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        transition: 'background-color 0.2s',
-      }}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0b84cb'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0D9EF2'}
+      <Button 
+        path={`/main/queue/all/details/${queueKey}`}
+        className="mt-5 w-full bg-[#0D9EF2] text-white border-none rounded-lg px-4 py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#0b84cb] transition-colors"
       >
         Manage Queue
-      </button>
+      </Button>
     </div>
   );
 }

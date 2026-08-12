@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { useCalls } from '../../hooks/useCalls';
 import CallCard from './components/CallCard';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-
-
+import LoadingCircle from '../../components/common/LoadingCircle';
+import LoadingError from '../../components/common/LoadingError';
+import Button from '../../components/common/Button';
 function GetAllCalls() {
   const [page, setPage] = useState(0);
   const pageSize = 20;
@@ -12,21 +13,13 @@ function GetAllCalls() {
   const token = localStorage.getItem('Token');
   const GO =  useNavigate();
   const { data, isLoading, isError, error, isFetching } = useCalls(token, page, pageSize);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64 bg-[#0F172A] rounded-xl">
-        <div className="text-slate-300 animate-pulse font-medium text-sm">Loading calls...</div>
-      </div>
-    );
+  
+   if (isLoading) {
+    return <LoadingCircle Phrase={"Calls"} />;
   }
 
   if (isError) {
-    return (
-      <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-sm">
-        Error fetching data: {error?.message || 'Unknown error occurred'}
-      </div>
-    );
+    return <LoadingError Phrase={"Calls"} />;
   }
 
   const calls = data?.calls || [];
@@ -42,6 +35,12 @@ function GetAllCalls() {
           <h2 className="text-2xl font-bold text-white tracking-tight">Call Logs</h2>
           <p className="text-xs text-slate-400 mt-1">Manage and view all incoming/outgoing calls</p>
         </div>
+        <Button
+        path={`/main/calls/mycall`}
+        className="bg-customButton hover:bg-blue-500 text-white px-4 py-1 font-bold rounded-lg"
+        >
+          My Call
+        </Button>
         {isFetching && (
           <span className="text-xs text-[#0D9EF2] bg-[#0D9EF2]/10 border border-[#0D9EF2]/20 px-3 py-1 rounded-full font-medium animate-pulse">
             Updating...
