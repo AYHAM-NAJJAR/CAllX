@@ -36,7 +36,8 @@ const FloatingAgentTerminal = () => {
     handleToggleMute,
   } = useCall();
 
-
+  console.log(callStatus, "Current Call Status iN floating terminal💀");
+  
   console.group("🔎 [FloatingAgentTerminal Debugging]");
   console.log("1. callStatus:", callStatus);
   console.log("2. currentCustomer:", currentCustomer);
@@ -91,7 +92,7 @@ const FloatingAgentTerminal = () => {
   const hasLiveCall = isCallActiveState && hasValidData;
 
   const isInCallRoom = location.pathname.includes('/main/call-room');
-
+ 
   const onAnswerClick = () => {
     stopAudioPlayback();
 
@@ -103,7 +104,8 @@ const FloatingAgentTerminal = () => {
       customerEmail: currentCustomer?.email,
       customerUserId: currentCustomer?.userId,
       customerPhone: currentCustomer?.phone,
-      customerTenantId: currentCustomer?.tenantId
+      customerTenantId: currentCustomer?.tenantId,
+      callId: incomingCalls[0]?.callId,
     } 
   });
   };
@@ -136,10 +138,10 @@ const FloatingAgentTerminal = () => {
     stopAudioPlayback();
     return null;
   }
-
+  
   // 🟢 استخراج البيانات بشكل آمن ومرن تماماً لمنع أخطاء الـ Undefined
   const activeCallData = incomingCalls[0] || {};
-  
+  console.log("active", activeCallData.callId );
   const displayPhone = activeCallData.callerIdentity || currentCustomer?.phone || "+95684455";
   const displayEmail = currentCustomer?.email || "غير متوفر";
   
@@ -188,7 +190,7 @@ const FloatingAgentTerminal = () => {
           </button>
         </div>
 
-        <div className="my-5">
+        {/* <div className="my-5">
           <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase block mb-2 px-1">
             FORWARD TO
           </span>
@@ -223,18 +225,13 @@ const FloatingAgentTerminal = () => {
               <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition-colors" />
             </button>
           </div>
-        </div>
+        </div> */}
 
         {callStatus === CALL_STATUS.RINGING && incomingCalls.length > 0 ? (
-          <div className="grid grid-cols-3 gap-2 mt-4 pt-2 border-t border-slate-800/50">
-            <button className="flex flex-col items-center justify-center py-2.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors">
-              <PhoneCall className="w-4 h-4 rotate-45 mb-1 text-slate-400" />
-              <span className="text-[10px] font-bold tracking-wider">FORWARD</span>
-            </button>
-
+          <div className="grid grid-cols-2 gap-2 mt-4 pt-2 border-t border-slate-800/50">
             <button 
               onClick={onAnswerClick}
-              className="flex flex-col items-center justify-center py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold transition-colors shadow-lg shadow-emerald-500/20"
+              className="flex flex-col items-center justify-center p-1.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-gray-950 font-bold transition-colors shadow-lg shadow-emerald-500/20"
             >
               <PhoneCall className="w-4 h-4 mb-1 fill-current" />
               <span className="text-[10px] font-bold tracking-wider">ANSWER</span>
@@ -242,7 +239,7 @@ const FloatingAgentTerminal = () => {
 
             <button 
               onClick={onEndCallClick}
-              className="flex flex-col items-center justify-center py-2.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors"
+              className="flex flex-col items-center justify-center p-1.5 rounded-2xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors"
             >
               <PhoneOff className="w-4 h-4 mb-1 text-slate-400" />
               <span className="text-[10px] font-bold tracking-wider">IGNORED</span>

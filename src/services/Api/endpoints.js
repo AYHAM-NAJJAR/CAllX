@@ -132,6 +132,7 @@ export const summary = "/stats/summary"
 //* Calls*/
 export const getallcalls = "/calls"
 export const getcallparticipant = "/calls/participant"
+export const routingcall = "/calls/"
 //* *//
 
 
@@ -142,6 +143,10 @@ export const getonequeue= "/queues/"
 export const deletequeue= "/queues/"
 export const updatestatus= "/queues/"
 export const assignagent= "/queues/"
+
+//** */
+
+//* operational   *//
 
 //** */
 // ** ENDPOINTS END ** //

@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useCalls } from '../../hooks/useCalls';
 import CallCard from './components/CallCard';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import LoadingError from '../../components/common/LoadingError';
 import Button from '../../components/common/Button';
+
 function GetAllCalls() {
+  const { t } = useTranslation();
   const [page, setPage] = useState(0);
   const pageSize = 20;
   const location = useLocation();
@@ -32,18 +35,18 @@ function GetAllCalls() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Call Logs</h2>
-          <p className="text-xs text-slate-400 mt-1">Manage and view all incoming/outgoing calls</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">{t('getAllCalls.title')}</h2>
+          <p className="text-xs text-slate-400 mt-1">{t('getAllCalls.subtitle')}</p>
         </div>
         <Button
         path={`/main/calls/mycall`}
         className="bg-customButton hover:bg-blue-500 text-white px-4 py-1 font-bold rounded-lg"
         >
-          My Call
+          {t('getAllCalls.myCall')}
         </Button>
         {isFetching && (
           <span className="text-xs text-[#0D9EF2] bg-[#0D9EF2]/10 border border-[#0D9EF2]/20 px-3 py-1 rounded-full font-medium animate-pulse">
-            Updating...
+            {t('getAllCalls.updating')}
           </span>
         )}
       </div>
@@ -51,7 +54,7 @@ function GetAllCalls() {
       {/* Cards Grid */}
       {calls.length === 0 ? (
         <div className="p-12 text-center bg-[#101B22] border border-slate-800 rounded-xl text-slate-400">
-          No calls recorded at the moment.
+          {t('getAllCalls.noCalls')}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -65,8 +68,8 @@ function GetAllCalls() {
       {pagination.totalPages > 1 && (
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6 pt-6 border-t border-slate-800">
           <div className="text-xs text-slate-400">
-            Page <span className="font-semibold text-white">{(pagination.pageNumber || 0) + 1}</span> of{' '}
-            <span className="font-semibold text-white">{pagination.totalPages}</span> (Total Items:{' '}
+            {t('getAllCalls.page')} <span className="font-semibold text-white">{(pagination.pageNumber || 0) + 1}</span> {t('getAllCalls.of')}{' '}
+            <span className="font-semibold text-white">{pagination.totalPages}</span> ({t('getAllCalls.totalItems')}{' '}
             <span className="font-semibold text-white">{pagination.totalElements}</span>)
           </div>
 
@@ -76,7 +79,7 @@ function GetAllCalls() {
               disabled={pagination.isFirst}
               className="px-4 py-2 text-xs font-semibold text-white bg-[#101B22] border border-slate-700 rounded-lg hover:bg-slate-800 hover:border-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
-              Previous
+              {t('getAllCalls.previous')}
             </button>
 
             <button
@@ -84,7 +87,7 @@ function GetAllCalls() {
               disabled={pagination.isLast}
               className="px-4 py-2 text-xs font-semibold text-white bg-[#0D9EF2] rounded-lg hover:bg-[#0D9EF2]/90 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#0D9EF2]/10 transition-all"
             >
-              Next
+              {t('getAllCalls.next')}
             </button>
           </div>
         </div>

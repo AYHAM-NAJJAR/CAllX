@@ -73,7 +73,7 @@ export default function MenuSideProperties({
     const payload = {
       type: 'MENU',
       promptText: data.promptText,
-      // audioUrl: data.audioUrl ?? null,
+      audioUrl: data.audioUrl,
       timeoutSeconds: data.timeoutSeconds,
       maxRetries: data.maxRetries,
       
@@ -115,7 +115,6 @@ export default function MenuSideProperties({
     if (response) {
       console.log('🙌 Node Created:', response);
 
-      // حفظ dbId داخل React Flow node
       updateNodeData({
         ...data,
         dbId: response.data.id,

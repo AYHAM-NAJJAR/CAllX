@@ -119,9 +119,8 @@ const subscribeAgentChannel = (agentEmail, onUiUpdate) => {
     try {
       const payload = JSON.parse(msg.body);
       console.log("📩 تم استقبال حدث من قناة الوكيل:", payload);
-      console.log("📦 RAW STOMP MSG BODY:", msg.body);
-      console.log("📑 STOMP HEADERS:", msg.headers);
-      console.log("📩 PARSED PAYLOAD:", payload);
+      
+      console.log("✅STATUS:", payload.status);
       console.table(payload);
 
       // أ. التنبيه بمكالمة واردة (RINGING) أو تحديث بيانات العميل
@@ -155,6 +154,19 @@ const subscribeAgentChannel = (agentEmail, onUiUpdate) => {
 
         await connectAgentToAudioRoom(payload.token, onUiUpdate);
       }
+      if (
+  ["CANCELLED", "ENDED", "REJECTED", "MISSED"].includes(payload.status)
+) {
+  console.log(`🏁 المكالمة انتهت بحالة: ${payload.status}`);
+
+  await handleCallCleanup(
+    onUiUpdate,
+    payload.status,
+    `انتهت المكالمة: ${payload.status}`
+  );
+
+  return;
+}
     } catch (error) {
       console.error("❌ خطأ أثناء معالجة بيانات قناة الوكيل:", error);
     }
@@ -211,9 +223,9 @@ const subscribeToCallLifecycle = (callId, onUiUpdate) => {
         console.log("📩 حدث دورة حياة المكالمة النشطة:", event);
 
         // تفريغ اللوحة فور استقبال حالات الإنهاء (ENDED, CANCELLED, REJECTED, MISSED)
-        if (["ENDED", "CANCELLED", "REJECTED", "MISSED"].includes(event.status)) {
-          console.log(`🏁 تم إنهاء المكالمة من قبل النظام بحالة: ${event.status}`);
-          await handleCallCleanup(onUiUpdate, CALL_STATUS.IDLE, `انتهت المكالمة: ${event.status}`);
+        if (["ENDED", "CANCELLED", "REJECTED", "MISSED"].includes(payload.status)) {
+          console.log(`🏁 تم إنهاء المكالمة من قبل النظام بحالة: ${payload.status}`);
+          await handleCallCleanup(onUiUpdate,payload.status, `انتهت المكالمة: ${payload.status}`);
         }
       } catch (error) {
         console.error("❌ خطأ في معالجة أحداث دورة حياة المكالمة:", error);
@@ -344,7 +356,7 @@ export const terminateOrRejectCall = async (agentEmail, onUiUpdate) => {
 const handleCallCleanup = async (onUiUpdate, targetState, message) => {
   currentCallState = targetState;
   currentCallId = null;
-
+  console.log("*****************handleCallCleanup function",currentCallState);
   // 1. إلغاء اشتراك دورة حياة المكالمة الحالية
   if (activeCallSubscription) {
     activeCallSubscription.unsubscribe();

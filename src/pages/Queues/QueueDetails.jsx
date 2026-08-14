@@ -8,6 +8,7 @@ import LoadingInButton from '../../components/common/LoadingInButton';
 import AssignAgentToQueueModal from './Modal/AssignAgentToQueueModal';
 import { getQueueCalls } from '../../services/Queue/getQueueCalls';
 import { deleteQueueCall } from '../../services/Queue/deletecall';
+import { deleteAgentfromQueue } from '../../services/Queue/unAssignAgent';
 
 function QueueDetails() {
   const { qid } = useParams();
@@ -17,6 +18,7 @@ function QueueDetails() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [deletingCallId, setDeletingCallId] = useState(null);
+  const [deletingAgentId, setDeletingAgentId] = useState(null); // حالة لتحميل حذف الموظف
   const [isOpenModal, setIsOpenModal] = useState(false);
   const token = localStorage.getItem('Token');
 
@@ -46,7 +48,7 @@ function QueueDetails() {
     fetchQueueData();
   }, [fetchQueueData]);
 
-  // دالة الحذف وتوجيه المستخدم بعد النجاح
+  // دالة حذف الكิว وتوجيه المستخدم بعد النجاح
   const handleDelete = async () => {
     try {
       setDeleting(true);
@@ -78,6 +80,32 @@ function QueueDetails() {
       alert("An unexpected error occurred while deleting the call.");
     } finally {
       setDeletingCallId(null);
+    }
+  };
+
+  // دالة حذف/إلغاء تعيين الموظف من الكيو باستخدام خدمة deleteAgentfromQueue وإرسال البريد الإلكتروني (الـ agent)
+  const handleUnassignAgent = async (agentEmail) => {
+    if (!queue || !queue.queueKey) return;
+    try {
+      setDeletingAgentId(agentEmail);
+      
+      // استدعاء الخدمة مع تمرير الـ queueKey، الـ agentEmail، والـ token
+      const response = await deleteAgentfromQueue(queue.queueKey, agentEmail, token);
+
+      if (response && response.success) {
+        // تحديث حالة الـ queue محلياً بحذف الموظف من القائمة مباشرة
+        setQueue((prevQueue) => ({
+          ...prevQueue,
+          assignedAgents: prevQueue.assignedAgents.filter((agent) => agent !== agentEmail)
+        }));
+      } else {
+        alert(response?.message || "Failed to unassign agent.");
+      }
+    } catch (error) {
+      console.error("Error unassigning agent:", error);
+      alert("An unexpected error occurred while unassigning the agent.");
+    } finally {
+      setDeletingAgentId(null);
     }
   };
 
@@ -131,15 +159,6 @@ function QueueDetails() {
 
           {/* أزرار التعديل والحذف */}
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => {
-                console.log("Edit queue:", qid);
-              }}
-              className="flex items-center gap-2 bg-[#1C2933] hover:bg-[#22323f] text-[#0D9EF2] border border-[#0D9EF2]/30 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer shadow-sm"
-            >
-              <Edit size={16} />
-              <span>Edit Queue</span>
-            </button>
              <button 
               onClick={() => setIsOpenModal(true)}
               className="flex items-center gap-2 bg-customButton hover:bg-sky-500 text-white border border-[#0D9EF2]/30 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer shadow-sm"
@@ -262,6 +281,16 @@ function QueueDetails() {
                 >
                   <UserCheck size={16} className="text-[#0D9EF2]" />
                   <span>{agent}</span>
+                  
+                  {/* زر وأيقونة الحذف الفعلي مع تمرير البريد الإلكتروني (agent) للخدمة */}
+                  <button
+                    onClick={() => handleUnassignAgent(agent)}
+                    disabled={deletingAgentId === agent}
+                    className="ml-1 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                    title="Unassign Agent"
+                  >
+                    {deletingAgentId === agent ? <LoadingInButton /> : <Trash2 size={15} />}
+                  </button>
                 </div>
               ))}
             </div>

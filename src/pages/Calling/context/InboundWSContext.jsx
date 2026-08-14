@@ -13,8 +13,8 @@ export default function InboundWSProvider({ children }) {
     const token = localStorage.getItem("Token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     
-    // التحقق من وجود التوكن، الإيميل، وأن الإيميل ليس superadmin@gmail.com
-    if (!token || !user?.email || user.email === "superadmin@gmail.com") return;
+    // // التحقق من وجود التوكن، الإيميل، وأن الإيميل ليس superadmin@gmail.com
+    // if (!token || !user?.email || user.email === "superadmin@gmail.com") return;
 
     const queueId = "1";
     const agentIdentity = user.email;

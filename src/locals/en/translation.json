@@ -21,5 +21,52 @@
       "generateButton": "Generate Department",
       "loading": "Creating Department..."
     
+  },
+  
+  "sidebar": {
+    "available": "AVAILABLE",
+    "offline": "OFFLINE",
+    "inCall": "In Call",
+    "incoming": "Incoming",
+    "outgoing": "Outgoing",
+    "outOffline": "Out Offline",
+    "dashboard": "Dashboard",
+    "calls": "Calls",
+    "queues": "Queues",
+    "system": "System",
+    "tenantsManagement": "Tenants Management",
+    "ivrBuilderAndFlows": "IVR Builder and Flows",
+    "workflowRules": "Workflow Rules",
+    "analytical": "Analytical",
+    "agentsPerformance": "Agents Performance",
+    "monitoring": "Monitoring",
+    "auditingLogs": "Auditing Logs",
+    "crmModule": "CRM Module",
+    "customers": "Customers",
+    "campaigns": "Campaigns",
+    "leads": "Leads",
+    "integrations": "Integrations",
+    "myProfile": "My Profile",
+    "documentationCallx": "Documentation CALLX",
+    "logout": "Logout"
+  },
+  
+  "callSys": {
+    "title": "Live Statistics Dashboard",
+    "subtitle": "Monitor active calls and rooms in real-time",
+    "makeCall": "Make Call"
+  },
+  "getAllCalls": {
+    "title": "Call Logs",
+    "subtitle": "Manage and view all incoming/outgoing calls",
+    "myCall": "My Call",
+    "updating": "Updating...",
+    "noCalls": "No calls recorded at the moment.",
+    "page": "Page",
+    "of": "of",
+    "totalItems": "Total Items:",
+    "previous": "Previous",
+    "next": "Next"
   }
+
 }

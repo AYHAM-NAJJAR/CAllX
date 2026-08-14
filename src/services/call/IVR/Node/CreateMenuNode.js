@@ -3,6 +3,7 @@ import axios from "axios";
 import { menuenode, SECONDARY_URL } from "../../../Api/endpoints";
 
 export const createMenueNode = async (payload, flowId , token) => {
+  console.log(payload);
   try {
     const response = await axios.post(
       `${SECONDARY_URL}${menuenode}${flowId}/nodes`, 

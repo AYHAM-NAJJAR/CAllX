@@ -148,8 +148,8 @@ export const CallProvider = ({ children }) => {
     setIsMuted(false);
     setIncomingCalls([]); 
     setCurrentCustomer(null); // 🟢 مسح بيانات العميل عند انتهاء المكالمة
-    setCallStatus(CALL_STATUS.IDLE); 
-    console.log("UI Reset: All states cleared");
+    // setCallStatus(CALL_STATUS.IDLE); 
+    // console.log("UI Reset: All states cleared");
   };
 
   const value = {

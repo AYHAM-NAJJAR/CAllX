@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Activity, PhoneCall } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import LiveStatsDashboard from './LiveStatsDashboard';
 import RoomHistory from './RoomHistory';
 import Summary from './Summary';
@@ -8,6 +9,7 @@ import FloatingMakeCall from './FloatingMakeCall';
 
 
 function CallSYS() {
+  const { t } = useTranslation();
   // 👈 2. حالة للتحكم في إظهار أو إخفاء المكون العائم
   const [isMakeCallOpen, setIsMakeCallOpen] = useState(false);
 
@@ -18,9 +20,9 @@ function CallSYS() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3" style={{ color: '#F8FAFC' }}>
             <Activity className="w-8 h-8" style={{ color: '#0D9EF2' }} />
-            Live Statistics Dashboard
+            {t('callSys.title')}
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Monitor active calls and rooms in real-time</p>
+          <p className="text-slate-400 text-sm mt-1">{t('callSys.subtitle')}</p>
         </div>
         
         {/* 👈 3. إضافة حدث onClick لتفعيل النافذة العائمة */}
@@ -29,7 +31,7 @@ function CallSYS() {
           className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2 rounded-lg transition-all duration-200 shadow-lg shadow-emerald-900/20 flex items-center gap-2 cursor-pointer"
         >
           <PhoneCall className="w-5 h-5 animate-pulse" />
-          <span>Make Call</span>
+          <span>{t('callSys.makeCall')}</span>
         </Button>
       </div>
 

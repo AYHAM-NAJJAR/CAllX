@@ -3,6 +3,7 @@ import axios from "axios";
 import {  hangupnode, SECONDARY_URL } from "../../../Api/endpoints";
 
 export const createHangUpNode = async (payload, flowId , token) => {
+  console.log(payload.audioUrl);
   try {
     const response = await axios.post(
       `${SECONDARY_URL}${hangupnode}${flowId}/nodes`, 

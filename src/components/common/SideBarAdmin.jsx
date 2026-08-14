@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCall } from "../../context/Call/CallContext"; 
 
 import Button from "./Button";
@@ -109,6 +110,7 @@ const SidebarDropdown = ({ label, children, activePaths }) => {
 };
 
 const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
+  const { t } = useTranslation();
   const [isclickStatus, setIsClickStatus] = useState(false);
   const location = useLocation();
   
@@ -167,8 +169,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
     const targetStatus = isGoLive ? "AVAILABLE" : "OFFLINE";
     console.log(`تم تغيير الحالة إلى: ${targetStatus}`);
     
-    
-     updateAgentPresence(user.email, targetStatus, user.queueId || "1");
+    updateAgentPresence(user.email, targetStatus, user.queueId || "1");
   };
   
   return (
@@ -190,10 +191,10 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           lg:static lg:translate-x-0 lg:w-full
         `}
       >
-              {/* Profile Section */}
-              {user && 
-                <div className="flex flex-col items-center mb-6 px-6 text-center">
-                {user.image && (
+            {/* Profile Section */}
+            {user && 
+              <div className="flex flex-col items-center mb-6 px-6 text-center">
+              {user.image && (
         <div className="relative mb-4">
           <div className="w-24 h-24 rounded-2xl bg-gray-600 border-2 border-gray-700 shadow-lg overflow-hidden" />
           <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-[#0f172a] rounded-full" />
@@ -226,14 +227,14 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
                 className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-1.5 px-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
               >
                 <Power size={12} />
-                AVAILABLE
+                {t('sidebar.available')}
               </button>
               <button
                 onClick={() => handleToggleGoLive(false)}
                 className="flex-1 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-400 py-1.5 px-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
               >
                 <Power size={12} />
-                OFFLINE
+                {t('sidebar.offline')}
               </button>
             </div>
 
@@ -256,14 +257,14 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
                   <>
                     <PhoneIncoming className="animate-pulse shrink-0" size={14} />
                     <span className="text-[10px] font-bold tracking-tight uppercase truncate">
-                      {activeCall ? `In Call (${callStatus})` : "Incoming"}
+                      {activeCall ? `${t('sidebar.inCall')} (${callStatus})` : t('sidebar.incoming')}
                     </span>
                   </>
                 ) : (
                   <>
                     <PhoneMissed className="animate-pulse shrink-0" size={14} />
                     <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
-                      {wsStatus || "Offline"}
+                      {wsStatus || t('sidebar.offline')}
                     </span>
                   </>
                 )}
@@ -281,14 +282,14 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
                   <>
                     <PhoneOutgoing  className="animate-pulse shrink-0" size={14} />
                     <span className="text-[10px] font-bold tracking-tight uppercase truncate">
-                      Outgoing
+                      {t('sidebar.outgoing')}
                     </span>
                   </>
                 ) : (
                   <>
                     <PhoneMissed className="animate-pulse shrink-0" size={14} />
                     <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
-                      Out Offline
+                      {t('sidebar.outOffline')}
                     </span>
                   </>
                 )}
@@ -299,7 +300,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
 
           <SidebarItem 
             path={'/main'}
-            label="DashBoard" 
+            label={t('sidebar.dashboard')} 
             isActive={location.pathname === "/main"} 
           >
             <LayoutDashboard size={18} className="text-white" />
@@ -307,7 +308,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
 
           <SidebarItem 
             path={'/main/calls'}
-            label="Calls" 
+            label={t('sidebar.calls')} 
             isActive={location.pathname === "/main/calls"} 
           >
             <Phone size={18} className="text-white" />
@@ -315,7 +316,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
 
           <SidebarItem 
             path={'/main/queue'}
-            label="Queues" 
+            label={t('sidebar.queues')} 
             isActive={location.pathname === "/main/queue"} 
           >
             <Layers size={18} className="text-white" />
@@ -338,7 +339,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
         ? "/main/system/tickets"
         : "/main/system"
     }
-    label="System"
+    label={t('sidebar.system')}
     isActive={location.pathname.startsWith("/main/system")}
   >
     <Settings size={18} className="text-white" />
@@ -348,7 +349,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           {hasPermission(["VIEW_TENANTS", "MANAGE_TENANT_STATUS", "CREATE_TENANT"]) && (
             <SidebarItem 
               path={"/main/tenants"}
-              label="Tenants Management"
+              label={t('sidebar.tenantsManagement')}
               isActive={location.pathname.startsWith("/main/tenants")}
             >
               <Users size={18} className="text-white" />
@@ -358,7 +359,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           {hasPermission(["MANAGE_WORKFLOWS", "VIEW_WORKFLOWS"]) && (
             <SidebarItem 
               path={"/main/flow"}
-              label="IVR Builder and Flows"
+              label={t('sidebar.ivrBuilderAndFlows')}
               isActive={location.pathname.startsWith("/main/flow")}
             >
               <GitFork size={18} className="text-white" />
@@ -368,7 +369,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           {hasPermission(["VIEW_WORKFLOWS", "MANAGE_WORKFLOWS"]) && (
             <SidebarItem 
               path={"/main/workengine"}
-              label="Workflow Rules"
+              label={t('sidebar.workflowRules')}
               isActive={location.pathname.startsWith("/main/workengine")}
             >
               <Cpu size={18} className="text-white" />
@@ -377,13 +378,13 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           
           {hasPermission(["VIEW_ANALYTICS", "VIEW_MONITORING", "VIEW_AUDIT_LOGS"]) && (
             <SidebarDropdown 
-              label="Analytical" 
+              label={t('sidebar.analytical')} 
               activePaths={["/main/performance", "/main/monitory", "/main/audit"]}
             >
               {hasPermission(["VIEW_ANALYTICS", "VIEW_MONITORING"]) && (
                 <SidebarItem
                   path={"/main/performance"}
-                  label="Agents Performance"
+                  label={t('sidebar.agentsPerformance')}
                   isActive={location.pathname.startsWith("/main/performance")}
                 >
                   <BarChart3 size={16} className="text-white" />
@@ -392,7 +393,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
               {hasPermission("VIEW_MONITORING") && (
                 <SidebarItem
                   path={"/main/monitory"}
-                  label="Monitoring"
+                  label={t('sidebar.monitoring')}
                   isActive={location.pathname.startsWith("/main/monitory")}
                 >
                   <Workflow size={16} className="text-white" />
@@ -401,7 +402,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
               {hasPermission("VIEW_AUDIT_LOGS") && (
                 <SidebarItem
                   path={"/main/audit"}
-                  label="Auditing Logs"
+                  label={t('sidebar.auditingLogs')}
                   isActive={location.pathname.startsWith("/main/audit")}
                 >
                   <ShieldCheck size={16} className="text-white" />
@@ -411,26 +412,26 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           )}
 
           <SidebarDropdown 
-            label="CRM Module" 
+            label={t('sidebar.crmModule')} 
             activePaths={["/main/customers", "/main/contacts", "/main/audit"]}
           >
             <SidebarItem
               path={"/main/customers"}
-              label="Customers"
+              label={t('sidebar.customers')}
               isActive={location.pathname.startsWith("/main/customers")}
             >
               <UserCheck size={16} className="text-white" />
             </SidebarItem>
             <SidebarItem
               path={"/main/campaigns"}
-              label="Campaigns"
+              label={t('sidebar.campaigns')}
               isActive={location.pathname.startsWith("/main/campaigns")}
             >
               <Sparkles size={16} className="text-white" />
             </SidebarItem>
             <SidebarItem
               path={"/main/leads"}
-              label="Leads"
+              label={t('sidebar.leads')}
               isActive={location.pathname.startsWith("/main/leads")}
             >
               <Sliders size={16} className="text-white" />
@@ -441,7 +442,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
         {/* Bottom Actions */}
         <div className="mt-auto border-t border-gray-800 pt-6">
           <SidebarItem 
-            label="Integrations"
+            label={t('sidebar.integrations')}
             isBottom={true}
             path={'/main/integration'}
             isActive={location.pathname === "/main/integration"} 
@@ -451,7 +452,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           
           <SidebarItem 
             path={'/main/profile'}
-            label="My Profile" 
+            label={t('sidebar.myProfile')} 
             isActive={location.pathname === "/main/profile"} 
           >
             <User size={18} className="text-white" />
@@ -459,14 +460,14 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
           
           <SidebarItem
             path={'/main/doc'}
-            label="Documentation CALLX" 
+            label={t('sidebar.documentationCallx')} 
             isBottom={true} 
             isActive={location.pathname === "/main/doc"} 
           >
             <HelpCircle size={18} className="text-white" />
           </SidebarItem>
           
-          <SidebarItem label="Logout" isBottom={true}>
+          <SidebarItem label={t('sidebar.logout')} isBottom={true}>
             <LogOut size={18} className="text-white" />
           </SidebarItem>
         </div>

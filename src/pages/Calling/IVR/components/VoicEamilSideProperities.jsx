@@ -6,6 +6,7 @@ import { createVoiceEmailNode } from '../../../../services/call/IVR/Node/CreateV
 export default function VoicemailSideProperties({ node, flowId, setNodes }) {
   const [data, setData] = useState(node.data);
   const token = localStorage.getItem('Token');
+   const [isUploading, setIsUploading] = useState(false);
   const updateNodeData = (newData) => {
     setData(newData);
     setNodes((nds) =>
@@ -13,12 +14,44 @@ export default function VoicemailSideProperties({ node, flowId, setNodes }) {
     );
   };
   
-
+       // دالة التعامل مع رفع الملف الصوتي
+        const handleAudioChange = async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+      
+          // التحقق من الصيغة المطلوبة (.mp3 أو .wav)
+          const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav'];
+          if (!allowedTypes.includes(file.type) && !file.name.endsWith('.mp3') && !file.name.endsWith('.wav')) {
+            alert('Please select a valid audio track (.mp3 or .wav format)');
+            return;
+          }
+      
+          setIsUploading(true);
+          try {
+            // استدعاء خدمة الرفع
+            const uploadedUrl = await uploadAudioService(file, token);
+      
+            if (uploadedUrl) {
+              console.log('🎵 Audio uploaded successfully:', uploadedUrl);
+              // حفظ الـ URL الحقيقي القادم من السيرفر في الـ Node Data
+              updateNodeData({
+                ...data,
+                audioUrl: uploadedUrl,
+              });
+            } else {
+              alert('Failed to upload audio. Please try again.');
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setIsUploading(false);
+          }
+        };
       async function handleCreateHangUpNode() {
         const payload = {
           type: 'VOICEMAIL',
           promptText: data.promptText,
-          // audioUrl: data.audioUrl ?? null,
+          audioUrl: data.audioUrl,
           timeoutSeconds: data.timeoutSeconds,
           maxRetries: data.maxRetries,
           

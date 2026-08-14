@@ -3,6 +3,7 @@ import axios from "axios";
 import {SECONDARY_URL, transfernode } from "../../../Api/endpoints";
 
 export const createTransferNode = async (payload, flowId , token) => {
+  console.log(payload);
   try {
     const response = await axios.post(
       `${SECONDARY_URL}${transfernode}${flowId}/nodes`, 

@@ -23,5 +23,54 @@
     
   
 
+},
+
+  "sidebar": {
+    "available": "متاح",
+    "offline": "غير متصل",
+    "inCall": "في مكالمة",
+    "incoming": "وارد",
+    "outgoing": "صادر",
+    "outOffline": "صادر غير متصل",
+    "dashboard": "لوحة التحكم",
+    "calls": "المكالمات",
+    "queues": "طوابير الانتظار",
+    "system": "النظام",
+    "tenantsManagement": "إدارة المستأجرين",
+    "ivrBuilderAndFlows": "منشيء الرد الآلي والتدفقات",
+    "workflowRules": "قواعد سير العمل",
+    "analytical": "التحليلات",
+    "agentsPerformance": "أداء الوكلاء",
+    "monitoring": "المراقبة",
+    "auditingLogs": "سجلات التدقيق",
+    "crmModule": "وحدة إدارة العملاء",
+    "customers": "العملاء",
+    "campaigns": "الحملات",
+    "leads": "العملاء المحتملون",
+    "integrations": "التكاملات",
+    "myProfile": "الملف الشخصي",
+    "documentationCallx": "توثيق CALLX",
+    "logout": "تسجيل الخروج"
+  },
+  
+  "callSys": {
+    "title": "لوحة الإحصائيات المباشرة",
+    "subtitle": "مراقبة المكالمات والغرف النشطة في الوقت الفعلي",
+    "makeCall": "إجراء مكالمة"
+  },
+  
+  "getAllCalls": {
+    "title": "سجل المكالمات",
+    "subtitle": "إدارة وعرض جميع المكالمات الواردة والصادرة",
+    "myCall": "مكالماتي",
+    "updating": "جاري التحديث...",
+    "noCalls": "لا توجد مكالمات مسجلة في الوقت الحالي.",
+    "page": "الصفحة",
+    "of": "من",
+    "totalItems": "إجمالي العناصر:",
+    "previous": "السابق",
+    "next": "التالي"
+  
 }
+
 }

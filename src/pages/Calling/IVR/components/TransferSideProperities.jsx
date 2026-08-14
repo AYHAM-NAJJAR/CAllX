@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { createTransferNode } from '../../../../services/call/IVR/Node/CreateTransferNode';
 import Button from '../../../../components/common/Button';
+import { uploadAudioService } from '../../../../services/call/IVR/audio/UploadAudioPromptFile';
 
 
 export default function TransferSideProperties({ node, setNodes , flowId }) {
   const [data, setData] = useState(node.data);
+   const [isUploading, setIsUploading] = useState(false);
    const token = localStorage.getItem('Token');
   const updateNodeData = (newData) => {
     setData(newData);
@@ -15,11 +17,45 @@ export default function TransferSideProperties({ node, setNodes , flowId }) {
   useEffect(() => {
   console.log("😁DATA CHANGED", data);
 }, [data]);
+
+    const handleAudioChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+    
+        // التحقق من الصيغة المطلوبة (.mp3 أو .wav)
+        const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav'];
+        if (!allowedTypes.includes(file.type) && !file.name.endsWith('.mp3') && !file.name.endsWith('.wav')) {
+          alert('Please select a valid audio track (.mp3 or .wav format)');
+          return;
+        }
+    
+        setIsUploading(true);
+        try {
+          // استدعاء خدمة الرفع
+          const uploadedUrl = await uploadAudioService(file, token);
+    
+          if (uploadedUrl) {
+            console.log('🎵 Audio uploaded successfully:', uploadedUrl);
+            // حفظ الـ URL الحقيقي القادم من السيرفر في الـ Node Data
+            updateNodeData({
+              ...data,
+              audioUrl: uploadedUrl,
+            });
+          } else {
+            alert('Failed to upload audio. Please try again.');
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsUploading(false);
+        }
+      };
+
   async function handleCreateTransferNode() {
       const payload = {
         type: 'TRANSFER',
         promptText: data.promptText,
-        // audioUrl: data.audioUrl ?? null,
+        audioUrl: data.audioUrl ?? null,
         timeoutSeconds: data.timeoutSeconds,
         maxRetries: data.maxRetries,
         
@@ -60,8 +96,7 @@ export default function TransferSideProperties({ node, setNodes , flowId }) {
   
       if (response) {
         console.log('🙌 Node Created:', response);
-        console.log(response.data.id);
-        // حفظ dbId داخل React Flow node
+        
         updateNodeData({
           ...data,
           dbId: response.data.id,
