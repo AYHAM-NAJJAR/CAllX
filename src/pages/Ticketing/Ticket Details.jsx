@@ -7,8 +7,10 @@ import Button from '../../components/common/Button';
 import UpdateTicketModal from './Modal/UpdateTicketModal';
 import DeleteTicketModal from './Modal/DeleteTicketModal';
 import { CircleChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const TicketDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [ticket, setTicket] = useState(null);
@@ -28,7 +30,7 @@ const TicketDetails = () => {
           setTicket(res);
         } 
       } catch (err) {
-        setError("فشل في تحميل بيانات التذكرة.");
+        setError(t('ticketDetails.errorPhrase'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -38,18 +40,18 @@ const TicketDetails = () => {
     if (id) {
       fetchTicketData();
     }
-    }, [token, id]);
+  }, [token, id, t]);
 
   useEffect(() => {
     refreshTicketById();
   }, [refreshTicketById]);
 
   if (loading) {
-    return <LoadingCircle Phrase={"Ticket Details"} />;
+    return <LoadingCircle Phrase={t('ticketDetails.loadingPhrase')} />;
   }
 
   if (error || !ticket) {
-    return <LoadingError Phrase={error || "Ticket Details"} />;
+    return <LoadingError Phrase={error || t('ticketDetails.loadingPhrase')} />;
   }
 
   const formattedDate = new Date(ticket.createdAt).toLocaleDateString('en-US', {
@@ -62,34 +64,34 @@ const TicketDetails = () => {
 
   return (
     <div className="min-h-screen bg-primary text-gray-200 font-sans">
-      <UpdateTicketModal data={ticket} onSuccess={refreshTicketById}  isOpen={isOpenModalUpdateTicket} onClose={setIsOpenModalUpdateTicket}/>
+      <UpdateTicketModal data={ticket} onSuccess={refreshTicketById} isOpen={isOpenModalUpdateTicket} onClose={setIsOpenModalUpdateTicket}/>
       <DeleteTicketModal data={ticket} isOpen={isOpenModalDeleteTicket} onClose={setIsOpenModalDeleteTicket}/>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 lg:py-12">
         
-        {/* Header - ينقلب عمودياً في الهواتف وتتوزع الأزرار تلقائياً */}
+        {/* Header */}
         <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10">
           <div className="flex items-center gap-4">
             <Button
-            path={"/main/system/tickets"}
+              path={"/main/system/tickets"}
             >
               <CircleChevronLeft className='text-sky-600 hover:text-sky-700 transition-all ease-in ' size={25} />
             </Button>
             
-            <h1 className="text-lg sm:text-xl font-bold tracking-wider text-white">Ticket Details</h1>
+            <h1 className="text-lg sm:text-xl font-bold tracking-wider text-white">{t('ticketDetails.loadingPhrase')}</h1>
           </div>
           <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <Button
               onClick={() => setIsOpenModalUpdateTicket(true)}
               className="flex-1 sm:flex-initial justify-center rounded-full bg-customButton hover:bg-sky-400 ease-in transition-colors px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white text-center"
             >
-              Edit Ticket details
+              {t('ticketDetails.editDetails')}
             </Button>
             <Button
               onClick={() => setIsOpenModalDeleteTicket(true)}
               className="flex-1 sm:flex-initial justify-center rounded-full text-white bg-red-400 hover:bg-red-600 ease-in transition-colors px-4 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-center"
             >
-              Delete Ticket
+              {t('ticketDetails.deleteTicket')}
             </Button>
           </div>
         </header>
@@ -98,16 +100,18 @@ const TicketDetails = () => {
         <section className="mb-8 sm:mb-10">
           <div className="flex flex-wrap gap-2 sm:gap-2.5 mb-4 sm:mb-5">
             <span className="bg-[#153444] text-[#81D4FA] text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-              {ticket.priority} Priority
+              {t('ticketDetails.priorityLabel', { priority: ticket.priority })}
             </span>
             <span className="bg-[#1E3A2E] text-[#66BB6A] text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
               {ticket.status}
             </span>
             {ticket.categoryName && (
-            <div className='flex items-center justify-center  '>
-              <span className="bg-gray-800 text-gray-300 text-[10px] mr-2 font-bold px-3 py-0.5 rounded uppercase tracking-wider">Department : {ticket.department || 'N/A'}</span>
+            <div className='flex items-center justify-center'>
+              <span className="bg-gray-800 text-gray-300 text-[10px] mr-2 font-bold px-3 py-0.5 rounded uppercase tracking-wider">
+                {t('ticketDetails.departmentLabel', { department: ticket.department || 'N/A' })}
+              </span>
               <span className="bg-gray-800 text-gray-300 text-[10px] font-bold px-3 py-0.5 rounded uppercase tracking-wider">
-                Category : {ticket.categoryName}
+                {t('ticketDetails.categoryLabel', { category: ticket.categoryName })}
               </span>
             </div>
             )}
@@ -116,25 +120,31 @@ const TicketDetails = () => {
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 sm:gap-6">
             <div className="w-full">
               <div className="flex flex-wrap items-center justify-start gap-2 sm:gap-4 mb-2 sm:mb-0">
-                <span className="text-gray-500 text-base sm:text-lg font-mono block">Ticket #{ticket.ticketId || ticket.id}</span>
+                <span className="text-gray-500 text-base sm:text-lg font-mono block">
+                  {t('ticketDetails.ticketIdLabel', { id: ticket.ticketId || ticket.id })}
+                </span>
                 <p className="bg-slate-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold hover:bg-sky-600 transition shrink-0">
-                  {ticket.assignedToId ? `Assigned To: ${ticket.assignedToName}` : 'Assign Agent'}
+                  {ticket.assignedToId 
+                    ? t('ticketDetails.assignedTo', { name: ticket.assignedToName }) 
+                    : t('ticketDetails.assignAgent')}
                 </p>
               </div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-tight mt-1 sm:mt-2 break-words">
                 {ticket.title}
               </h2>
-              <p className="text-gray-500 mt-2 text-xs sm:text-sm">Created on {formattedDate}</p>
+              <p className="text-gray-500 mt-2 text-xs sm:text-sm">
+                {t('ticketDetails.createdOn', { date: formattedDate })}
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Customer Profile Section - تحويل w-fit إلى w-full متجاوب */}
+        {/* Customer Profile Section */}
         <section className="bg-[#111821] border border-gray-800 w-full rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-10 mb-8 sm:mb-10">
           <div className="space-y-4 sm:space-y-6 flex-1 w-full">
             <div>
               <p className="text-[#00A3FF] text-[10px] sm:text-xs font-bold tracking-widest uppercase mb-1 sm:mb-1.5">
-                This Ticket Is For Customer :
+                {t('ticketDetails.customerHeader')}
               </p>
               <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white break-words">{ticket.userName}</h3>
             </div>
@@ -152,74 +162,80 @@ const TicketDetails = () => {
           </div>
         </section>
 
-        {/* Content Body Grid - عمود واحد للموبايل و3 أعمدة للشاشات الكبيرة */}
+        {/* Content Body Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           
-          {/* Main Content Area (Left Column) */}
+          {/* Main Content Area */}
           <section className="lg:col-span-2 space-y-6 sm:space-y-10">
             
             {/* Primary Ticket Description Box */}
             <div className="bg-[#111821] border border-gray-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 space-y-4 sm:space-y-6">
               <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-gray-800/60">
-                <h4 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider">Issue Description</h4>
+                <h4 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider">
+                  {t('ticketDetails.issueDescription')}
+                </h4>
               </div>
               <div className="text-gray-200 text-sm sm:text-base leading-relaxed bg-[#151D29]/40 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-gray-800/50 whitespace-pre-line min-h-[120px] sm:min-h-[150px] break-words">
-                {ticket.description || <span className="text-gray-500 italic">No description provided.</span>}
+                {ticket.description || <span className="text-gray-500 italic">{t('ticketDetails.noDescription')}</span>}
               </div>
             </div>
 
             {/* Dynamic Attributes Section */}
-{ticket.dynamicAttributes && Object.keys(ticket.dynamicAttributes).length > 0 && (
-  <div className="bg-[#111821] border border-gray-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 space-y-4 sm:space-y-6">
-    <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-gray-800/60">
-      <h4 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider">Additional Details</h4>
-    </div>
-    
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-      {Object.entries(ticket.dynamicAttributes).map(([key, value]) => {
-        const formattedLabel = key.replace(/_/g, ' ');
+            {ticket.dynamicAttributes && Object.keys(ticket.dynamicAttributes).length > 0 && (
+              <div className="bg-[#111821] border border-gray-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10 space-y-4 sm:space-y-6">
+                <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-gray-800/60">
+                  <h4 className="text-base sm:text-lg font-bold text-white uppercase tracking-wider">
+                    {t('ticketDetails.additionalDetails')}
+                  </h4>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  {Object.entries(ticket.dynamicAttributes).map(([key, value]) => {
+                    const formattedLabel = key.replace(/_/g, ' ');
 
-        return (
-          <div key={key} className="bg-[#151D29]/40 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-800/50 flex flex-col gap-2">
-            <span className="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-widest">
-              {formattedLabel}
-            </span>
-            
-            {Array.isArray(value) ? (
-              <div className="flex flex-col gap-2">
-                {value.map((item, idx) => {
-                  const isImage = typeof item === 'string' && item.startsWith('data:image/');
-                  return isImage ? (
-                    <div key={idx} className="mt-2 rounded-lg overflow-hidden border border-gray-700 bg-black/20">
-                      <img src={item} alt={`${formattedLabel} ${idx + 1}`} className="w-full h-auto object-contain max-h-64 cursor-pointer hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  ) : (
-                    <span key={idx} className="text-gray-200 text-sm sm:text-base break-words font-medium">{String(item)}</span>
-                  );
-                })}
+                    return (
+                      <div key={key} className="bg-[#151D29]/40 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-800/50 flex flex-col gap-2">
+                        <span className="text-gray-500 text-xs sm:text-sm font-bold uppercase tracking-widest">
+                          {formattedLabel}
+                        </span>
+                        
+                        {Array.isArray(value) ? (
+                          <div className="flex flex-col gap-2">
+                            {value.map((item, idx) => {
+                              const isImage = typeof item === 'string' && item.startsWith('data:image/');
+                              return isImage ? (
+                                <div key={idx} className="mt-2 rounded-lg overflow-hidden border border-gray-700 bg-black/20">
+                                  <img src={item} alt={`${formattedLabel} ${idx + 1}`} className="w-full h-auto object-contain max-h-64 cursor-pointer hover:scale-105 transition-transform duration-300" />
+                                </div>
+                              ) : (
+                                <span key={idx} className="text-gray-200 text-sm sm:text-base break-words font-medium">{String(item)}</span>
+                              );
+                            })}
+                          </div>
+                        ) : typeof value === 'string' && value.startsWith('data:image/') ? (
+                          <div className="mt-2 rounded-lg overflow-hidden border border-gray-700 bg-black/20">
+                            <img src={value} alt={formattedLabel} className="w-full h-auto object-contain max-h-64 cursor-pointer hover:scale-105 transition-transform duration-300" />
+                          </div>
+                        ) : (
+                          <span className="text-gray-200 text-sm sm:text-base break-words font-medium">
+                            {String(value)}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            ) : typeof value === 'string' && value.startsWith('data:image/') ? (
-              <div className="mt-2 rounded-lg overflow-hidden border border-gray-700 bg-black/20">
-                <img src={value} alt={formattedLabel} className="w-full h-auto object-contain max-h-64 cursor-pointer hover:scale-105 transition-transform duration-300" />
-              </div>
-            ) : (
-              <span className="text-gray-200 text-sm sm:text-base break-words font-medium">
-                {String(value)}
-              </span>
             )}
-          </div>
-        );
-      })}
-    </div>
-  </div>
-)}
 
             {/* Images / Attachments Section */}
             {ticket.images && ticket.images.length > 0 && (
               <div className="bg-[#111821] border border-gray-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10">
                 <div className="flex items-center gap-3 mb-6 sm:mb-8">
                   <span className="text-xl sm:text-2xl text-[#00A3FF]">📎</span>
-                  <h4 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wider">Attachments ({ticket.images.length})</h4>
+                  <h4 className="text-lg sm:text-xl font-bold text-white uppercase tracking-wider">
+                    {t('ticketDetails.attachments', { count: ticket.images.length })}
+                  </h4>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                   {ticket.images.map((img, index) => (
@@ -232,26 +248,28 @@ const TicketDetails = () => {
             )}
           </section>
 
-          {/* Sidebar Area (Right Column) */}
+          {/* Sidebar Area */}
           <aside className="space-y-6 sm:space-y-10">
             
             {/* Ticket Stats */}
             <div className="bg-[#111821] border border-gray-800 rounded-2xl sm:rounded-3xl p-5 sm:p-8 lg:p-10">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 sm:mb-6">Ticket Stats</h4>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 sm:mb-6">
+                {t('ticketDetails.ticketStats')}
+              </h4>
               <div className="space-y-4 sm:space-y-5 text-sm sm:text-base">
                 <div className="flex justify-between items-center pb-4 sm:pb-5 border-b border-gray-800/60">
-                  <span className="text-gray-500 text-xs sm:text-sm">Assigned To</span>
+                  <span className="text-gray-500 text-xs sm:text-sm">{t('ticketDetails.assignedToStat')}</span>
                   <span className={`text-white font-semibold flex items-center gap-2 text-xs sm:text-sm ${!ticket.assignedToId ? 'text-gray-500 font-normal' : ''}`}>
                     {!ticket.assignedToId && <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gray-700 rounded-full flex items-center justify-center text-[9px] sm:text-[10px] text-gray-400 font-bold">UA</div>}
                     {ticket.assignedToName}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pb-4 sm:pb-5 border-b border-gray-800/60">
-                  <span className="text-gray-500 text-xs sm:text-sm">Category</span>
+                  <span className="text-gray-500 text-xs sm:text-sm">{t('ticketDetails.categoryStat')}</span>
                   <span className="text-white font-semibold text-xs sm:text-sm">{ticket.categoryName || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-xs sm:text-sm">Last Update</span>
+                  <span className="text-gray-500 text-xs sm:text-sm">{t('ticketDetails.lastUpdateStat')}</span>
                   <span className="text-white font-semibold text-xs sm:text-sm">
                     {new Date(ticket.updatedAt).toLocaleDateString('en-US')}
                   </span>
@@ -265,7 +283,9 @@ const TicketDetails = () => {
                 <div className="flex gap-3">
                   <span className="text-xl sm:text-2xl text-[#1E88E5] shrink-0">ⓘ</span>
                   <div className="space-y-1.5 sm:space-y-2">
-                    <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">Admin Notes</h4>
+                    <h4 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+                      {t('ticketDetails.adminNotes')}
+                    </h4>
                     <p className="text-gray-400 text-xs sm:text-base font-mono leading-relaxed break-words">
                       "{ticket.adminNotes}" 
                     </p>

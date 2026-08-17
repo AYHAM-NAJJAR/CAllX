@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getQueueByDetails } from '../../services/Queue/getOneQueue';
 import { deleteQueue } from '../../services/Queue/deleteQueue';
+import { useTranslation } from 'react-i18next';
 
 import { UserCheck, Users, Clock, ShieldCheck, ShieldAlert, Key, Edit, Trash2, ArrowLeft, PlusIcon, PhoneCall } from 'lucide-react';
 import LoadingInButton from '../../components/common/LoadingInButton';
@@ -11,6 +12,7 @@ import { deleteQueueCall } from '../../services/Queue/deletecall';
 import { deleteAgentfromQueue } from '../../services/Queue/unAssignAgent';
 
 function QueueDetails() {
+  const { t } = useTranslation();
   const { qid } = useParams();
   const navigate = useNavigate();
   const [queue, setQueue] = useState(null);
@@ -18,21 +20,18 @@ function QueueDetails() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [deletingCallId, setDeletingCallId] = useState(null);
-  const [deletingAgentId, setDeletingAgentId] = useState(null); // حالة لتحميل حذف الموظف
+  const [deletingAgentId, setDeletingAgentId] = useState(null);
   const [isOpenModal, setIsOpenModal] = useState(false);
   const token = localStorage.getItem('Token');
 
-  // جلب تفاصيل الكيو والمكالمات المنتظرة معاً بكفاءة باستخدام Promise.all و useCallback
   const fetchQueueData = useCallback(async () => {
     if (!qid) return;
     try {
       setLoading(true);
-      // الخطوة الأولى: جلب تفاصيل الكيو لنحصل على queueKey
       const queueResult = await getQueueByDetails(qid, token);
       const queueData = queueResult.data;
       setQueue(queueData);
 
-      // الخطوة الثانية: جلب المكالمات باستخدام الـ queueKey المستخرج
       if (queueData && queueData.queueKey) {
         const callsResult = await getQueueCalls(queueData.queueKey, token);
         setCalls(callsResult.data || []);
@@ -48,7 +47,6 @@ function QueueDetails() {
     fetchQueueData();
   }, [fetchQueueData]);
 
-  // دالة حذف الكิว وتوجيه المستخدم بعد النجاح
   const handleDelete = async () => {
     try {
       setDeleting(true);
@@ -57,67 +55,61 @@ function QueueDetails() {
       if (response.success) {
         navigate('/main/queue/all', { replace: true });
       } else {
-        alert(response.message || "Failed to delete queue");
+        alert(response.message || t('queueDetails.deleteError'));
       }
     } catch (error) {
       console.error("Error deleting queue:", error);
-      alert("An unexpected error occurred while deleting.");
+      alert(t('queueDetails.deleteUnexpected'));
     } finally {
       setDeleting(false);
     }
   };
 
-  // دالة حذف مكالمة معينة من الكيو
   const handleDeleteCall = async (callId) => {
     if (!queue || !queue.queueKey) return;
     try {
       setDeletingCallId(callId);
       await deleteQueueCall(queue.queueKey, callId, token);
-      // تحديث قائمة المكالمات محلياً أو إعادة جلب البيانات
       setCalls((prevCalls) => prevCalls.filter((call) => call.callId !== callId));
     } catch (error) {
       console.error("Error deleting call:", error);
-      alert("An unexpected error occurred while deleting the call.");
+      alert(t('queueDetails.deleteCallError'));
     } finally {
       setDeletingCallId(null);
     }
   };
 
-  // دالة حذف/إلغاء تعيين الموظف من الكيو باستخدام خدمة deleteAgentfromQueue وإرسال البريد الإلكتروني (الـ agent)
   const handleUnassignAgent = async (agentEmail) => {
     if (!queue || !queue.queueKey) return;
     try {
       setDeletingAgentId(agentEmail);
       
-      // استدعاء الخدمة مع تمرير الـ queueKey، الـ agentEmail، والـ token
       const response = await deleteAgentfromQueue(queue.queueKey, agentEmail, token);
 
       if (response && response.success) {
-        // تحديث حالة الـ queue محلياً بحذف الموظف من القائمة مباشرة
         setQueue((prevQueue) => ({
           ...prevQueue,
           assignedAgents: prevQueue.assignedAgents.filter((agent) => agent !== agentEmail)
         }));
       } else {
-        alert(response?.message || "Failed to unassign agent.");
+        alert(response?.message || t('queueDetails.unassignError'));
       }
     } catch (error) {
       console.error("Error unassigning agent:", error);
-      alert("An unexpected error occurred while unassigning the agent.");
+      alert(t('queueDetails.unassignUnexpected'));
     } finally {
       setDeletingAgentId(null);
     }
   };
 
   if (loading) {
-    return <div className="p-10 text-white min-h-screen bg-[#0B141A] flex items-center justify-center">Loading...</div>;
+    return <div className="p-10 text-white min-h-screen bg-[#0B141A] flex items-center justify-center">{t('queueDetails.loading')}</div>;
   }
 
   if (!queue) {
-    return <div className="p-10 text-white min-h-screen bg-[#0B141A] flex items-center justify-center">Queue not found.</div>;
+    return <div className="p-10 text-white min-h-screen bg-[#0B141A] flex items-center justify-center">{t('queueDetails.notFound')}</div>;
   }
 
-  // تنسيق التاريخ لشكل مقروء
   const formattedDate = new Date(queue.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -131,7 +123,7 @@ function QueueDetails() {
         queueKey={qid}
         isOpen={isOpenModal}
         onClose={() => setIsOpenModal(false)}
-        onSuccess={fetchQueueData} // تحديث البيانات بعد إضافة موظف
+        onSuccess={fetchQueueData}
       />
         
       <div className="max-w-4xl mx-auto space-y-6">
@@ -142,7 +134,7 @@ function QueueDetails() {
           className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer text-sm font-medium"
         >
           <ArrowLeft size={18} />
-          <span>Back to Queues</span>
+          <span>{t('queueDetails.backToQueues')}</span>
         </button>
 
         {/* الهيدر مع معلومات الكيو وأزرار التحكم */}
@@ -164,7 +156,7 @@ function QueueDetails() {
               className="flex items-center gap-2 bg-customButton hover:bg-sky-500 text-white border border-[#0D9EF2]/30 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer shadow-sm"
             >
               <PlusIcon size={16} />
-              Assign Agent
+              {t('queueDetails.assignAgent')}
             </button>
             <button 
               onClick={handleDelete}
@@ -172,7 +164,7 @@ function QueueDetails() {
               className="flex items-center gap-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer shadow-sm disabled:opacity-50"
             >
               <Trash2 size={16} />
-              <span>{deleting ? <LoadingInButton/>: 'Delete'}</span>
+              <span>{deleting ? <LoadingInButton/>: t('queueDetails.delete')}</span>
             </button>
           </div>
         </div>
@@ -183,12 +175,12 @@ function QueueDetails() {
           {/* Status Card */}
           <div className="bg-[#101B22] p-5 rounded-2xl border border-white/5 shadow-lg flex items-center justify-between">
             <div>
-              <span className="text-slate-400 block text-xs font-medium uppercase tracking-wider mb-1">Status</span>
+              <span className="text-slate-400 block text-xs font-medium uppercase tracking-wider mb-1">{t('queueDetails.status')}</span>
               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
                 queue.active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
               }`}>
                 {queue.active ? <ShieldCheck size={14} /> : <ShieldAlert size={14} />}
-                {queue.active ? 'Active' : 'Inactive'}
+                {queue.active ? t('queueDetails.active') : t('queueDetails.inactive')}
               </span>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#1C2933] flex items-center justify-center text-slate-300">
@@ -199,7 +191,7 @@ function QueueDetails() {
           {/* Waiting Count Card */}
           <div className="bg-[#101B22] p-5 rounded-2xl border border-white/5 shadow-lg flex items-center justify-between">
             <div>
-              <span className="text-slate-400 block text-xs font-medium uppercase tracking-wider mb-1">Waiting Customers</span>
+              <span className="text-slate-400 block text-xs font-medium uppercase tracking-wider mb-1">{t('queueDetails.waitingCustomers')}</span>
               <span className="text-2xl font-bold text-white">
                 {queue.waitingCount}
               </span>
@@ -212,7 +204,7 @@ function QueueDetails() {
           {/* Created Date Card */}
           <div className="bg-[#101B22] p-5 rounded-2xl border border-white/5 shadow-lg flex items-center justify-between">
             <div>
-              <span className="text-slate-400 block text-xs font-medium uppercase tracking-wider mb-1">Created Date</span>
+              <span className="text-slate-400 block text-xs font-medium uppercase tracking-wider mb-1">{t('queueDetails.createdDate')}</span>
               <span className="text-sm font-semibold text-slate-200">
                 {formattedDate}
               </span>
@@ -228,7 +220,7 @@ function QueueDetails() {
         <div className="bg-[#101B22] p-6 rounded-2xl border border-white/5 shadow-lg space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-white/10">
             <PhoneCall size={20} className="text-[#0D9EF2]" />
-            <h2 className="text-lg font-semibold text-white">Waiting Calls</h2>
+            <h2 className="text-lg font-semibold text-white">{t('queueDetails.waitingCalls')}</h2>
           </div>
 
           {calls && calls.length > 0 ? (
@@ -246,13 +238,13 @@ function QueueDetails() {
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="text-xs text-slate-400 bg-[#1C2933] px-3 py-1.5 rounded-lg border border-white/5 w-fit">
-                      Enqueued: {new Date(call.enqueuedAt).toLocaleTimeString()}
+                      {t('queueDetails.enqueued')}: {new Date(call.enqueuedAt).toLocaleTimeString()}
                     </div>
                     <button
                       onClick={() => handleDeleteCall(call.callId)}
                       disabled={deletingCallId === call.callId}
                       className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl transition-all cursor-pointer disabled:opacity-50"
-                      title="Delete Call"
+                      title={t('queueDetails.deleteCall')}
                     >
                       {deletingCallId === call.callId ? <LoadingInButton /> : <Trash2 size={16} />}
                     </button>
@@ -261,7 +253,7 @@ function QueueDetails() {
               ))}
             </div>
           ) : (
-            <p className="text-slate-400 text-sm">No waiting calls in this queue.</p>
+            <p className="text-slate-400 text-sm">{t('queueDetails.noWaitingCalls')}</p>
           )}
         </div>
 
@@ -269,7 +261,7 @@ function QueueDetails() {
         <div className="bg-[#101B22] p-6 rounded-2xl border border-white/5 shadow-lg space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-white/10">
             <Users size={20} className="text-[#0D9EF2]" />
-            <h2 className="text-lg font-semibold text-white">Assigned Agents</h2>
+            <h2 className="text-lg font-semibold text-white">{t('queueDetails.assignedAgents')}</h2>
           </div>
 
           {queue.assignedAgents && queue.assignedAgents.length > 0 ? (
@@ -282,12 +274,11 @@ function QueueDetails() {
                   <UserCheck size={16} className="text-[#0D9EF2]" />
                   <span>{agent}</span>
                   
-                  {/* زر وأيقونة الحذف الفعلي مع تمرير البريد الإلكتروني (agent) للخدمة */}
                   <button
                     onClick={() => handleUnassignAgent(agent)}
                     disabled={deletingAgentId === agent}
                     className="ml-1 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center"
-                    title="Unassign Agent"
+                    title={t('queueDetails.unassignAgent')}
                   >
                     {deletingAgentId === agent ? <LoadingInButton /> : <Trash2 size={15} />}
                   </button>
@@ -295,7 +286,7 @@ function QueueDetails() {
               ))}
             </div>
           ) : (
-            <p className="text-slate-400 text-sm">No agents assigned to this queue yet.</p>
+            <p className="text-slate-400 text-sm">{t('queueDetails.noAgents')}</p>
           )}
         </div>
 

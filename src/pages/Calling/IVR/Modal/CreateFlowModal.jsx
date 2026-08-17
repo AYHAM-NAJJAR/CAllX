@@ -30,9 +30,10 @@ const CreateFlowModal = ({ isOpen, onClose, onSuccess }) => {
       active: true, 
       rootNodeId: null
     };
-
+    localStorage.setItem("flowPayload", JSON.stringify(payload));
     try {
       const response = await createFlow(payload, token);
+      
       if (response.success) {
         toast.success(response.message, {
           position: "top-left",

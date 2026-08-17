@@ -1,8 +1,10 @@
 import React from 'react';
 import Button from "../../../components/common/Button";
+import { useTranslation } from 'react-i18next';
 
 // DepartmentCard.jsx
 const DepartmentCard = ({ department }) => {
+  const { t } = useTranslation();
   const agentsList = department?.employees?.agents || [];
   const categoriesList = department?.categories || [];
 
@@ -19,7 +21,7 @@ const DepartmentCard = ({ department }) => {
         {/* تفاصيل الموظفين (Agents) */}
         <div className="mb-5">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-2">
-            Agents:
+            {t('departmentCard.agents')}
           </p>
           
           {agentsList.length > 0 ? (
@@ -34,14 +36,14 @@ const DepartmentCard = ({ department }) => {
               ))}
             </div>
           ) : (
-            <span className="text-gray-500 text-xs italic">No agents assigned</span>
+            <span className="text-gray-500 text-xs italic">{t('departmentCard.noAgents')}</span>
           )}
         </div>
 
         {/* التصنيفات (Categories) */}
         <div className="mb-4">
           <p className="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-2">
-            Categories:
+            {t('departmentCard.categories')}
           </p>
           <div className="flex flex-wrap gap-1.5">
             {categoriesList.length > 0 ? (
@@ -54,7 +56,7 @@ const DepartmentCard = ({ department }) => {
                 </span>
               ))
             ) : (
-              <span className="text-gray-600 text-xs italic">No categories</span>
+              <span className="text-gray-600 text-xs italic">{t('departmentCard.noCategories')}</span>
             )}
           </div>
         </div>
@@ -62,10 +64,10 @@ const DepartmentCard = ({ department }) => {
 
       {/* القسم السفلي (Footer): عرض العدد في خلفية ملونة وجميلة */}
       <div className="pt-4 mt-4 border-t border-slate-800 flex items-center justify-between">
-        <span className="text-slate-400 text-xs font-medium">Total Agents</span>
+        <span className="text-slate-400 text-xs font-medium">{t('departmentCard.totalAgents')}</span>
         <div className="bg-sky-500/10 border border-sky-500/30 text-sky-400 px-3 py-1 rounded-lg text-xs font-bold shadow-inner flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
-          {agentsList.length} Agents
+          {t('departmentCard.agentsCount', { count: agentsList.length })}
         </div>
       </div>
 

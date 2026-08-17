@@ -13,6 +13,9 @@ import { toast } from 'react-toastify';
 
 function CreateTicketModal({ isOpen, onClose, onSuccess }) {
   const token = localStorage.getItem("Token");
+  
+  // التحقق من وجود الـ id في الـ localStorage مسبقاً
+  const storedClientId = localStorage.getItem("selectedClientId");
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [multiFileNames, setMultiFileNames] = useState({});
@@ -21,7 +24,7 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
     description: '',
     departmentId: '',
     categoryId: '',
-    userId: '', 
+    userId: storedClientId || '', 
     dynamicAttributes: {} 
   });
 
@@ -32,7 +35,8 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
   } = useDepartments(token, true);
   const { data: categories = [], isLoading: isCatsLoading } = useDepartmentCategories(token, formData.departmentId, true);
   
-  const { data: rawCustomers = [], isLoading: isCustomersLoading } = useCustomers(token);
+  // يتم جلب العملاء فقط في حال لم يكن الـ storedClientId موجوداً (لتحسين الأداء)
+  const { data: rawCustomers = [], isLoading: isCustomersLoading } = useCustomers(storedClientId ? null : token);
 
   const customerOptions = rawCustomers.map((c) => ({
     value: c.id || c.userId,
@@ -126,7 +130,7 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
         description: '',
         departmentId: '',
         categoryId: '',
-        userId: '',
+        userId: storedClientId || '',
         dynamicAttributes: {}
       });
       setImageFile(null);
@@ -175,18 +179,21 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="userId" className="text-sm font-medium text-gray-300">User / Customer</label>
-            <Select
-              value={customerOptions.find(c => c.value === formData.userId) || null}
-              options={customerOptions}
-              styles={customStyles}
-              isLoading={isCustomersLoading}
-              onChange={handleUserChange}
-              placeholder="Select a customer..."
-              isClearable
-            />
-          </div>
+          {/* إخفاء حقل اختيار العميل بالكامل في حال كان storedClientId موجوداً في اللوكل ستورج */}
+          {!storedClientId && (
+            <div className="flex flex-col gap-2">
+              <label htmlFor="userId" className="text-sm font-medium text-gray-300">User / Customer</label>
+              <Select
+                value={customerOptions.find(c => c.value === formData.userId) || null}
+                options={customerOptions}
+                styles={customStyles}
+                isLoading={isCustomersLoading}
+                onChange={handleUserChange}
+                placeholder="Select a customer..."
+                isClearable
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
@@ -253,7 +260,6 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
                   />
                 )}
 
-                {/* 3. DATE */}
                 {field.fieldType?.toUpperCase() === "DATE" && (
                   <input
                     type="date"
@@ -266,7 +272,6 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
                   />
                 )}
 
-                {/* 4. SELECT (تم تحديثه لحل الخطأ) */}
                 {field.fieldType === "SELECT" && (
                   <select
                     id={field.fieldName}
@@ -324,49 +329,46 @@ function CreateTicketModal({ isOpen, onClose, onSuccess }) {
                 )}
 
                 {field.fieldType === "MULTI_FILE" && (
-  <div className="flex flex-col gap-2">
-    <input
-      type="file"
-      multiple
-      id={field.fieldName}
-      name={field.fieldName}
-      required={field.isRequired}
-      onChange={async (e) => {
-        const files = Array.from(e.target.files || []);
-        if (files.length > 0) {
-          // حفظ أسماء الملفات لعرضها للمستخدم
-          setMultiFileNames(prev => ({
-            ...prev,
-            [field.fieldName]: files.map(f => f.name)
-          }));
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="file"
+                      multiple
+                      id={field.fieldName}
+                      name={field.fieldName}
+                      required={field.isRequired}
+                      onChange={async (e) => {
+                        const files = Array.from(e.target.files || []);
+                        if (files.length > 0) {
+                          setMultiFileNames(prev => ({
+                            ...prev,
+                            [field.fieldName]: files.map(f => f.name)
+                          }));
 
-          // تحويل جميع الملفات إلى Base64
-          const base64Promises = files.map(file => {
-            return new Promise((resolve) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result);
-              reader.readAsDataURL(file);
-            });
-          });
-          const base64Files = await Promise.all(base64Promises);
-          handleDynamicFieldChange(field.fieldName, base64Files);
-        }
-      }}
-      className="bg-[#1C2029] border border-[#2A2E37] text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none transition-all 
-                 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer text-gray-400"
-    />
-    
-    {/* عرض أسماء الملفات المختارة بوضوح تحت الزر */}
-    {multiFileNames[field.fieldName] && multiFileNames[field.fieldName].length > 0 && (
-      <div className="text-xs text-green-400 font-medium flex flex-col gap-1">
-        <span>Selected files ({multiFileNames[field.fieldName].length}):</span>
-        <span className="text-gray-300">
-          {multiFileNames[field.fieldName].join(', ')}
-        </span>
-      </div>
-    )}
-  </div>
-)}
+                          const base64Promises = files.map(file => {
+                            return new Promise((resolve) => {
+                              const reader = new FileReader();
+                              reader.onloadend = () => resolve(reader.result);
+                              reader.readAsDataURL(file);
+                            });
+                          });
+                          const base64Files = await Promise.all(base64Promises);
+                          handleDynamicFieldChange(field.fieldName, base64Files);
+                        }
+                      }}
+                      className="bg-[#1C2029] border border-[#2A2E37] text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 outline-none transition-all 
+                                 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer text-gray-400"
+                    />
+                    
+                    {multiFileNames[field.fieldName] && multiFileNames[field.fieldName].length > 0 && (
+                      <div className="text-xs text-green-400 font-medium flex flex-col gap-1">
+                        <span>Selected files ({multiFileNames[field.fieldName].length}):</span>
+                        <span className="text-gray-300">
+                          {multiFileNames[field.fieldName].join(', ')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           )}
@@ -452,7 +454,7 @@ const customStyles = {
     ...base,
     padding: "4px",
     maxHeight: "200px", 
-    "::-webkit-scrollbar": {
+    ":-webkit-scrollbar": {
       width: "0px",
       background: "transparent"
     },

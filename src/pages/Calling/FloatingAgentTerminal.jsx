@@ -36,14 +36,14 @@ const FloatingAgentTerminal = () => {
     handleToggleMute,
   } = useCall();
 
-  console.log(callStatus, "Current Call Status iN floating terminal💀");
+  // console.log(callStatus, "Current Call Status iN floating terminal💀");
   
-  console.group("🔎 [FloatingAgentTerminal Debugging]");
-  console.log("1. callStatus:", callStatus);
-  console.log("2. currentCustomer:", currentCustomer);
-  console.log("3. incomingCalls:", incomingCalls);
-  console.table(incomingCalls);
-  console.groupEnd();
+  // console.group("🔎 [FloatingAgentTerminal Debugging]");
+  // console.log("1. callStatus:", callStatus);
+  // console.log("2. currentCustomer:", currentCustomer);
+  // console.log("3. incomingCalls:", incomingCalls);
+  // console.table(incomingCalls);
+  // console.groupEnd();
 
   const nodeRef = useRef(null);
   const ringtoneRef = useRef(null);
@@ -141,7 +141,7 @@ const FloatingAgentTerminal = () => {
   
   // 🟢 استخراج البيانات بشكل آمن ومرن تماماً لمنع أخطاء الـ Undefined
   const activeCallData = incomingCalls[0] || {};
-  console.log("active", activeCallData.callId );
+  // console.log("active", activeCallData.callId );
   const displayPhone = activeCallData.callerIdentity || currentCustomer?.phone || "+95684455";
   const displayEmail = currentCustomer?.email || "غير متوفر";
   

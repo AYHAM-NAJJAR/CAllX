@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Megaphone, Info, Menu } from 'lucide-react'; // أيقونات معبرة
+import { useTranslation } from 'react-i18next';
 import Button from '../../../components/common/Button';
 import CampaignCard from './components/CampaignCard';
 import { getAllCampaigns } from '../../../services/CRM/Campaigns/getAllCampaigns';
@@ -11,19 +12,21 @@ import { useOutletContext } from 'react-router-dom';
 
 
 function ShowAllCampaigns() {
+  const { t } = useTranslation();
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isError,setError] = useState(false);
+  const [isError, setError] = useState(false);
   const token = localStorage.getItem("Token");
-  const [isModalCreateCampaignOpen,setIsModalCreateCampaignOpen]=useState(false)
-  const [isModalUpdateCampaignOpen,setIsModalUpdateCampaignOpen]=useState(false)
+  const [isModalCreateCampaignOpen, setIsModalCreateCampaignOpen] = useState(false);
+  const [isModalUpdateCampaignOpen, setIsModalUpdateCampaignOpen] = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState(null);
-     const context = useOutletContext() || {};
+  const context = useOutletContext() || {};
   const { toggleSidebar } = context;
+
   const handleOpenUpdateModal = (id) => {
-  setSelectedCampaignId(id); // تخزين الـ id
-  setIsModalUpdateCampaignOpen(true); // فتح المودال
-};
+    setSelectedCampaignId(id); // تخزين الـ id
+    setIsModalUpdateCampaignOpen(true); // فتح المودال
+  };
 
   const refreshCampaigns = useCallback(async () => {
     if (!token) return;
@@ -46,31 +49,28 @@ function ShowAllCampaigns() {
   const handleDeleteCampaign = async (id) => {
     try {
       const response = await deleteCampaign(id, token);
-       toast.success(response.message || "Customer deleted successfully", {
-                position: "top-left",
-                autoClose: 3000,
-                className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
-              });
+      toast.success(response.message || t('showAllCampaigns.deleteSuccess'), {
+        position: "top-left",
+        autoClose: 3000,
+        className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
+      });
       refreshCampaigns();
     } catch (err) {
-      console.error("Failed to delete campaign:", err);
-      alert("Could not delete campaign");
+      console.error(t('showAllCampaigns.deleteErrorTitle'), err);
+      alert(t('showAllCampaigns.deleteErrorAlert'));
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>{t('showAllCampaigns.loading')}</div>;
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-gray-200 font-sans p-8 md:p-12" dir="ltr">
       <CreateCampaignModal
-        // data={Customers} 
         isOpen={isModalCreateCampaignOpen} 
         onSuccess={() => refreshCampaigns()}
         onClose={() => setIsModalCreateCampaignOpen(false)}
       />
       <UpdateCampaignModal
-        // data={Customers} 
-        
         isOpen={isModalUpdateCampaignOpen} 
         onSuccess={() => refreshCampaigns()}
         onClose={() => setIsModalUpdateCampaignOpen(false)}
@@ -81,23 +81,23 @@ function ShowAllCampaigns() {
         {/* Header Section */}
         <div className="flex items-center justify-between border-b border-gray-800 pb-6">
           <div className="flex items-center gap-3">
-           
-                <Button 
-          onClick={toggleSidebar} 
-          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
-          aria-label="Toggle Sidebar"
-        >
-          <Menu size={22} />
-        </Button>
+            <Button 
+              onClick={toggleSidebar} 
+              className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
+              aria-label={t('showAllCampaigns.toggleSidebar')}
+            >
+              <Menu size={22} />
+            </Button>
             
-            <h1 className="text-2xl text-white font-bold tracking-wide">All Campaigns</h1>
+            <h1 className="text-2xl text-white font-bold tracking-wide">{t('showAllCampaigns.title')}</h1>
           </div>
 
           <div className="flex gap-4 items-center">
             <Button 
-            onClick={() => setIsModalCreateCampaignOpen(true)}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 font-bold rounded-lg">
-              Create Campaign
+              onClick={() => setIsModalCreateCampaignOpen(true)}
+              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 font-bold rounded-lg"
+            >
+              {t('showAllCampaigns.createCampaign')}
             </Button>
           </div>
         </div>
@@ -108,11 +108,9 @@ function ShowAllCampaigns() {
             <Info className="text-[#0D9EF2]" size={24} />
           </div>
           <div>
-            <h3 className="text-white font-bold mb-1">About Campaigns</h3>
+            <h3 className="text-white font-bold mb-1">{t('showAllCampaigns.infoTitle')}</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              Campaigns are strategic initiatives used to manage outreach performance. 
-              By grouping your contacts and channels here, you can track real-time engagement, 
-              monitor lead acquisition status, and optimize your conversion funnels efficiently.
+              {t('showAllCampaigns.infoDesc')}
             </p>
           </div>
         </div>

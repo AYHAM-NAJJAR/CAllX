@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { User, Shield, Mail, Key, CheckCircle, PhoneIncoming, PhoneMissed, PhoneOutgoing } from 'lucide-react'; 
+import { useTranslation } from 'react-i18next';
 import { useCall } from '../../context/Call/CallContext';
 import { useOutboundWS } from '../Calling/context/OutboundWSContext';
 
 const Profile = () => {
+    const { t } = useTranslation();
     const { wsStatus, callStatus, activeCall } = useCall();
-      
+     
     // استدعاء حالة الاتصال الخاصة بالـ Outbound
     const { isConnected: isOutboundConnected } = useOutboundWS();
-      
+     
     // تحديد ما إذا كان الوارد متصلاً بنجاح (مع WebSocket)
     const isConnected = wsStatus === "Connected";
 
@@ -29,7 +31,7 @@ const Profile = () => {
             <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-white font-sans">
                 <div className="text-center space-y-3">
                     <div className="w-10 h-10 border-4 border-[#0D9EF2] border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="text-slate-400 text-sm animate-pulse">Loading profile data...</p>
+                    <p className="text-slate-400 text-sm animate-pulse">{t('profile.loading')}</p>
                 </div>
             </div>
         );
@@ -42,8 +44,8 @@ const Profile = () => {
                 {/* Page Header */}
                 <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-slate-800/80 pb-5 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">Profile</h1>
-                        <p className="text-sm text-slate-400 mt-1">Manage your account information and access permissions</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-white">{t('profile.title')}</h1>
+                        <p className="text-sm text-slate-400 mt-1">{t('profile.subtitle')}</p>
                     </div>
 
                     {/* حاوية مؤشرات الاتصال (الوارد والصادر) بجانب بعضهما */}
@@ -60,14 +62,14 @@ const Profile = () => {
                                 <>
                                 <PhoneIncoming className="animate-pulse shrink-0" size={14} />
                                 <span className="text-[10px] font-bold tracking-tight uppercase truncate">
-                                    {activeCall ? `In Call (${callStatus})` : "Ready to recieve call"}
+                                    {activeCall ? `${t('profile.inCall')} (${callStatus})` : t('profile.readyToReceive')}
                                 </span>
                                 </>
                             ) : (
                                 <>
                                 <PhoneMissed className="animate-pulse shrink-0" size={14} />
                                 <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
-                                    {wsStatus || "Offline"}
+                                    {wsStatus || t('profile.offline')}
                                 </span>
                                 </>
                             )}
@@ -85,14 +87,14 @@ const Profile = () => {
                                 <>
                                 <PhoneOutgoing className="animate-pulse shrink-0" size={14} />
                                 <span className="text-[10px] font-bold tracking-tight uppercase truncate">
-                                  Ready to Make  call
+                                  {t('profile.readyToMake')}
                                 </span>
                                 </>
                             ) : (
                                 <>
                                 <PhoneMissed className="animate-pulse shrink-0" size={14} />
                                 <span className="text-[10px] font-bold tracking-tight uppercase truncate opacity-90">
-                                    Out Offline
+                                    {t('profile.outOffline')}
                                 </span>
                                 </>
                             )}
@@ -118,7 +120,7 @@ const Profile = () => {
                         
                         <h2 className="text-xl font-semibold text-white mt-4">{user.firstName} {user.lastName}</h2>
                         <span className="text-xs bg-[#0F172A] text-[#0D9EF2] border border-[#0D9EF2]/20 px-3 py-1 rounded-full mt-2 font-medium">
-                            {user.type || "Software Engineer"}
+                            {user.type || t('profile.defaultRole')}
                         </span>
 
                         <hr className="w-full border-slate-800/80 my-6" />
@@ -126,7 +128,7 @@ const Profile = () => {
                         <div className="w-full space-y-4 text-sm text-slate-400">
                             <div className="flex items-center gap-3 justify-start">
                                 <Mail size={16} className="text-[#0D9EF2] shrink-0" />
-                                <span className="truncate">{user.email || "email@example.com"}</span>
+                                <span className="truncate">{user.email || t('profile.defaultEmail')}</span>
                             </div>
                             <div className="flex items-center gap-3 justify-start">
                                 <Shield size={16} className="text-[#0D9EF2] shrink-0" />
@@ -142,18 +144,18 @@ const Profile = () => {
                         <div className="bg-[#101B22] rounded-2xl p-6 border border-slate-800/60 shadow-xl space-y-6">
                             <h3 className="text-lg font-medium text-white flex items-center gap-2 border-b border-slate-800/80 pb-3">
                                 <User size={18} className="text-[#0D9EF2]" />
-                                Account Details
+                                {t('profile.accountDetails')}
                             </h3>
                             
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
                                 <div>
-                                    <label className="text-slate-500 block mb-1.5">Full Name</label>
+                                    <label className="text-slate-500 block mb-1.5">{t('profile.fullName')}</label>
                                     <div className="bg-[#0F172A] p-3 rounded-lg border border-slate-800 text-slate-300">
                                         {user.firstName} {user.lastName}
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-slate-500 block mb-1.5">Email Address</label>
+                                    <label className="text-slate-500 block mb-1.5">{t('profile.emailAddress')}</label>
                                     <div className="bg-[#0F172A] p-3 rounded-lg border border-slate-800 text-slate-300">
                                         {user.email}
                                     </div>
@@ -165,7 +167,7 @@ const Profile = () => {
                         <div className="bg-[#101B22] rounded-2xl p-6 border border-slate-800/60 shadow-xl space-y-4">
                             <h3 className="text-lg font-medium text-white flex items-center gap-2 border-b border-slate-800/80 pb-3">
                                 <Key size={18} className="text-[#0D9EF2]" />
-                                Assigned Permissions
+                                {t('profile.assignedPermissions')}
                             </h3>
                             
                             {permissions && permissions.length > 0 ? (
@@ -182,7 +184,7 @@ const Profile = () => {
                                 </div>
                             ) : (
                                 <p className="text-sm text-slate-500 italic pt-2">
-                                    No custom permissions assigned to this account.
+                                    {t('profile.noPermissions')}
                                 </p>
                             )}
                         </div>

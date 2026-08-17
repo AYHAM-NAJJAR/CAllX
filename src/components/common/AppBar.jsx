@@ -1,5 +1,6 @@
 import React from 'react'
 import { NavLink, useOutletContext } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Button from './Button'
 import { Bell, Menu } from 'lucide-react'
 
@@ -14,30 +15,32 @@ const hasPermission = (requiredPermission) => {
 };
 
 function AppBar() {
+  const { t } = useTranslation();
+
   const navLinks = [
     { 
       to: "/main/system/stats", 
-      label: "Stats", 
+      label: t('appBar.stats'), 
       permission: "VIEW_ANALYTICS" 
     },
     { 
       to: "/main/system/employee", 
-      label: "Employees", 
+      label: t('appBar.employees'), 
       permission: "MANAGE_USERS" 
     },
     { 
       to: "/main/system/tickets", 
-      label: "Tickets", 
+      label: t('appBar.tickets'), 
       permission: ["VIEW_ALL_TICKETS", "VIEW_ASSIGNED_TICKETS", "UPDATE_TICKET_STATUS", "ADD_NOTE"] 
     },
     { 
       to: "/main/system/departments", 
-      label: "Departments", 
+      label: t('appBar.departments'), 
       permission: "VIEW_COMPANY_STRUCTURE" 
     },
     { 
       to: "/main/system/roles", 
-      label: "Roles", 
+      label: t('appBar.roles'), 
       permission: "MANAGE_ROLES" 
     },
   ];
@@ -58,7 +61,7 @@ function AppBar() {
         <Button 
           onClick={toggleSidebar} 
           className="p-2 text-slate-300 hover:text-sky-400 rounded-lg transition-all shrink-0"
-          aria-label="Toggle Sidebar"
+          aria-label={t('appBar.toggleSidebar')}
         >
           <Menu size={20} />
         </Button>

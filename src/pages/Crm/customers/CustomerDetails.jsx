@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PhoneCall, Copy, Check, Mail } from 'lucide-react'; // 👈 استيراد أيقونات الاتصال
+import { PhoneCall, Copy, Check, Mail } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 import Button from '../../../components/common/Button';
 import UpdateCustomerModal from './Modal/UpdateCustomerModal';
@@ -13,8 +14,9 @@ import { getOneCustomer } from '../../../services/CRM/Customers/getOneCustomer';
 import { updateCustomerNotes } from '../../../services/CRM/Customers/updateCustomerNotes';
 
 const CustomerDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
-  const navigate = useNavigate();
+  const useNavigateInstance = useNavigate(); // keeping variable name or alias
 
   // States
   const [customer, setCustomer] = useState(null);
@@ -27,8 +29,8 @@ const CustomerDetails = () => {
   const [notesValue, setNotesValue] = useState('');
   
   const token = localStorage.getItem('Token'); 
-  const [isSavingNotes, setIsSavingNotes] = useState(false); // 👈 تم إصلاح التعريف هنا
-  const [copiedPhone, setCopiedPhone] = useState(false); // حالة نسخ الرقم
+  const [isSavingNotes, setIsSavingNotes] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
 
   const refreshCustomerDetails = useCallback(async () => {
     if (!token || !id) return;
@@ -78,7 +80,7 @@ const CustomerDetails = () => {
   }, [customer]);
 
   const handleDeleteCustomer = async () => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this customer? This action cannot be undone.");
+    const confirmDelete = window.confirm(t('customerDetails.deleteConfirm'));
     if (!confirmDelete) return;
 
     try {
@@ -86,13 +88,13 @@ const CustomerDetails = () => {
       const response = await deleteCustomer(id, token);
 
       if (response && (response.success || response.status === 200 || response.status === 204)) {
-        toast.success(response.message || "Customer deleted successfully", {
+        toast.success(response.message || t('customerDetails.deleteSuccess'), {
           position: "top-left",
           autoClose: 3000,
           className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
         });
         
-        navigate("/main/customers");
+        useNavigateInstance("/main/customers");
       } else {
         toast.error(response?.message || "Failed to delete customer");
       }
@@ -105,13 +107,13 @@ const CustomerDetails = () => {
   };
 
   const handleDeleteTag = async (tagId, tagName) => {
-    const confirmTagDelete = window.confirm(`Are you sure you want to remove the tag "${tagName}"?`);
+    const confirmTagDelete = window.confirm(t('customerDetails.tagDeleteConfirm', { name: tagName }));
     if (!confirmTagDelete) return;
 
     try {
       await deleteCustomerTag(id, tagId, token);
 
-      toast.success(`Tag "${tagName}" removed successfully`, {
+      toast.success(t('customerDetails.tagDeleteSuccess', { name: tagName }), {
         position: "top-left",
         autoClose: 2000,
         className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
@@ -128,30 +130,29 @@ const CustomerDetails = () => {
     try {
       setIsSavingNotes(true);
       await updateCustomerNotes(id, notesValue, token);
-      toast.success("Notes updated successfully");
+      toast.success(t('customerDetails.notesSuccess'));
       setIsEditingNotes(false);
       refreshCustomerDetails();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update notes");
+      toast.error(t('customerDetails.notesError'));
     } finally {
       setIsSavingNotes(false);
     }
   };
 
-  // 👈 دالة التعامل مع نسخ رقم الهاتف
   const handleCopyPhone = (phone) => {
     if (!phone) return;
     navigator.clipboard.writeText(phone);
     setCopiedPhone(true);
-    toast.info("Phone number copied!", { autoClose: 1500, position: 'top-center' });
+    toast.info(t('customerDetails.phoneCopied'), { autoClose: 1500, position: 'top-center' });
     setTimeout(() => setCopiedPhone(false), 2000);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-primary flex items-center justify-center text-white">
-        <p className="text-xl font-semibold animate-pulse">Loading customer details...</p>
+        <p className="text-xl font-semibold animate-pulse">{t('customerDetails.loading')}</p>
       </div>
     );
   }
@@ -159,17 +160,15 @@ const CustomerDetails = () => {
   if (error || !customer) {
     return (
       <div className="min-h-screen bg-primary flex flex-col items-center justify-center text-white gap-4">
-        <p className="text-xl text-red-400">Failed to load customer details.</p>
-        <Button onClick={() => navigate("/main/customers")} className="bg-gray-800 px-6 py-2 rounded-full text-sm">
-          Back to List
+        <p className="text-xl text-red-400">{t('customerDetails.errorTitle')}</p>
+        <Button onClick={() => useNavigateInstance("/main/customers")} className="bg-gray-800 px-6 py-2 rounded-full text-sm">
+          {t('customerDetails.backToList')}
         </Button>
       </div>
     );
   }
 
   const primaryContact = customer.contacts?.find(c => c.isPrimary) || customer.contacts?.[0];
-  
-  // 👈 استخدام oneCustomer.phoneNumber كالمصدر الأساسي للرقم
   const phoneNumber = oneCustomer?.phoneNumber || customer.phoneNumber || primaryContact?.phoneNumber;
 
   return (
@@ -194,26 +193,26 @@ const CustomerDetails = () => {
         {/* Header */}
         <header className="flex items-center justify-between mb-10">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold tracking-wider text-white">Customer Details</h1>
+            <h1 className="text-xl font-bold tracking-wider text-white">{t('customerDetails.headerTitle')}</h1>
           </div>
           <div className="flex items-center gap-3">
             <Button
               onClick={() => setIsOpenModalCreateTag(true)}
               className="bg-sky-800 rounded-full ease-in transition-colors px-6 py-2.5 text-sm font-semibold hover:bg-sky-600 text-white"
             >
-              Add Tag
+              {t('customerDetails.addTag')}
             </Button>
             <Button
               onClick={() => setIsOpenModalUpdateCustomer(true)}
               className="rounded-full bg-customButton hover:bg-sky-400 ease-in transition-colors px-6 py-2.5 text-sm font-bold text-white"
             >
-              Edit Customer
+              {t('customerDetails.editCustomer')}
             </Button>
             <Button
               onClick={handleDeleteCustomer}
               className="rounded-full text-white bg-red-500 hover:bg-red-600 ease-in transition-colors px-6 py-2.5 text-sm font-bold"
             >
-              Delete Customer
+              {t('customerDetails.deleteCustomer')}
             </Button>
           </div>
         </header>
@@ -245,10 +244,10 @@ const CustomerDetails = () => {
             <div>
               <div className="flex items-center justify-start gap-4">
                 <span className="text-gray-500 text-lg font-mono block mb-1">
-                  Customer ID #{customer.id}
+                  {t('customerDetails.customerId', { id: customer.id })}
                 </span>
                 <p className="bg-slate-600 text-white px-3 py-1 rounded-full text-sm font-semibold shrink-0">
-                  {customer.ownerAgentName ? `Assigned Agent: ${customer.ownerAgentName}` : 'No Agent Assigned'}
+                  {customer.ownerAgentName ? t('customerDetails.assignedAgent', { name: customer.ownerAgentName }) : t('customerDetails.noAgent')}
                 </p>
               </div>
               <h2 className="text-4xl font-black text-white tracking-tight leading-tight mt-1">
@@ -256,23 +255,23 @@ const CustomerDetails = () => {
               </h2>
               {customer.originatingCampaignName && (
                 <p className="text-gray-500 mt-2 text-sm">
-                  Campaign: <span className="text-gray-300 font-medium">{customer.originatingCampaignName}</span>
+                  {t('customerDetails.campaign')} <span className="text-gray-300 font-medium">{customer.originatingCampaignName}</span>
                 </p>
               )}
             </div>
             
-            {/* 📞 CALL CENTER QUICK CONTACT BAR - التصميم المنسق والصحيح */}
-            <div className="bg-[#111821] border border-[#0D9EF2]/40 p-4 rounded-2xl flex flex-wrap sm:flex-nowrap items-center gap-4  hover:border-green-500 transition-all duration-300">
+            {/* Quick Contact Bar */}
+            <div className="bg-[#111821] border border-[#0D9EF2]/40 p-4 rounded-2xl flex flex-wrap sm:flex-nowrap items-center gap-4 hover:border-green-500 transition-all duration-300">
               <div className="w-12 h-12 rounded-xl bg-[#0D9EF2]/10 border border-[#0D9EF2]/30 flex items-center justify-center text-[#0D9EF2] shrink-0">
                 <PhoneCall size={24} className="animate-pulse" />
               </div>
               
               <div className="flex-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-0.5">
-                  Direct Line
+                  {t('customerDetails.directLine')}
                 </span>
                 <p className="text-xl font-mono font-bold text-white tracking-wider">
-                  {phoneNumber || "No Phone"}
+                  {phoneNumber || t('customerDetails.noPhone')}
                 </p>
               </div>
 
@@ -280,17 +279,17 @@ const CustomerDetails = () => {
                 <div className="flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                   <button
                     onClick={() => handleCopyPhone(phoneNumber)}
-                    title="Copy Phone Number"
+                    title={t('customerDetails.copyPhoneTooltip')}
                     className="p-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition-all border border-gray-700 active:scale-95 flex items-center justify-center"
                   >
                     {copiedPhone ? <Check size={18} className="text-emerald-400" /> : <Copy size={18} />}
                   </button>
                   <a
                     href={`tel:${phoneNumber}`}
-                    className="flex-1 sm:flex-none justify-center bg-green-500 hover:bg-green-600 text-white font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 transition-all  active:scale-95"
+                    className="flex-1 sm:flex-none justify-center bg-green-500 hover:bg-green-600 text-white font-bold text-sm px-6 py-3 rounded-xl flex items-center gap-2 transition-all active:scale-95"
                   >
                     <PhoneCall size={16} />
-                    <span>Call Now</span>
+                    <span>{t('customerDetails.callNow')}</span>
                   </a>
                 </div>
               )}
@@ -304,7 +303,7 @@ const CustomerDetails = () => {
           <div className="space-y-6 flex-1">
             <div>
               <p className="text-[#00A3FF] text-xs font-bold tracking-widest uppercase mb-1.5">
-                Primary Contact
+                {t('customerDetails.primaryContact')}
               </p>
               <h3 className="text-3xl font-extrabold text-white">
                 {primaryContact ? `${primaryContact.firstName} ${primaryContact.lastName}` : 'N/A'}
@@ -313,16 +312,16 @@ const CustomerDetails = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-gray-300 text-sm">
               <div className="flex items-center gap-3">
                 <Mail size={18} className="text-gray-500 shrink-0" />
-                <span>{primaryContact?.email || 'No Email'}</span>
+                <span>{primaryContact?.email || t('customerDetails.noEmail')}</span>
               </div>
               <div className="flex items-center gap-3">
                 <PhoneCall size={18} className="text-gray-500 shrink-0" />
-                <span className="font-mono">{phoneNumber || 'No Phone'}</span>
+                <span className="font-mono">{phoneNumber || t('customerDetails.noPhone')}</span>
               </div>
               {customer.totalOpportunityValue !== undefined && (
                 <div className="flex items-center gap-3 md:col-span-2">
                   <span className="text-lg text-gray-500">💰</span>
-                  <span>Total Opportunity: <strong className="text-emerald-400">${customer.totalOpportunityValue.toLocaleString()}</strong></span>
+                  <span>{t('customerDetails.totalOpportunity')} <strong className="text-emerald-400">${customer.totalOpportunityValue.toLocaleString()}</strong></span>
                 </div>
               )}
             </div>
@@ -335,13 +334,13 @@ const CustomerDetails = () => {
             {/* Notes Section */}
             <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10 space-y-6">
               <div className="flex items-center justify-between pb-4 border-b border-gray-800/60">
-                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Customer Notes</h4>
+                <h4 className="text-lg font-bold text-white uppercase tracking-wider">{t('customerDetails.customerNotes')}</h4>
                 <Button
                   onClick={() => isEditingNotes ? handleSaveNotes() : setIsEditingNotes(true)}
                   disabled={isSavingNotes}
                   className={`${isEditingNotes ? 'bg-emerald-600' : 'bg-customButton'} hover:opacity-80 transition-all text-gray-300 text-[10px] font-bold px-4 py-1.5 rounded uppercase tracking-wider`}
                 >
-                  {isSavingNotes ? 'Saving...' : isEditingNotes ? 'Save' : 'Edit'}
+                  {isSavingNotes ? t('customerDetails.saving') : isEditingNotes ? t('customerDetails.save') : t('customerDetails.edit')}
                 </Button>
               </div>
               
@@ -355,7 +354,7 @@ const CustomerDetails = () => {
                 />
               ) : (
                 <div className="text-gray-200 text-base leading-relaxed bg-[#151D29]/40 p-6 rounded-2xl border border-gray-800/50 whitespace-pre-line min-h-[120px]">
-                  {customer.notes || <span className="text-gray-500 italic">No notes provided for this customer.</span>}
+                  {customer.notes || <span className="text-gray-500 italic">{t('customerDetails.noNotes')}</span>}
                 </div>
               )}
             </div>
@@ -363,7 +362,7 @@ const CustomerDetails = () => {
             {/* Interactions History */}
             <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10 space-y-6">
               <div className="flex items-center gap-3 pb-4 border-b border-gray-800/60">
-                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Interactions History</h4>
+                <h4 className="text-lg font-bold text-white uppercase tracking-wider">{t('customerDetails.interactionsHistory')}</h4>
               </div>
               {customer.interactions && customer.interactions.length > 0 ? (
                 <div className="space-y-4">
@@ -373,9 +372,9 @@ const CustomerDetails = () => {
                         <span className="bg-blue-500/20 text-blue-400 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider mr-3">
                           {interaction.type}
                         </span>
-                        <span className="text-gray-400 text-xs">Ref: {interaction.externalRefId}</span>
+                        <span className="text-gray-400 text-xs">{t('customerDetails.ref', { ref: interaction.externalRefId })}</span>
                         <p className="text-gray-300 mt-2 text-sm">
-                          Conducted by: <span className="text-white font-medium">{interaction.agentName}</span>
+                          {t('customerDetails.conductedBy')} <span className="text-white font-medium">{interaction.agentName}</span>
                         </p>
                       </div>
                       <span className="text-gray-500 text-xs font-mono">
@@ -385,7 +384,7 @@ const CustomerDetails = () => {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 italic">No interactions recorded.</p>
+                <p className="text-gray-500 italic">{t('customerDetails.noInteractions')}</p>
               )}
             </div>
           </section>
@@ -393,7 +392,7 @@ const CustomerDetails = () => {
           {/* Sidebar */}
           <aside className="space-y-10">
             <div className="bg-[#111821] border border-gray-800 rounded-3xl p-10">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Active Opportunities</h4>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">{t('customerDetails.activeOpportunities')}</h4>
               {customer.opportunities && customer.opportunities.length > 0 ? (
                 <div className="space-y-5">
                   {customer.opportunities.map((opp) => (
@@ -407,14 +406,14 @@ const CustomerDetails = () => {
                         </span>
                       </div>
                       <div className="flex justify-between text-xs text-gray-500">
-                        <span>Expected Close</span>
+                        <span>{t('customerDetails.expectedClose')}</span>
                         <span>{new Date(opp.expectedCloseDate).toLocaleDateString('en-US')}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 italic text-sm">No opportunities available.</p>
+                <p className="text-gray-500 italic text-sm">{t('customerDetails.noOpportunities')}</p>
               )}
             </div>
 
@@ -423,12 +422,12 @@ const CustomerDetails = () => {
                 <div className="flex gap-3">
                   <span className="text-2xl text-[#1E88E5]">🎯</span>
                   <div className="space-y-1">
-                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">Originating Campaign</h4>
+                    <h4 className="text-sm font-bold text-white uppercase tracking-wider">{t('customerDetails.originatingCampaign')}</h4>
                     <p className="text-gray-400 text-sm leading-relaxed">
                       {customer.originatingCampaignName}
                     </p>
                     {customer.originatingLeadId && (
-                      <span className="text-[11px] text-gray-500 font-mono block">Lead ID: #{customer.originatingLeadId}</span>
+                      <span className="text-[11px] text-gray-500 font-mono block">{t('customerDetails.leadId', { id: customer.originatingLeadId })}</span>
                     )}
                   </div>
                 </div>

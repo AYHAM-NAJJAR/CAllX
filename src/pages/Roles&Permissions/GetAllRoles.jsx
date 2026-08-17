@@ -10,8 +10,10 @@ import LoadingError from '../../components/common/LoadingError';
 import { toast } from 'react-toastify';
 import { deleteRole } from '../../services/Role&Permission/DeleteRole';
 import { SearchInput } from '../../components/common/SearchInput';
+import { useTranslation } from 'react-i18next';
 
 function GetAllRoles() {
+    const { t } = useTranslation();
     const token = localStorage.getItem("Token")
     const [isCreateRoleModalOpen, setIsCreateRoleModalOpen] = useState(false);
     const [isUpdateRoleModalOpen, setIsUpdateRoleModalOpen] = useState(false);
@@ -38,27 +40,25 @@ function GetAllRoles() {
 
     // دالة حذف الدور (Delete Role) باستخدام خدمة deleteRole الخارجية
     const handleDeleteRole = async (roleId) => {
-        
-
         try {
             const result = await deleteRole(roleId, token);
 
             if (result.success) {
-                toast.success(result.message || "Role deleted successfully", {
+                toast.success(result.message || t('rolesManagement.deleteSuccess'), {
                     position: "top-left",
                     autoClose: 3000,
                     className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
                 });
                 refetch(); // إعادة جلب البيانات بعد الحذف بنجاح
             } else {
-                toast.error(result.message || "Failed to delete role", {
+                toast.error(result.message || t('rolesManagement.deleteError'), {
                     position: "top-left",
                     autoClose: 3000,
                     className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
                 });
             }
         } catch (error) {
-            toast.error("An unexpected error occurred", {
+            toast.error(t('rolesManagement.unexpectedError'), {
                 position: "top-left",
                 autoClose: 3000,
                 className: '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl text-white',
@@ -78,14 +78,12 @@ function GetAllRoles() {
     };
     
     if (isLoading) {
-        return <LoadingCircle Phrase={"Roles"}/>;
+        return <LoadingCircle Phrase={t('rolesManagement.loadingPhrase')}/>;
     }
 
     if (isError) {
-        return <LoadingError Phrase={"Roles"}/>;
+        return <LoadingError Phrase={t('rolesManagement.errorPhrase')}/>;
     }
-
-    
 
     // 3. الواجهة الأساسية عند اكتمال جلب البيانات
     return (
@@ -110,42 +108,39 @@ function GetAllRoles() {
                 
                 {/* هيدر الصفحة */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800/80 pb-6 gap-4">
-                    <div className='felx  flex-col'>
+                    <div className='flex flex-col'>
                         <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
                             <Shield className="text-[#0D9EF2]" size={32} />
-                            Role Management
+                            {t('rolesManagement.title')}
                         </h1>
                         <div>
                             <p className="text-sm text-slate-400 mt-1">
-                            Review and configure access control levels, security descriptors, and assigned scope metrics.
-                        </p>
-                        <div className="bg-[#101B22] border border-slate-800 px-4 py-2 w-fit rounded-xl mt-2 text-xs text-slate-400 flex items-center gap-2">
-                            <Users size={14} className="text-[#0D9EF2]" />
-                            Total Active Roles: <span className="text-white font-bold">{roles.length}</span>
-                        </div>
+                                {t('rolesManagement.subtitle')}
+                            </p>
+                            <div className="bg-[#101B22] border border-slate-800 px-4 py-2 w-fit rounded-xl mt-2 text-xs text-slate-400 flex items-center gap-2">
+                                <Users size={14} className="text-[#0D9EF2]" />
+                                {t('rolesManagement.totalActiveRoles')} <span className="text-white font-bold">{roles.length}</span>
+                            </div>
                         </div>
                     </div>
                     <div className='flex flex-row items-center justify-center gap-2'>
-                        
                         <Button
                             onClick={() => setIsCreateRoleModalOpen(true)}
                             className="bg-customButton px-4 py-2 rounded-md text-sm font-bold text-white">
-                            Add Role
+                            {t('rolesManagement.addRole')}
                         </Button>
-                           <SearchInput
-                        placeholder={"Search About Role name"} 
-                        value={search} 
-                        onChange={(val) => {
-                        setSearch(val);
-                    }} 
-                  />
+                        <SearchInput
+                            placeholder={t('rolesManagement.searchPlaceholder')} 
+                            value={search} 
+                            onChange={(val) => {
+                                setSearch(val);
+                            }} 
+                        />
                     </div>
-                 
                 </div>
                     
                 {/* شبكة عرض الأدوار الصلاحية (Grid Layout) */}
                 <div className="grid grid-cols-1 gap-8">
-                    
                     {roles.map((role) => {
                         const groupedPerms = groupPermissionsByModule(role.permissions || []);
                         
@@ -170,14 +165,14 @@ function GetAllRoles() {
                                                 <button 
                                                     onClick={() => handleOpenEditModal(role)}
                                                     className="p-1.5 bg-slate-800/60 hover:bg-[#0D9EF2]/20 text-slate-300 hover:text-[#0D9EF2] rounded-lg transition-colors"
-                                                    title="Update Role"
+                                                    title={t('rolesManagement.updateRole')}
                                                 >
                                                     <Edit size={15} />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleDeleteRole(role.id)}
                                                     className="p-1.5 bg-slate-800/60 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg transition-colors"
-                                                    title="Delete Role"
+                                                    title={t('rolesManagement.deleteRole')}
                                                 >
                                                     <Trash2 size={15} />
                                                 </button>
@@ -185,22 +180,22 @@ function GetAllRoles() {
                                         </div>
 
                                         <p className="text-sm text-slate-400 mt-3 leading-relaxed">
-                                            {role.description || <span className="italic text-slate-600">No description provided for this role.</span>}
+                                            {role.description || <span className="italic text-slate-600">{t('rolesManagement.noDescription')}</span>}
                                         </p>
                                     </div>
 
                                     {/* تفاصيل الميتا داتا الإضافية */}
                                     <div className="space-y-2 pt-4 border-t border-slate-800/50 text-xs text-slate-500">
                                         <div className="flex justify-between">
-                                            <span>Role ID:</span>
+                                            <span>{t('rolesManagement.roleId')}</span>
                                             <span className="text-slate-400 font-mono">#{role.id}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span>Tenant Scope:</span>
+                                            <span>{t('rolesManagement.tenantScope')}</span>
                                             <span className="text-slate-400 font-mono">ID_{role.tenantId}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span>Total Key Actions:</span>
+                                            <span>{t('rolesManagement.totalKeyActions')}</span>
                                             <span className="text-[#0D9EF2] font-semibold">{role.permissions?.length || 0}</span>
                                         </div>
                                     </div>
@@ -210,7 +205,7 @@ function GetAllRoles() {
                                 <div className="lg:w-3/4 p-6 space-y-6">
                                     <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
                                         <Layers size={14} className="text-[#0D9EF2]" />
-                                        Capability & Permission Tree
+                                        {t('rolesManagement.capabilityTree')}
                                     </h3>
 
                                     {role.permissions && role.permissions.length > 0 ? (
@@ -248,7 +243,7 @@ function GetAllRoles() {
                                     ) : (
                                         <div className="bg-[#0F172A] border border-slate-800/40 rounded-xl p-6 text-center text-sm text-slate-500 italic flex items-center justify-center gap-2">
                                             <Info size={14} />
-                                            This role has no atomic actions or permissions attached to it.
+                                            {t('rolesManagement.noPermissions')}
                                         </div>
                                     )}
                                 </div>

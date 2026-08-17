@@ -1,17 +1,20 @@
-// QueueCard.jsx
 import React, { useState } from 'react';
 import { UserCheck, Clock, Key, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Button from '../../../components/common/Button';
 import { updateQueueStatus } from '../../../services/Queue/updateStatus';
 
 function QueueCard({ queue }) {
+  const { t } = useTranslation();
   const { name, queueKey, waitingCount, active, createdAt } = queue;
 
   // حالة محليّة لإدارة حالة النشاط والتحميل
   const [isActive, setIsActive] = useState(active);
   const [loading, setLoading] = useState(false);
-   // جلب التوكن من التخزين المحلي
-    const token = localStorage.getItem('Token'); 
+  
+  // جلب التوكن من التخزين المحلي
+  const token = localStorage.getItem('Token'); 
+
   // تنسيق التاريخ لشكل مقروء
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -28,10 +31,10 @@ function QueueCard({ queue }) {
     setLoading(true);
 
     try {
-      await updateQueueStatus(queueKey, nextStatus,token);
+      await updateQueueStatus(queueKey, nextStatus, token);
       setIsActive(nextStatus); // تحديث الحالة عند نجاح الطلب
     } catch (error) {
-      console.error('Failed to update status:', error);
+      console.error(t('queueCard.updateError'), error);
       // يمكن إضافة إشعار خطأ هنا (Toast)
     } finally {
       setLoading(false);
@@ -56,7 +59,7 @@ function QueueCard({ queue }) {
         <button
           onClick={handleToggleStatus}
           disabled={loading}
-          title={isActive ? 'Deactivate Queue' : 'Activate Queue'}
+          title={isActive ? t('queueCard.deactivateTooltip') : t('queueCard.activateTooltip')}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
             isActive
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
@@ -70,7 +73,7 @@ function QueueCard({ queue }) {
           ) : (
             <ToggleLeft size={18} className="text-rose-400" />
           )}
-          <span>{isActive ? 'Active' : 'Inactive'}</span>
+          <span>{isActive ? t('queueCard.active') : t('queueCard.inactive')}</span>
         </button>
       </div>
 
@@ -83,7 +86,7 @@ function QueueCard({ queue }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-400">
             <UserCheck size={18} />
-            <span className="text-sm">Waiting Customers</span>
+            <span className="text-sm">{t('queueCard.waitingCustomers')}</span>
           </div>
           <span className={`text-base font-bold px-2 py-0.5 rounded-md ${
             waitingCount > 0 
@@ -98,7 +101,7 @@ function QueueCard({ queue }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-slate-400">
             <Clock size={18} />
-            <span className="text-sm">Created Date</span>
+            <span className="text-sm">{t('queueCard.createdDate')}</span>
           </div>
           <span className="text-sm text-slate-300 font-medium">
             {formattedDate}
@@ -111,7 +114,7 @@ function QueueCard({ queue }) {
         path={`/main/queue/all/details/${queueKey}`}
         className="mt-5 w-full bg-[#0D9EF2] text-white border-none rounded-lg px-4 py-2.5 text-sm font-semibold cursor-pointer hover:bg-[#0b84cb] transition-colors"
       >
-        Manage Queue
+        {t('queueCard.manageQueue')}
       </Button>
     </div>
   );

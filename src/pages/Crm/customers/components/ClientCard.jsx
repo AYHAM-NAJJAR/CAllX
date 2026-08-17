@@ -1,9 +1,17 @@
-
+import React from 'react';
 import { User, ShieldCheck, Tag, ArrowUpRight, PhoneCall, Mail } from "lucide-react";
 import Button from "../../../../components/common/Button";
+import { useTranslation } from 'react-i18next';
 
-const ClientCard = ({ client,onCall }) => {
+const ClientCard = ({ client, onCall }) => {
+  const { t } = useTranslation();
   const { id, name, type, status, ownerAgentId, tagNames, phoneNumber, email } = client;
+  
+  const renderClientType = () => {
+    if (type === "VIP") return t('clientCard.types.vip');
+    if (type === "Corporate") return t('clientCard.types.corporate');
+    return t('clientCard.types.standard');
+  };
   
   return (
     <div className="bg-[#101B22] border border-[#1e293b] rounded-xl p-5 shadow-xl flex flex-col justify-between transition-all duration-300 hover:border-[#0D9EF2]/40 group">
@@ -12,10 +20,10 @@ const ClientCard = ({ client,onCall }) => {
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="min-w-0">
             <p className="text-white font-semibold text-lg sm:text-xl tracking-wide truncate">
-              {name || "Unknown Client"}
+              {name || t('clientCard.unknownClient')}
             </p>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[11px] text-gray-500 font-mono">ID: #{id}</span>
+              <span className="text-[11px] text-gray-500 font-mono">{t('clientCard.id', { id })}</span>
               {email && (
                 <span className="text-[11px] text-gray-400 truncate flex items-center gap-1 max-w-[150px]">
                   <Mail size={11} className="text-gray-500 shrink-0" />
@@ -35,7 +43,7 @@ const ClientCard = ({ client,onCall }) => {
                 : "bg-blue-500/10 text-blue-400 border-blue-500/30"
             }`}
           >
-            {type || "Standard"}
+            {renderClientType()}
           </span>
         </div>
 
@@ -47,21 +55,20 @@ const ClientCard = ({ client,onCall }) => {
             </div>
             <div className="min-w-0">
               <span className="text-[9px] uppercase tracking-widest text-gray-400 font-medium block">
-                Direct Contact
+                {t('clientCard.directContact')}
               </span>
               <span className="text-white font-mono font-bold text-xs sm:text-sm tracking-wider truncate block">
-                {phoneNumber || "No Number"}
+                {phoneNumber || t('clientCard.noNumber')}
               </span>
             </div>
           </div>
 
           {phoneNumber && (
             <Button
-
               onClick={onCall}
               className="shrink-0 px-2.5 py-1 rounded-md bg-[#0D9EF2]/10 hover:bg-[#0D9EF2] text-[#0D9EF2] hover:text-white border border-[#0D9EF2]/30 text-[10px] font-bold transition-all duration-200 flex items-center gap-1"
             >
-              Call
+              {t('clientCard.call')}
               <PhoneCall size={10} />
             </Button>
           )}
@@ -72,7 +79,7 @@ const ClientCard = ({ client,onCall }) => {
           {/* Status Row */}
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-400 flex items-center gap-1.5 text-[11px]">
-              <ShieldCheck size={14} className="text-gray-500" /> Status
+              <ShieldCheck size={14} className="text-gray-500" /> {t('clientCard.status')}
             </span>
             <span
               className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -86,17 +93,17 @@ const ClientCard = ({ client,onCall }) => {
                   status === "Active" || client.active ? "bg-emerald-400" : "bg-rose-400"
                 }`}
               />
-              {status || "Inactive"}
+              {status === "Active" || client.active ? t('clientCard.active') : t('clientCard.inactive')}
             </span>
           </div>
 
           {/* Owner Agent Row */}
           <div className="flex items-center justify-between text-xs">
             <span className="text-gray-400 flex items-center gap-1.5 text-[11px]">
-              <User size={14} className="text-gray-500" /> Agent Owner
+              <User size={14} className="text-gray-500" /> {t('clientCard.agentOwner')}
             </span>
             <span className="text-gray-300 font-mono text-[11px]">
-              {ownerAgentId ? `Agent #${ownerAgentId}` : "Unassigned"}
+              {ownerAgentId ? t('clientCard.agentId', { id: ownerAgentId }) : t('clientCard.unassigned')}
             </span>
           </div>
         </div>
@@ -122,7 +129,7 @@ const ClientCard = ({ client,onCall }) => {
         path={`/main/customers/details/${id}`}
         className="w-full group bg-[#0D9EF2] hover:bg-blue-600 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-1.5 transition-all duration-200 shadow-lg shadow-blue-500/10 group-hover:shadow-blue-500/20"
       >
-        <span>View Details</span>
+        <span>{t('clientCard.viewDetails')}</span>
         <ArrowUpRight
           size={14}
           className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"

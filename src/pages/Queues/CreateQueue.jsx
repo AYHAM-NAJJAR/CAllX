@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import { Layers, HelpCircle, Key, Tag, CheckCircle2, AlertCircle, List, Headphones } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { createQueue } from '../../services/Queue/createQueue';
 import LoadingInButton from '../../components/common/LoadingInButton';
 import Button from '../../components/common/Button';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useOutletContext } from 'react-router-dom';
 
 function CreateQueue() {
+  const { t } = useTranslation();
   const [queueKey, setQueueKey] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-    const token = localStorage.getItem('Token'); 
-    const location = useLocation();
-    const isSubCreate = location.pathname.includes("/main/queue/");
+  const token = localStorage.getItem('Token'); 
+  const location = useLocation();
+  const isSubCreate = location.pathname.includes("/main/queue/");
+    const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -26,34 +30,34 @@ function CreateQueue() {
     };
 
     try {
-      const response = await createQueue(payload,token);
+      const response = await createQueue(payload, token);
       if (response && response.success) {
-        setSuccessMessage(response.message || 'Queue created successfully!');
+        setSuccessMessage(response.message || t('createQueue.successDefault'));
         setQueueKey('');
         setName('');
       } else {
-        
-        setErrorMessage(response?.message || 'Failed to create queue.');
+        setErrorMessage(response?.message || t('createQueue.errorDefault'));
       }
 
     } catch (error) {
       console.error("Caught Error in Component Submit:", error);
       
-      // التعامل المرن مع أنواع الأخطاء المختلفة
       if (typeof error === 'string') {
         setErrorMessage(error);
       } else if (error && typeof error === 'object') {
-        setErrorMessage(error.message || error.error || 'An error occurred while processing the request.');
+        setErrorMessage(error.message || error.error || t('createQueue.errorDefault'));
       } else {
-        setErrorMessage('An error occurred while creating the queue. Please try again later.');
+        setErrorMessage(t('createQueue.errorFallback'));
       }
     } finally {
       setLoading(false);
     }
   };
+
   if (isSubCreate) {
     return <Outlet/>
   }
+
   return (
     <div className="min-h-screen bg-[#0F172A] text-slate-100 p-6 md:p-10 flex flex-col items-center justify-start">
       <div className="w-full max-w-4xl space-y-6">
@@ -61,23 +65,22 @@ function CreateQueue() {
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="p-3.5">
+            <div onClick={toggleSidebar}  className=" cursor-pointer p-3.5">
               <Headphones className="w-7 h-7 text-[#0D9EF2]" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">Call Queue Management</h1>
-              <p className="text-slate-400 text-xs md:text-sm mt-0.5">Configure and organize your routing queues efficiently</p>
+              <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">{t('createQueue.title')}</h1>
+              <p className="text-slate-400 text-xs md:text-sm mt-0.5">{t('createQueue.subtitle')}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2.5">
             <Button
-
               path={"/main/queue/all"}
               className="flex items-center gap-2 bg-[#0F172A] border border-slate-700/80 hover:border-[#0D9EF2] text-slate-200 px-4 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all shadow-sm hover:shadow cursor-pointer"
             >
               <List className="w-4 h-4 text-[#0D9EF2]" />
-              All Queues
+              {t('createQueue.allQueues')}
             </Button>
           </div>
         </div>
@@ -87,10 +90,10 @@ function CreateQueue() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-[#0D9EF2]/5 rounded-full blur-3xl pointer-events-none"></div>
           <h2 className="text-base md:text-lg font-semibold text-[#0D9EF2] flex items-center gap-2.5 mb-3">
             <HelpCircle className="w-5 h-5 flex-shrink-0" /> 
-            <span>What is a Queue and why is it important in the system?</span>
+            <span>{t('createQueue.infoTitle')}</span>
           </h2>
           <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-            The queue is considered the backbone of a call center system; it is responsible for organizing and routing incoming customer calls, holding them in order until available agents become free. Queues help minimize wait times, distribute workloads efficiently across various departments (such as technical support or sales), and ensure that no call is lost.
+            {t('createQueue.infoDesc')}
           </p>
         </div>
 
@@ -100,7 +103,7 @@ function CreateQueue() {
             <div className="p-2 bg-[#0D9EF2]/10 text-[#0D9EF2] rounded-lg">
               <Layers className="w-5 h-5" />
             </div>
-            <h3 className="text-lg font-semibold text-white">Create New Queue</h3>
+            <h3 className="text-lg font-semibold text-white">{t('createQueue.sectionTitle')}</h3>
           </div>
 
           {successMessage && (
@@ -120,32 +123,32 @@ function CreateQueue() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs md:text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
-                <Key className="w-4 h-4 text-[#0D9EF2]" /> Queue Key
+                <Key className="w-4 h-4 text-[#0D9EF2]" /> {t('createQueue.queueKeyLabel')}
               </label>
               <input
                 type="text"
                 value={queueKey}
                 onChange={(e) => setQueueKey(e.target.value)}
-                placeholder="e.g., support-tier-1"
+                placeholder={t('createQueue.queueKeyPlaceholder')}
                 required
                 className="w-full bg-[#0F172A] border border-slate-700/80 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#0D9EF2] focus:ring-1 focus:ring-[#0D9EF2] transition-all text-sm"
               />
-              <p className="text-[11px] text-slate-500 mt-1.5">Unique programmatic key used for routing calls</p>
+              <p className="text-[11px] text-slate-500 mt-1.5">{t('createQueue.queueKeyHint')}</p>
             </div>
 
             <div>
               <label className="block text-xs md:text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-[#0D9EF2]" /> Queue Name
+                <Tag className="w-4 h-4 text-[#0D9EF2]" /> {t('createQueue.queueNameLabel')}
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Tier 1 Support Queue"
+                placeholder={t('createQueue.queueNamePlaceholder')}
                 required
                 className="w-full bg-[#0F172A] border border-slate-700/80 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#0D9EF2] focus:ring-1 focus:ring-[#0D9EF2] transition-all text-sm"
               />
-              <p className="text-[11px] text-slate-500 mt-1.5">Descriptive name displayed to supervisors on the control panel</p>
+              <p className="text-[11px] text-slate-500 mt-1.5">{t('createQueue.queueNameHint')}</p>
             </div>
 
             {/* زر الحفظ المستقر */}
@@ -156,7 +159,7 @@ function CreateQueue() {
                 style={{ backgroundColor: '#0D9EF2' }}
                 className="text-white font-medium py-2.5 px-6 rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#0D9EF2]/25 disabled:opacity-50 cursor-pointer text-sm min-w-[140px]"
               >
-                {loading ? <LoadingInButton /> : <span>Save Queue</span>}
+                {loading ? <LoadingInButton /> : <span>{t('createQueue.saveButton')}</span>}
               </button>
             </div>
           </form>

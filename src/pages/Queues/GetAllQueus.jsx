@@ -1,15 +1,16 @@
-// GetAllQueus.jsx
 import React, { useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'; // أضفنا useNavigate
+import { Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { Layers, AlertCircle, ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useActiveQueues } from '../../hooks/useQueues';
 import QueueCard from './components/QueueCard';
 
 function GetAllQueus() {
+  const { t } = useTranslation();
   const token = localStorage.getItem('Token'); 
   const location = useLocation(); 
-  const navigate = useNavigate(); // تعريف الـ navigate لاستخدام زر الرجوع
-  
+  const navigate = useNavigate();
+
   const isSubCreate = location.pathname.includes("/main/queue/all/");
   const { data: queues, isLoading, isError, error, refetch } = useActiveQueues(token);
   
@@ -33,7 +34,7 @@ function GetAllQueus() {
             className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer text-sm font-medium"
           >
             <ArrowLeft size={18} />
-            <span>Back</span>
+            <span>{t('queues.back')}</span>
           </button>
         </div>
 
@@ -45,10 +46,10 @@ function GetAllQueus() {
             </div>
             <div>
               <h1 className="m-0 text-3xl font-bold tracking-tight">
-                Support Queues
+                {t('queues.title')}
               </h1>
               <p className="m-0 text-slate-400 text-sm mt-1">
-                Monitor and manage all active live ticketing support queues.
+                {t('queues.subtitle')}
               </p>
             </div>
           </div>
@@ -58,7 +59,7 @@ function GetAllQueus() {
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <div className="w-10 h-10 border-3 border-[#0D9EF2]/20 border-t-[#0D9EF2] rounded-full animate-spin" />
-            <p className="text-slate-400 m-0 text-sm">Fetching active queues...</p>
+            <p className="text-slate-400 m-0 text-sm">{t('queues.loading')}</p>
           </div>
         )}
 
@@ -67,8 +68,8 @@ function GetAllQueus() {
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 flex items-center gap-3 text-red-500">
             <AlertCircle size={24} className="flex-shrink-0" />
             <div>
-              <h4 className="m-0 font-semibold text-base">Failed to load queues</h4>
-              <p className="m-0 text-sm text-red-300 mt-0.5">{error?.message || 'Something went wrong.'}</p>
+              <h4 className="m-0 font-semibold text-base">{t('queues.errorTitle')}</h4>
+              <p className="m-0 text-sm text-red-300 mt-0.5">{error?.message || t('queues.defaultError')}</p>
             </div>
           </div>
         )}
@@ -84,7 +85,7 @@ function GetAllQueus() {
               </div>
             ) : (
               <div className="text-center py-16 px-5 bg-[#101B22] rounded-xl border border-dashed border-white/10">
-                <p className="text-slate-400 m-0 text-base">No queues found active at the moment.</p>
+                <p className="text-slate-400 m-0 text-base">{t('queues.noQueues')}</p>
               </div>
             )}
           </div>

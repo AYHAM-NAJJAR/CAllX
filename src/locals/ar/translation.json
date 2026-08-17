@@ -26,6 +26,7 @@
 },
 
   "sidebar": {
+    "shiftManagement": "إدارة الشيفت",
     "available": "متاح",
     "offline": "غير متصل",
     "inCall": "في مكالمة",
@@ -71,6 +72,609 @@
     "previous": "السابق",
     "next": "التالي"
   
-}
+},
+
+  "createQueue": {
+    "title": "إدارة طوابير الاتصال",
+    "subtitle": "قم بتكوين وتنظيم طوابير التوجيه بكفاءة",
+    "allQueues": "كل الطوابير",
+    "infoTitle": "ما هو الطابور ولماذا هو مهم في النظام؟",
+    "infoDesc": "يعتبر الطابور العمود الفقري لنظام مركز الاتصال؛ فهو مسؤول عن تنظيم وتوجيه مكالمات العملاء الواردة، وحفظها بترتيب حتى يصبح الوكلاء المتاحون أحراراً. تساعد الطوابير في تقليل أوقات الانتظار، وتوزيع أعباء العمل بكفاءة عبر الأقسام المختلفة (مثل الدعم الفني أو المبيعات)، وضمان عدم ضياع أي مكالمة.",
+    "sectionTitle": "إنشاء طابور جديد",
+    "successDefault": "تم إنشاء الطابور بنجاح!",
+    "errorDefault": "فشل في إنشاء الطابور.",
+    "errorFallback": "حدث خطأ أثناء إنشاء الطابور. يرجى المحاولة مرة أخرى لاحقاً.",
+    "queueKeyLabel": "مفتاح الطابور",
+    "queueKeyPlaceholder": "مثال: support-tier-1",
+    "queueKeyHint": "مفتاح برمجي فريد يستخدم لتوجيه المكالمات",
+    "queueNameLabel": "اسم الطابور",
+    "queueNamePlaceholder": "مثال: طابور الدعم الفني للمستوى الأول",
+    "queueNameHint": "اسم وصفى يظهر للمشرفين على لوحة التحكم",
+    "saveButton": "حفظ الطابور"
+  },
+  
+  "appBar": {
+    "stats": "الإحصائيات",
+    "employees": "الموظفون",
+    "tickets": "التذاكر",
+    "departments": "الأقسام",
+    "roles": "الأدوار",
+    "toggleSidebar": "تبديل الشريط الجانبي"
+  },
+  
+  "showAllCustomers": {
+    "loading": "جاري تحميل العُملاء...",
+    "errorTitle": "فشل في جلب العُملاء.",
+    "errorSubtitle": "يرجى التحقق من اتصالك أو رمز الجلسة.",
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "title": "جميع العُملاء",
+    "searchPlaceholder": "البحث عن اسم العميل",
+    "createCustomer": "إنشاء عَميل",
+    "tagsManagement": "إدارة العلامات (Tags)",
+    "noClients": "لم يتم العثور على عُملاء في هذه الفئة"
+  },
+  
+  "showAllCampaigns": {
+    "loading": "جاري التحميل...",
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "title": "جميع الحملات",
+    "createCampaign": "إنشاء حملة",
+    "infoTitle": "حول الحملات",
+    "infoDesc": "الحملات هي مبادرات استراتيجية تُستخدم لإدارة أداء التواصل. من خلال تجميع جهات الاتصال والقنوات الخاصة بك هنا، يمكنك تتبع التفاعل في الوقت الفعلي، ومراقبة حالة اكتساب العملاء المحتملين، وتحسين مسارات التحويل بكفاءة.",
+    "deleteSuccess": "تم حذف الحملة بنجاح",
+    "deleteErrorTitle": "فشل في حذف الحملة:",
+    "deleteErrorAlert": "تعذر حذف الحملة"
+  },
+  
+  "getLeads": {
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "title": "إدارة العملاء المحتملين",
+    "subtitle": "تتبع وإدارة عملائك المحتملين",
+    "createLead": "إنشاء عميل محتمل",
+    "loading": "جاري تحميل بيانات العملاء المحتملين...",
+    "errorTitle": "فشل في التحميل",
+    "errorSubtitle": "يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
+    "noLeadsTitle": "لم يتم العثور على عملاء محتملين",
+    "noLeadsSubtitle": "ابدأ بإنشاء عميلك المحتمل الأول"
+  },
+  
+  "integration": {
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "title": "إعدادات التكامل",
+    "subtitle": "إدارة تكاملات الخدمات الخارجية وتكوين بيانات اعتماد المنصات الخارجية مثل فايربيس (Firebase).",
+    "showAll": "عرض جميع التكاملات",
+    "instructionsTitle": "تعليمات عامة للتكاملات",
+    "instructionsDesc": "هذه الإعدادات مسؤولة عن ربط النظام الأساسي بالخدمات الخارجية (مثل فايربيس). يتم تمرير مفاتيح التكوين إلى الواجهة الأمامية عند التهيئة. تأكد من صحة البيانات المدخلة لضمان المصادقة السليمة وإشعارات الدفع، وقم بتبديل المفتاح العام لتفعيل الخدمة.",
+    "firebaseTitle": "تكوين نواة فايربيس",
+    "firebaseSubtitle": "تكوين بطاقة تعريف المشروع للاتصال بالخادم.",
+    "configKeyLabel": "مفتاح التكوين",
+    "configKeyHint": "أدخل مفتاح معرف التكوين الفريد الذي يختاره النظام للإشارة إلى هذه الخدمة.",
+    "apiKeyLabel": "مفتاح الـ API",
+    "show": "إظهار",
+    "hide": "إخفاء",
+    "apiKeyHint": "قم بتوفير مفتاح الـ API الخاص بالويب الذي تم إنشاؤه من وحدة تحكم إعدادات مشروع فايربيس الخاص بك.",
+    "authDomainLabel": "نطاق المصادقة (Auth Domain)",
+    "authDomainHint": "أدخل نطاق المصادقة المرتبط برابط مشروعك.",
+    "projectIdLabel": "معرف المشروع (Project ID)",
+    "projectIdHint": "حدد معرف السلسلة الفريد المعين لمشروع السحابة الخاص بك.",
+    "messagingSenderIdLabel": "معرف مرسل الرسائل (Messaging Sender ID)",
+    "messagingSenderIdHint": "أدخل رمز تعريف المرسل الرقمي المطلوب لخدمات مراسلة السحابة.",
+    "cancel": "إلغاء",
+    "saving": "جاري الحفظ...",
+    "saveChanges": "حفظ التغييرات",
+    "defaultSuccess": "تم إنشاء الإعداد بنجاح!",
+    "defaultError": "فشل في إنشاء الإعداد.",
+    "unexpectedError": "حدث خطأ غير متوقع."
+  },
+  
+  "profile": {
+    "loading": "جاري تحميل بيانات الملف الشخصي...",
+    "title": "الملف الشخصي",
+    "subtitle": "إدارة معلومات حسابك وصلاحيات الوصول",
+    "inCall": "في مكالمة",
+    "readyToReceive": "جاهز لاستقبال المكالمات",
+    "offline": "غير متصل",
+    "readyToMake": "جاهز لإجراء المكالمات",
+    "outOffline": "الصادر غير متصل",
+    "defaultRole": "مهندس برمجيات",
+    "defaultEmail": "email@example.com",
+    "accountDetails": "تفاصيل الحساب",
+    "fullName": "الاسم الكامل",
+    "emailAddress": "عنوان البريد الإلكتروني",
+    "assignedPermissions": "الصلاحيات المعينة",
+    "noPermissions": "لا توجد صلاحيات مخصصة معينة لهذا الحساب."
+  },
+  
+  "liveStats": {
+    "failedToFetch": "فشل في جلب الإحصائيات المباشرة",
+    "activeRooms": "الغرف النشطة",
+    "totalParticipants": "إجمالي المشاركين",
+    "noActiveRoomsTitle": "لا توجد غرف نشطة",
+    "noActiveRoomsDesc": "ستظهر الغرف النشطة والمشاركون هنا بمجرد بدء المكالمة.",
+    "activeNow": "نشط الآن",
+    "peakParticipants": "ذروة المشاركين",
+    "totalJoins": "إجمالي الانضمامات",
+    "currentParticipants": "المشاركون الحاليون",
+    "agent": "وكيل",
+    "customer": "عميل",
+    "external": "خارجي"
+  },
+  
+  "roomHistory": {
+    "loading": "جاري تحميل سجل الغرف",
+    "errorFetching": "حدث خطأ أثناء جلب البيانات.",
+    "title": "سجل الغرف والإحصائيات",
+    "roomName": "اسم الغرفة",
+    "egressId": "معرف الخروج",
+    "startedAt": "وقت البدء",
+    "duration": "المدة",
+    "peakParticipants": "ذروة المشاركين",
+    "totalJoins": "إجمالي الانضمامات",
+    "status": "الحالة",
+    "durationMins": "{{mins}} دقائق"
+  },
+  
+  "myCall": {
+    "missingAuth": "رمز المصادقة أو جلسة المستخدم مفقودة.",
+    "fetchError": "حدث خطأ أثناء جلب المكالمات",
+    "title": "سجل المكالمات",
+    "subtitle": "مراجعة حالات القنوات المباشرة ومقاييس النظام",
+    "noRecords": "لم يتم العثور على سجلات لهذا المشارك.",
+    "createdAt": "تاريخ الإنشاء",
+    "duration": "المدة",
+    "agent": "الوكيل",
+    "previous": "السابق",
+    "next": "التالي",
+    "pageInfo": "الصفحة {{current}} من {{total}}",
+    "durationSeconds": "{{seconds}} ث",
+    "backToCalls": "العودة إلى المكالمات"
+},
+
+  "queues": {
+    "back": "رجوع",
+    "title": "قوائم الانتظار للدعم",
+    "subtitle": "مراقبة وإدارة جميع قوائم انتظار الدعم المباشر النشطة.",
+    "loading": "جاري جلب قوائم الانتظار النشطة...",
+    "errorTitle": "فشل في تحميل قوائم الانتظار",
+    "defaultError": "حدث خطأ ما.",
+    "noQueues": "لم يتم العثور على قوائم انتظار نشطة في الوقت الحالي."
+  },
+  
+  "queueDetails": {
+    "loading": "جاري التحميل...",
+    "notFound": "لم يتم العثور على قائمة الانتظار.",
+    "backToQueues": "العودة إلى قوائم الانتظار",
+    "assignAgent": "تعيين موظف",
+    "delete": "حذف",
+    "deleteError": "فشل في حذف قائمة الانتظار",
+    "deleteUnexpected": "حدث خطأ غير متوقع أثناء الحذف.",
+    "deleteCallError": "حدث خطأ غير متوقع أثناء حذف المكالمة.",
+    "unassignError": "فشل في إلغاء تعيين الموظف.",
+    "unassignUnexpected": "حدث خطأ غير متوقع أثناء إلغاء تعيين الموظف.",
+    "status": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "waitingCustomers": "العملاء المنتظرون",
+    "createdDate": "تاريخ الإنشاء",
+    "waitingCalls": "المكالمات المنتظرة",
+    "enqueued": "وقت الانتظار",
+    "deleteCall": "حذف المكالمة",
+    "noWaitingCalls": "لا توجد مكالمات منتظرة في قائمة الانتظار هذه.",
+    "assignedAgents": "الموظفون المعينون",
+    "unassignAgent": "إلغاء تعيين الموظف",
+    "noAgents": "لم يتم تعيين أي موظفين لهذه القائمة بعد."
+  },
+    
+  "queueCard": {
+    "deactivateTooltip": "تعطيل قائمة الانتظار",
+    "activateTooltip": "تفعيل قائمة الانتظار",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "waitingCustomers": "العملاء المنتظرون",
+    "createdDate": "تاريخ الإنشاء",
+    "manageQueue": "إدارة قائمة الانتظار",
+    "updateError": "فشل في تحديث الحالة:"
+  },
+  
+  "systemStats": {
+    "title": "إحصائيات النظام",
+    "subtitle": "مقاييس النظام الأساسية، تحليل التذاكر وبيانات التكوين.",
+    "totalUsers": "إجمالي المستخدمين",
+    "totalTickets": "إجمالي التذاكر",
+    "openTickets": "التذاكر المفتوحة",
+    "requiresAction": "تتطلب إجراءً",
+    "escalatedTickets": "التذاكر المُصعدة",
+    "ticketsByPriority": "التذاكر حسب الأولوية",
+    "ticketsByCategory": "التذاكر حسب الفئة",
+    "dynamicFieldsAnalytics": "تحليل الحقول الديناميكية",
+    "mostUsedCustomField": "الحقل المخصص الأكثر استخداماً",
+    "valueDistribution": "توزيع القيم",
+    "globalNotice": "* يتم احتساب تحليل الحقول عالمياً عبر جميع التذاكر النشطة.",
+    "noPriorities": "لا توجد أولويات مسجلة.",
+    "noCategories": "لا توجد فئات مسجلة.",
+    "ticketsCount": "تذكرة",
+    "loadingPhrase": "إحصائيات النظام",
+    "errorPhrase": "الإحصائيات"
+  },
+  "getAllEmployees": {
+    "title": "نظرة عامة على الموظفين",
+    "subtitle": "مراقبة وإدارة موظفيك.",
+    "addEmployee": "إضافة موظف",
+    "searchPlaceholder": "البحث عن اسم الموظف",
+    "total": "الإجمالي",
+    "loadingPhrase": "الموظفون",
+    "errorPhrase": "الموظفون"
+  },
+  
+  "employeeCard": {
+    "tooltip": "تفاصيل الموظف",
+    "noDepartment": "لا يوجد قسم",
+    "noPhone": "لا يوجد رقم هاتف",
+    "rolesLabel": "الأدوار:",
+    "noRoles": "لا توجد أدوار معينة"
+  },
+  
+  "employeeDetails": {
+    "title": "تفاصيل الموظف",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "departmenta": "القسم",
+    "noDepartment": "لا يوجد قسم",
+    "noPhone": "لا يوجد رقم هاتف",
+    "role": "الدور",
+    "noRoles": "لا توجد أدوار",
+    "verifiedAt": "تم التحقق في",
+    "notVerified": "لم يتم التحقق",
+    "loadError": "فشل في تحميل بيانات الموظف.",
+    "notFound": "لم يتم العثور على بيانات الموظف"
+  },
+  
+  "showAllTickets": {
+    "title": "جميع التذاكر",
+    "exportTooltip": "تصدير CSV",
+    "newTicket": "تذكرة جديدة",
+    "structure": "الهيكل",
+    "searchPlaceholder": "البحث عن اسم التذكرة",
+    "colorLegend": "دليل الألوان والمؤشرات",
+    "statusLabel": "حالة التذكرة",
+    "priorityLabel": "مستويات الأولوية",
+    "open": "مفتوحة",
+    "inProgress": "قيد التنفيذ",
+    "resolved": "تم الحل",
+    "closed": "مغلقة",
+    "criticalPriority": "أولوية حرجة",
+    "highPriority": "أولوية عالية",
+    "mediumPriority": "أولوية متوسطة",
+    "lowPriority": "أولوية منخفضة",
+    "filterByDepartment": "التصفية حسب القسم",
+    "filterByStatus": "التصفية حسب الحالة",
+    "filterByPriority": "التصفية حسب الأولوية",
+    "sortBy": "الترتيب حسب",
+    "newestFirst": "الأحدث أولاً",
+    "oldestFirst": "الأقدم أولاً",
+    "filterDepartmentsDefault": "التصفية حسب الأقسام",
+    "filterStatusDefault": "التصفية حسب الحالة",
+    "filterPriorityDefault": "التصفية حسب الأولوية",
+    "noTickets": "لم يتم العثور على تذاكر",
+    "loadingPhrase": "التذاكر",
+    "errorPhrase": "التذاكر",
+    "exportError": "حدث خطأ أثناء تحميل الملف:"
+  },
+  
+  "ticketCard": {
+    "open": "مفتوحة",
+    "inProgress": "قيد التنفيذ",
+    "resolved": "تم الحل",
+    "closed": "مغلقة",
+    "critical": "حرجة",
+    "high": "عالية",
+    "medium": "متوسطة",
+    "low": "منخفضة",
+    "unknownUser": "مستخدم مجهول",
+    "viewDetails": "عرض التفاصيل"
+  },
+  
+  "ticketDetails": {
+    "loadingPhrase": "تفاصيل التذكرة",
+    "errorPhrase": "فشل في تحميل بيانات التذكرة.",
+    "editDetails": "تعديل تفاصيل التذكرة",
+    "deleteTicket": "حذف التذكرة",
+    "priorityLabel": "أولوية {{priority}}",
+    "departmentLabel": "القسم : {{department}}",
+    "categoryLabel": "الفئة : {{category}}",
+    "ticketIdLabel": "تذكرة #{{id}}",
+    "assignedTo": "مسندة إلى: {{name}}",
+    "assignAgent": "تعيين موظف",
+    "createdOn": "تم الإنشاء في {{date}}",
+    "customerHeader": "هذه التذكرة مخصصة للعميل :",
+    "issueDescription": "وصف المشكلة",
+    "noDescription": "لا يوجد وصف متوفر.",
+    "additionalDetails": "تفاصيل إضافية",
+    "attachments": "المرفقات ({{count}})",
+    "ticketStats": "إحصائيات التذكرة",
+    "assignedToStat": "مسندة إلى",
+    "categoryStat": "الفئة",
+    "lastUpdateStat": "آخر تحديث",
+    "adminNotes": "ملاحظات المشرف"
+  },
+  
+  "departmentsList": {
+    "loadingPhrase": "الأقسام",
+    "errorPhrase": "الأقسام",
+    "title": "قائمة الأقسام",
+    "addDepartment": "إضافة قسم",
+    "addCategory": "إضافة فئة إلى القسم",
+    "searchPlaceholder": "البحث عن اسم القسم",
+    "noDepartments": "لم يتم العثور على أقسام."
+  },
+  
+  "departmentCard": {
+    "agents": "الموظفون:",
+    "noAgents": "لا توجد موظفين معينين",
+    "categories": "الفئات:",
+    "noCategories": "لا توجد فئات",
+    "totalAgents": "إجمالي الموظفين",
+    "agentsCount": "{{count}} موظف"
+  },
+  
+  "rolesManagement": {
+    "loadingPhrase": "الأدوار",
+    "errorPhrase": "الأدوار",
+    "title": "إدارة الأدوار",
+    "subtitle": "مراجعة وتكوين مستويات التحكم في الوصول، وموصوفات الأمان، ومقاييس النطاق المخصصة.",
+    "totalActiveRoles": "إجمالي الأدوار النشطة:",
+    "addRole": "إضافة دور",
+    "searchPlaceholder": "البحث عن اسم الدور",
+    "updateRole": "تعديل الدور",
+    "deleteRole": "حذف الدور",
+    "noDescription": "لا يوجد وصف متوفر لهذا الدور.",
+    "roleId": "معرف الدور:",
+    "tenantScope": "نطاق المستأجر:",
+    "totalKeyActions": "إجمالي إجراءات المفتاح:",
+    "capabilityTree": "شجرة القدرات والصلاحيات",
+    "noPermissions": "لا يحتوي هذا الدور على إجراءات أساسية أو صلاحيات مرتبطة به.",
+    "deleteSuccess": "تم حذف الدور بنجاح",
+    "deleteError": "فشل في حذف الدور",
+    "unexpectedError": "حدث خطأ غير متوقع"
+  },
+  
+  "tenantsManagement": {
+    "loadingPhrase": "المستأجرين",
+    "errorPhrase": "المستأجرين",
+    "title": "مستأجرو الشركة",
+    "subtitle": "قم بإدارة مستأجري مؤسستك وحالتهم من هنا.",
+    "addNewTenant": "إضافة مستأجر جديد",
+    "createAdminTenant": "إنشاء مستأجر مسؤول"
+  },
+  
+  "tenantsCard": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "editTenant": "تعديل المستأجر"
+  },
+  
+  "flowsManagement": {
+    "loadingPhrase": "تدفقات العمل",
+    "errorPhrase": "تدفقات العمل",
+    "title": "تدفقات الرد الآلي (IVR)",
+    "subtitle": "إدارة تدفقات المكالمات الآلية الخاصة بك من هنا.",
+    "addNewFlow": "إضافة تدفق جديد"
+  },
+  
+  "flowCard": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "noDescription": "لا يوجد وصف متوفر لتدفق الرد الآلي هذا.",
+    "buildIvr": "بناء الرد الآلي"
+  },
+  
+  "workflowsManagement": {
+    "loadingPhrase": "القواعد",
+    "errorPhrase": "القواعد",
+    "title": "سير العمل",
+    "subtitle": "أتمتة ذكية لتنسيق دورة حياة التذاكر الخاصة بك بسلاسة ودون عوائق.",
+    "createWorkflow": "إنشاء سير عمل",
+    "noWorkflows": "لم يتم العثور على أي سير عمل."
+  },
+  
+  "createWorkflowRules": {
+    "title": "إنشاء قاعدة سير عمل",
+    "subtitle": "قم بأتمتة عمليات التذاكر الخاصة بك عن طريق تحديد الشروط والإجراءات اللاحقة.",
+    "information": "معلومات",
+    "createRule": "إنشاء القاعدة",
+    "basicInformation": "المعلومات الأساسية",
+    "ruleNameLabel": "اسم القاعدة",
+    "ruleNamePlaceholder": "مثال: التصعيد لكبار العملاء",
+    "priorityTierLabel": "مستوى الأولوية",
+    "priorityPlaceholder": "اختر الأولوية...",
+    "descriptionLabel": "الوصف",
+    "descriptionPlaceholder": "اشرح الغرض من هذه القاعدة...",
+    "conditionsTitle": "الشروط (إذًا / IF)",
+    "conditionsSubtitle": "يتم تشغيل القاعدة عندما تتطابق هذه الشروط",
+    "addCondition": "إضافة شرط",
+    "noConditions": "لم يتم إضافة أي شروط بعد.",
+    "field": "الحقل",
+    "operator": "المعامل",
+    "value": "القيمة",
+    "fieldsPlaceholder": "الحقول",
+    "operatorsPlaceholder": "المعاملات",
+    "valuesPlaceholder": "القيم",
+    "textValuePlaceholder": "اكتب قيمة نصية...",
+    "actionsTitle": "الإجراءات (عندها / THEN)",
+    "actionsSubtitle": "تنفيذ هذه الإجراءات عند تفعيل القاعدة",
+    "addAction": "إضافة إجراء",
+    "noActions": "لم يتم إضافة أي إجراءات بعد.",
+    "actionType": "نوع الإجراء",
+    "targetField": "الحقل المستهدف",
+    "typesPlaceholder": "الأنواع",
+    "actionValuePlaceholder": "اكتب القيمة..."
+  },
+  
+  "workflowCard": {
+    "id": "المعرف: #{{id}}",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "priority": "الأولوية",
+    "details": "التفاصيل"
+  },
+  
+  "clientCard": {
+    "unknownClient": "عميل غير معروف",
+    "id": "المعرف: #{{id}}",
+    "types": {
+      "vip": "VIP",
+      "corporate": "شركات",
+      "standard": "عادي"
+    },
+    "directContact": "الاتصال المباشر",
+    "noNumber": "لا يوجد رقم",
+    "call": "اتصال",
+    "status": "الحالة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "agentOwner": "المسؤول المعين",
+    "unassigned": "غير مُعين",
+    "agentId": "الوكيل #{{id}}",
+    "viewDetails": "عرض التفاصيل"
+  },
+  
+  "customerDetails": {
+    "loading": "جاري تحميل تفاصيل العميل...",
+    "errorTitle": "فشل في تحميل تفاصيل العميل.",
+    "backToList": "العودة إلى القائمة",
+    "headerTitle": "تفاصيل العميل",
+    "addTag": "إضافة وسم",
+    "editCustomer": "تعديل العميل",
+    "deleteCustomer": "حذف العميل",
+    "customerId": "معرف العميل #{{id}}",
+    "assignedAgent": "الوكيل المعين: {{name}}",
+    "noAgent": "لا يوجد وكيل معين",
+    "campaign": "الحملة:",
+    "directLine": "خط مباشر",
+    "noPhone": "لا يوجد رقم",
+    "copyPhoneTooltip": "نسخ رقم الهاتف",
+    "callNow": "اتصل الآن",
+    "primaryContact": "جهة الاتصال الأساسية",
+    "noEmail": "لا يوجد بريد إلكتروني",
+    "totalOpportunity": "إجمالي الفرص:",
+    "customerNotes": "ملاحظات العميل",
+    "edit": "تعديل",
+    "save": "حفظ",
+    "saving": "جاري الحفظ...",
+    "noNotes": "لا توجد ملاحظات مقدمة لهذا العميل.",
+    "interactionsHistory": "سجل التفاعلات",
+    "conductedBy": "أجريت بواسطة:",
+    "ref": "المرجع: {{ref}}",
+    "noInteractions": "لا توجد تفاعلات مسجلة.",
+    "activeOpportunities": "الفرص النشطة",
+    "expectedClose": "الإغلاق المتوقع",
+    "noOpportunities": "لا توجد فرص متاحة.",
+    "originatingCampaign": "الحملة المصدر",
+    "leadId": "معرف العميل المحتمل: #{{id}}",
+    "deleteConfirm": "هل أنت متأكد أنك تريد حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deleteSuccess": "تم حذف العميل بنجاح",
+    "tagDeleteConfirm": "هل أنت متأكد أنك تريد إزالة الوسم \"{{name}}\"؟",
+    "tagDeleteSuccess": "تم إزالة الوسم \"{{name}}\" بنجاح",
+    "notesSuccess": "تم تحديث الملاحظات بنجاح",
+    "notesError": "فشل في تحديث الملاحظات",
+    "phoneCopied": "تم نسخ رقم الهاتف!"
+  },
+  
+  "leadCard": {
+    "id": "المعرف: #{{id}}",
+    "campaign": "الحملة",
+    "campaignFallback": "الحملة #{{id}}",
+    "notLinked": "غير مرتبطة",
+    "agent": "الوكيل",
+    "agentFallback": "الوكيل #{{id}}",
+    "unassigned": "غير مُعين",
+    "converted": "محول",
+    "convertedId": "#{{id}}",
+    "notConverted": "غير محول"
+  
+},
+
+  "agentsPerformance": {
+    "errorTitle": "فشل تحميل المقاييس",
+    "errorFallback": "حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقاً.",
+    "title": "أداء الوكلاء",
+    "subtitle": "تحليلات في الوقت الفعلي ومقاييس إنتاجية الوكلاء.",
+    "liveMetrics": "مقاييس مباشرة",
+    "activeAgents": "الوكلاء النشطون",
+    "onDuty": "في الخدمة",
+    "customerSatisfaction": "رضا العملاء",
+    "avgResolutionTime": "متوسط وقت الحل",
+    "topPerformingAgentLabel": "الوكيل الأعلى أداءً",
+    "highestResolutionRate": "أعلى معدل حل",
+    "placeholderChart": "[ ضع رسوم بيانية لحل المكالمات بالساعة أو جدول الوكلاء النشطين هنا ]",
+    "toggleSidebarAria": "تبديل الشريط الجانبي"
+  },
+  
+  "monitory": {
+    "systemHealth": "صحة النظام",
+    "subtitle": "إحصائيات مراقبة النظام",
+    "totalUsers": "إجمالي المستخدمين",
+    "activeTickets": "التذاكر النشطة",
+    "databaseStatus": "حالة قاعدة البيانات",
+    "systemUptime": "وقت تشغيل النظام",
+    "heapMemoryUsage": "استخدام ذاكرة Heap",
+    "errorRate": "معدل الأخطاء",
+    "requestsPerMinute": "الطلبات في الدقيقة",
+    "avgResponseTime": "متوسط وقت الاستجابة",
+    "activeThreads": "الخيوط النشطة",
+    "toggleSidebarAria": "تبديل الشريط الجانبي"
+  },
+  
+  "auditLogs": {
+    "title": "سجلات التدقيق",
+    "subtitle": "مراجعة أنشطة النظام الأخيرة، تتبع تحديثات حالات التذاكر، ومراقبة إجراءات المستخدمين للأمان والامتثال.",
+    "getMoreAudits": "جلب المزيد من عمليات التدقيق",
+    "loading": "جاري التحميل...",
+    "toggleSidebarAria": "تبديل الشريط الجانبي"
+  },
+  
+  "auditTable": {
+    "ticketId": "معرف التذكرة",
+    "action": "الإجراء",
+    "user": "المستخدم",
+    "timestamp": "الوقت والتاريخ"
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

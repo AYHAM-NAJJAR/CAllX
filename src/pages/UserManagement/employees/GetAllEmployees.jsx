@@ -5,31 +5,30 @@ import { useEmployees } from '../../../hooks/useEmployees';
 import LoadingCircle from '../../../components/common/LoadingCircle';
 import EmployeeCard from './components/EmployeeCard';
 import CreateEmployeeModal from './modal/CreateEmployeeModal';
-import { Outlet, useLocation, useOutletContext } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import LoadingError from '../../../components/common/LoadingError';
-import { Menu } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { SearchInput } from '../../../components/common/SearchInput';
 
 const GetAllEmployees = () => {
+    const { t } = useTranslation();
     const token = localStorage.getItem("Token");
     const [isOpenModalAddEmployee, setIsOpenModalAddEmployee] = useState(false);
-        const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("");
     const { data: employees, isLoading, error, refetch } = useEmployees(token, false, search);
     const location = useLocation();
     const isSubRoute = location.pathname !== '/main/system/employee' && location.pathname !== '/main/system/employee/';
     
-
-    
     if (isLoading) {
-      return <LoadingCircle Phrase={"Employees"}/>;
+      return <LoadingCircle Phrase={t('getAllEmployees.loadingPhrase')} />;
     }
 
     if (error) {
-      return <LoadingError Phrase={"Employees"}/>;
+      return <LoadingError Phrase={t('getAllEmployees.errorPhrase')} />;
     }
 
     if (isSubRoute) {
-        return <Outlet/>;
+        return <Outlet />;
     }
 
   return (
@@ -39,10 +38,10 @@ const GetAllEmployees = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold text-white">
-            Employees Overview
+            {t('getAllEmployees.title')}
           </h1>
           <p className="text-gray-400 text-xs sm:text-sm mt-1">
-            Monitoring Your Employees.
+            {t('getAllEmployees.subtitle')}
           </p>
         </div>
 
@@ -52,15 +51,16 @@ const GetAllEmployees = () => {
             onClick={() => setIsOpenModalAddEmployee(true)}
             className="flex-1 sm:flex-initial bg-[#1e293b] hover:bg-[#2b394e] border border-blue-500 px-4 sm:px-6 py-2.5 rounded-md text-xs sm:text-sm font-bold text-blue-400 transition-colors duration-200"
           >
-            Add Employee
+            {t('getAllEmployees.addEmployee')}
           </Button>
-                            <SearchInput
-                              placeholder={"Search About Employee name"} 
-                              value={search} 
-                              onChange={(val) => {
-                                setSearch(val);
-                              }} 
-                            />
+          
+          <SearchInput
+            placeholder={t('getAllEmployees.searchPlaceholder')} 
+            value={search} 
+            onChange={(val) => {
+              setSearch(val);
+            }} 
+          />
         </div>
       </div>
 
@@ -68,7 +68,7 @@ const GetAllEmployees = () => {
       <div className="flex gap-4 mb-8">
         <div className="bg-[#1a202c] p-4 border border-[#2d3748] rounded w-24 text-center">
           <div className="text-blue-400 font-bold text-xl">{employees?.length || 0}</div>
-          <div className="text-[10px] text-gray-500">TOTAL</div>
+          <div className="text-[10px] text-gray-500">{t('getAllEmployees.total')}</div>
         </div>
       </div>
 
@@ -82,13 +82,13 @@ const GetAllEmployees = () => {
                 email={emp.email}
                 phone={emp.phoneNumber}
                 departmentName={emp.departmentName}
-                userType={emp.userType} // تم تمرير الـ userType هنا بنجاح
+                userType={emp.userType}
                 roles={emp.roles}
             />
         ))}
       </div>
         
-      <Outlet/>
+      <Outlet />
     </div>
   );
 };

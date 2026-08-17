@@ -1,52 +1,55 @@
 import React from "react";
 import Button from "../../../components/common/Button";
 import { Mail, PencilLine, UserPlus } from "lucide-react";
-
-// خريطة لتحديد الألوان والـ Label لكل حالة
-const STATUS_CONFIG = {
-  OPEN: {
-    label: "Open",
-    dotColor: "bg-emerald-500",
-    badgeStyle: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-  },
-  IN_PROGRESS: {
-    label: "In Progress",
-    dotColor: "bg-amber-500",
-    badgeStyle: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-  },
-  RESOLVED: {
-    label: "Resolved",
-    dotColor: "bg-sky-500",
-    badgeStyle: "bg-sky-500/10 text-sky-400 border-sky-500/30",
-  },
-  CLOSED: {
-    label: "Closed",
-    dotColor: "bg-rose-500",
-    badgeStyle: "bg-rose-500/10 text-rose-400 border-rose-500/30",
-  },
-};
-
-// خريطة لتنسيقات وأسماء الأولوية (Priority) شاملة الحالات الأربع
-const PRIORITY_CONFIG = {
-  CRITICAL: {
-    label: "Critical",
-    badgeStyle: "bg-purple-950/40 text-purple-300 border-purple-700/50 font-bold",
-  },
-  HIGH: {
-    label: "High",
-    badgeStyle: "bg-red-900/20 text-red-400 border-red-900/30",
-  },
-  MEDIUM: {
-    label: "Medium",
-    badgeStyle: "bg-yellow-900/20 text-yellow-400 border-yellow-900/30",
-  },
-  LOW: {
-    label: "Low",
-    badgeStyle: "bg-blue-900/20 text-blue-400 border-blue-900/30",
-  },
-};
+import { useTranslation } from "react-i18next";
 
 const TicketCard = ({ ticket }) => {
+  const { t } = useTranslation();
+
+  // خريطة لتحديد الألوان والـ Label لكل حالة
+  const STATUS_CONFIG = {
+    OPEN: {
+      label: t('ticketCard.open'),
+      dotColor: "bg-emerald-500",
+      badgeStyle: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    },
+    IN_PROGRESS: {
+      label: t('ticketCard.inProgress'),
+      dotColor: "bg-amber-500",
+      badgeStyle: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    },
+    RESOLVED: {
+      label: t('ticketCard.resolved'),
+      dotColor: "bg-sky-500",
+      badgeStyle: "bg-sky-500/10 text-sky-400 border-sky-500/30",
+    },
+    CLOSED: {
+      label: t('ticketCard.closed'),
+      dotColor: "bg-rose-500",
+      badgeStyle: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+    },
+  };
+
+  // خريطة لتنسيقات وأسماء الأولوية (Priority) شاملة الحالات الأربع
+  const PRIORITY_CONFIG = {
+    CRITICAL: {
+      label: t('ticketCard.critical'),
+      badgeStyle: "bg-purple-950/40 text-purple-300 border-purple-700/50 font-bold",
+    },
+    HIGH: {
+      label: t('ticketCard.high'),
+      badgeStyle: "bg-red-900/20 text-red-400 border-red-900/30",
+    },
+    MEDIUM: {
+      label: t('ticketCard.medium'),
+      badgeStyle: "bg-yellow-900/20 text-yellow-400 border-yellow-900/30",
+    },
+    LOW: {
+      label: t('ticketCard.low'),
+      badgeStyle: "bg-blue-900/20 text-blue-400 border-blue-900/30",
+    },
+  };
+
   // جلب إعدادات الحالة مع قيمة افتراضية للسلامة
   const currentStatus = STATUS_CONFIG[ticket.status] || {
     label: ticket.status,
@@ -93,7 +96,7 @@ const TicketCard = ({ ticket }) => {
       <div className="mt-5 pt-4 border-t border-gray-800 space-y-2">
         <p className="flex items-center gap-2 text-sm text-white font-medium">
           <UserPlus className="w-4 h-4 text-sky-400 shrink-0" />
-          <span>{ticket.userName || "Unknown User"}</span>
+          <span>{ticket.userName || t('ticketCard.unknownUser')}</span>
         </p>
 
         <p className="flex items-center gap-2 text-xs text-gray-400 mt-1">
@@ -125,7 +128,7 @@ const TicketCard = ({ ticket }) => {
           path={`/main/system/tickets/details/${ticket.id}`}
           className="items-center justify-center bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold py-2 px-3 rounded-xl transition-colors"
         >
-          View Details
+          {t('ticketCard.viewDetails')}
         </Button>
       </div>
     </div>

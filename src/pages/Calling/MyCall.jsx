@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getParticipantCalls } from '../../services/call/core/getCallsForParticipant';
+import { ArrowLeft, ClipboardClock } from 'lucide-react';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 
 function MyCall() {
+  const { t } = useTranslation();
   const [calls, setCalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,15 +15,16 @@ function MyCall() {
   const [totalPages, setTotalPages] = useState(0);
   const [isLastPage, setIsLastPage] = useState(false);
   const pageSize = 10; // عدد العناصر في كل صفحة
-
+  const GO =useNavigate();
   const token = localStorage.getItem('Token');
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const agentIdentity = user?.email;
-
+    const context = useOutletContext() || {};
+  const { toggleSidebar } = context;
   useEffect(() => {
     const fetchCalls = async () => {
       if (!token || !agentIdentity) {
-        setError("Missing authentication token or user session.");
+        setError(t('myCall.missingAuth'));
         setLoading(false);
         return;
       }
@@ -35,14 +40,14 @@ function MyCall() {
           setIsLastPage(responseData.last ?? (currentPage >= (responseData.totalPages - 1)));
         }
       } catch (err) {
-        setError(err.message || "An error occurred while fetching calls");
+        setError(err.message || t('myCall.fetchError'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchCalls();
-  }, [token, agentIdentity, currentPage]);
+  }, [token, agentIdentity, currentPage, t]);
 
   const handleNextPage = () => {
     if (!isLastPage && currentPage < totalPages - 1) {
@@ -104,11 +109,29 @@ function MyCall() {
       style={{ backgroundColor: '#0F172A' }} // primary
     >
       <div className="max-w-5xl mx-auto">
-        {/* Header Section (تم إزالة زر التحديث) */}
-        <div className="mb-8 border-b border-slate-800/60 pb-4">
-          <h1 className="text-2xl font-bold tracking-tight">Call History</h1>
-          <p className="text-xs text-slate-400 mt-1">Review live channel states and system metrics</p>
-        </div>
+        {/* Header Section */}
+      <div className="mb-8 border-b border-slate-800/60 pb-4">
+  {/* زر التراجع */}
+  <button 
+    onClick={() => GO("/main/calls")}
+    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors cursor-pointer text-sm font-medium mb-4"
+  >
+    <ArrowLeft size={18} />
+    <span>{t('myCall.backToCalls')}</span>
+  </button>
+
+  {/* الأيقونة والعنوان */}
+  <div className="flex items-center gap-3">
+    <div onClick={toggleSidebar}>
+      <ClipboardClock   className="cursor-pointer w-7 h-7 text-slate-300 shrink-0" />
+    </div>
+    
+    <div>
+      <h1 className="text-2xl font-bold tracking-tight">{t('myCall.title')}</h1>
+      <p className="text-xs text-slate-400 mt-0.5">{t('myCall.subtitle')}</p>
+    </div>
+  </div>
+</div>
 
         {/* Content Section */}
         {calls.length === 0 ? (
@@ -116,7 +139,7 @@ function MyCall() {
             className="p-12 text-center rounded-2xl text-slate-400 border border-slate-800/40"
             style={{ backgroundColor: '#101B22' }} // secondary
           >
-            No records found for this participant.
+            {t('myCall.noRecords')}
           </div>
         ) : (
           <>
@@ -140,7 +163,7 @@ function MyCall() {
                       {getStatusBadge(call.status)}
                     </div>
                     <p className="text-xs text-slate-400">
-                      Created At: {new Date(call.createdAt).toLocaleString('en-US', {
+                      {t('myCall.createdAt')}: {new Date(call.createdAt).toLocaleString('en-US', {
                         dateStyle: 'medium',
                         timeStyle: 'short'
                       })}
@@ -150,13 +173,13 @@ function MyCall() {
                   {/* Additional metrics info */}
                   <div className="flex items-center gap-8 text-sm text-slate-300 w-full md:w-auto justify-between md:justify-end border-t border-slate-800/40 md:border-0 pt-3 md:pt-0">
                     <div className="min-w-[80px]">
-                      <span className="text-xs text-slate-500 block font-medium uppercase tracking-wider mb-0.5">Duration</span>
+                      <span className="text-xs text-slate-500 block font-medium uppercase tracking-wider mb-0.5">{t('myCall.duration')}</span>
                       <span className="font-mono">
-                        {call.durationSeconds ? `${call.durationSeconds}s` : '—'}
+                        {call.durationSeconds ? t('myCall.durationSeconds', { seconds: call.durationSeconds }) : '—'}
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-slate-500 block font-medium uppercase tracking-wider mb-0.5">Agent</span>
+                      <span className="text-xs text-slate-500 block font-medium uppercase tracking-wider mb-0.5">{t('myCall.agent')}</span>
                       <span className="text-xs font-mono text-slate-400 bg-slate-900/40 px-2 py-0.5 rounded border border-slate-800/30">
                         {call.agentIdentity}
                       </span>
@@ -177,12 +200,11 @@ function MyCall() {
                     : 'bg-slate-800 text-slate-200 hover:bg-slate-700 active:scale-95'
                 }`}
               >
-                Previous
+                {t('myCall.previous')}
               </button>
 
               <span className="text-xs font-mono text-slate-400">
-                Page <span className="text-slate-100 font-semibold">{currentPage + 1}</span> of{' '}
-                <span className="text-slate-100 font-semibold">{totalPages || 1}</span>
+                {t('myCall.pageInfo', { current: currentPage + 1, total: totalPages || 1 })}
               </span>
 
               <button
@@ -194,7 +216,7 @@ function MyCall() {
                     : 'bg-slate-800 text-slate-200 hover:bg-slate-700 active:scale-95'
                 }`}
               >
-                Next
+                {t('myCall.next')}
               </button>
             </div>
           </>

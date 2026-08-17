@@ -1,7 +1,9 @@
 import React from 'react';
 import { Target, ShieldCheck, UserCircle, UserCheck, Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const LeadCard = ({ lead, onClickable }) => {
+  const { t } = useTranslation();
   const isAssigned = lead.assignedAgentId !== null && lead.assignedAgentId !== undefined;
   const isConverted = lead.convertedCustomerId !== null && lead.convertedCustomerId !== undefined;
   const hasCampaign = lead.campaignId !== null && lead.campaignId !== undefined;
@@ -30,7 +32,7 @@ const LeadCard = ({ lead, onClickable }) => {
           {lead.name}
         </h3>
         <div className="flex items-center gap-3 text-[11px] text-gray-500 font-mono">
-          <span>ID: #{lead.id}</span>
+          <span>{t('leadCard.id', { id: lead.id })}</span>
           {lead.phoneNumber && (
             <span className="flex items-center gap-1 text-gray-400">
               <Phone size={11} className="text-[#0D9EF2]" />
@@ -45,15 +47,15 @@ const LeadCard = ({ lead, onClickable }) => {
         {/* Campaign */}
         <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0F172A]/50 border border-[#1e293b]/50 transition-colors group-hover:bg-[#0F172A]">
           <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium shrink-0">
-            <Target size={15} className="text-gray-500" /> Campaign
+            <Target size={15} className="text-gray-500" /> {t('leadCard.campaign')}
           </div>
           <div className="text-right truncate ml-2">
             {hasCampaign ? (
               <span className="text-[11px] font-semibold text-white block truncate" title={lead.campaignName}>
-                {lead.campaignName || `Campaign #${lead.campaignId}`}
+                {lead.campaignName || t('leadCard.campaignFallback', { id: lead.campaignId })}
               </span>
             ) : (
-              <span className="text-[11px] text-gray-600 italic">Not linked</span>
+              <span className="text-[11px] text-gray-600 italic">{t('leadCard.notLinked')}</span>
             )}
           </div>
         </div>
@@ -61,15 +63,15 @@ const LeadCard = ({ lead, onClickable }) => {
         {/* Assigned Agent */}
         <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0F172A]/50 border border-[#1e293b]/50 transition-colors group-hover:bg-[#0F172A]">
           <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium shrink-0">
-            <ShieldCheck size={15} className={isAssigned ? "text-emerald-500" : "text-gray-500"} /> Agent
+            <ShieldCheck size={15} className={isAssigned ? "text-emerald-500" : "text-gray-500"} /> {t('leadCard.agent')}
           </div>
           <div className="text-right truncate ml-2">
             {isAssigned ? (
               <span className="text-[11px] font-semibold text-white block truncate" title={lead.assignedAgentName}>
-                {lead.assignedAgentName || `Agent #${lead.assignedAgentId}`}
+                {lead.assignedAgentName || t('leadCard.agentFallback', { id: lead.assignedAgentId })}
               </span>
             ) : (
-              <span className="text-[11px] text-gray-600 italic">Unassigned</span>
+              <span className="text-[11px] text-gray-600 italic">{t('leadCard.unassigned')}</span>
             )}
           </div>
         </div>
@@ -77,18 +79,17 @@ const LeadCard = ({ lead, onClickable }) => {
         {/* Converted Customer */}
         <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0F172A]/50 border border-[#1e293b]/50 transition-colors group-hover:bg-[#0F172A]">
           <div className="flex items-center gap-2 text-[11px] text-gray-400 font-medium shrink-0">
-            <UserCheck size={15} className={isConverted ? "text-[#0D9EF2]" : "text-gray-500"} /> Converted
+            <UserCheck size={15} className={isConverted ? "text-[#0D9EF2]" : "text-gray-500"} /> {t('leadCard.converted')}
           </div>
           <div className="text-right truncate ml-2">
             {isConverted ? (
               <div className="flex flex-col items-end">
-                
                 <span className="text-[9px] text-gray-500 font-mono">
-                  #{lead.convertedCustomerId}
+                  {t('leadCard.convertedId', { id: lead.convertedCustomerId })}
                 </span>
               </div>
             ) : (
-              <span className="text-[11px] text-gray-600 italic">Not Converted</span>
+              <span className="text-[11px] text-gray-600 italic">{t('leadCard.notConverted')}</span>
             )}
           </div>
         </div>

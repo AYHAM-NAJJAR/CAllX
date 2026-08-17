@@ -15,11 +15,10 @@ export default function IVR() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [activePropertyNodeId, setActivePropertyNodeId] = useState(null);
+
   useEffect(() => {
-        console.log("🚨DATA CHANGED", nodes);
-      }, [nodes]);
-
-
+    console.log("🚨DATA CHANGED", nodes);
+  }, [nodes]);
 
   const toggleProperties = (nodeId) => {
     setActivePropertyNodeId(activePropertyNodeId === nodeId ? null : nodeId);
@@ -37,12 +36,40 @@ export default function IVR() {
   const onConnect = useCallback((params) => setEdges((eds) => addEdge(params, eds)), []);
 
 
+  // ==== التعديل تم هنا ====
   const handleSaveClick = async () => {
-    await saveCompleteFlow(nodes, edges);
-  };
-  
-  return (
+    // 1. جلب البيانات من Local Storage
+    const savedFlowPayload = localStorage.getItem("flowPayload");
+    
+    // 2. التحقق من وجود البيانات
+    if (savedFlowPayload) {
+      let flowData; // تعريف المتغير هنا
+      
+      try {
+        // 3. تحويل البيانات ونسخها
+        const parsedData = JSON.parse(savedFlowPayload);
+        flowData = {
+          name: parsedData.name,
+          description: parsedData.description,
+          active: parsedData.active ?? true
+        };
+      } catch (error) {
+        console.error("خطأ في قراءة بيانات الفلو من Local Storage:", error);
+        return; // إيقاف العملية إذا كان هناك خطأ في البيانات حتى لا نرسل بيانات فارغة للباك إند
+      }
 
+      // 4. تمرير جميع المعاملات المطلوبة بعد التأكد من نجاح العملية
+      await saveCompleteFlow(flowId, flowData, nodes, edges);
+      
+    } else {
+      
+      console.warn("لم يتم العثور على بيانات الفلو في Local Storage");
+      alert("لا توجد بيانات للفلو للحفظ، الرجاء التأكد من إنشاء الفلو بشكل صحيح.");
+    }
+  };
+  // ========================
+
+  return (
     <div className="flex w-screen h-screen overflow-hidden font-sans bg-secondary">
       <IVRSideBar setNodes={setNodes} />
       
@@ -64,12 +91,12 @@ export default function IVR() {
       </main>
       {activePropertyNodeId && (
         <PropertySidebar
-        flowId={flowId}
-        nodeId={activePropertyNodeId}
-        nodes={nodes}
-        edges={edges}
-        setNodes={setNodes}
-        close={() => setActivePropertyNodeId(null)}
+          flowId={flowId}
+          nodeId={activePropertyNodeId}
+          nodes={nodes}
+          edges={edges}
+          setNodes={setNodes}
+          close={() => setActivePropertyNodeId(null)}
         />
       )}
     </div>

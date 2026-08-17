@@ -24,6 +24,7 @@
   },
   
   "sidebar": {
+    "shiftManagement": "Shift Management",
     "available": "AVAILABLE",
     "offline": "OFFLINE",
     "inCall": "In Call",
@@ -67,6 +68,602 @@
     "totalItems": "Total Items:",
     "previous": "Previous",
     "next": "Next"
+  },
+  "createQueue": {
+    "title": "Call Queue Management",
+    "subtitle": "Configure and organize your routing queues efficiently",
+    "allQueues": "All Queues",
+    "infoTitle": "What is a Queue and why is it important in the system?",
+    "infoDesc": "The queue is considered the backbone of a call center system; it is responsible for organizing and routing incoming customer calls, holding them in order until available agents become free. Queues help minimize wait times, distribute workloads efficiently across various departments (such as technical support or sales), and ensure that no call is lost.",
+    "sectionTitle": "Create New Queue",
+    "successDefault": "Queue created successfully!",
+    "errorDefault": "Failed to create queue.",
+    "errorFallback": "An error occurred while creating the queue. Please try again later.",
+    "queueKeyLabel": "Queue Key",
+    "queueKeyPlaceholder": "e.g., support-tier-1",
+    "queueKeyHint": "Unique programmatic key used for routing calls",
+    "queueNameLabel": "Queue Name",
+    "queueNamePlaceholder": "e.g., Tier 1 Support Queue",
+    "queueNameHint": "Descriptive name displayed to supervisors on the control panel",
+    "saveButton": "Save Queue"
+},
+
+  "appBar": {
+    "stats": "Stats",
+    "employees": "Employees",
+    "tickets": "Tickets",
+    "departments": "Departments",
+    "roles": "Roles",
+    "toggleSidebar": "Toggle Sidebar"
+  },
+  
+  "showAllCustomers": {
+    "loading": "Loading clients...",
+    "errorTitle": "Failed to fetch clients.",
+    "errorSubtitle": "Please check your connection or session token.",
+    "toggleSidebar": "Toggle Sidebar",
+    "title": "All Customers",
+    "searchPlaceholder": "Search About Customer name",
+    "createCustomer": "Create Customer",
+    "tagsManagement": "TAGS Management",
+    "noClients": "No clients found in this category"
+  },
+  
+  "showAllCampaigns": {
+    "loading": "جاري التحميل...",
+    "toggleSidebar": "تبديل الشريط الجانبي",
+    "title": "جميع الحملات",
+    "createCampaign": "إنشاء حملة",
+    "infoTitle": "حول الحملات",
+    "infoDesc": "الحملات هي مبادرات استراتيجية تُستخدم لإدارة أداء التواصل. من خلال تجميع جهات الاتصال والقنوات الخاصة بك هنا، يمكنك تتبع التفاعل في الوقت الفعلي، ومراقبة حالة اكتساب العملاء المحتملين، وتحسين مسارات التحويل بكفاءة.",
+    "deleteSuccess": "تم حذف الحملة بنجاح",
+    "deleteErrorTitle": "فشل في حذف الحملة:",
+    "deleteErrorAlert": "تعذر حذف الحملة"
+  },
+  
+  "getLeads": {
+    "toggleSidebar": "Toggle Sidebar",
+    "title": "Leads Management",
+    "subtitle": "Track and manage your potential customers",
+    "createLead": "Create Lead",
+    "loading": "Loading leads data...",
+    "errorTitle": "Failed to load",
+    "errorSubtitle": "Please check your connection and try again.",
+    "noLeadsTitle": "No Leads Found",
+    "noLeadsSubtitle": "Start by creating your first lead"
+  },
+  
+  "integration": {
+    "toggleSidebar": "Toggle Sidebar",
+    "title": "Integration Settings",
+    "subtitle": "Manage third-party service integrations and configure external platform credentials such as Firebase.",
+    "showAll": "Show all integrations",
+    "instructionsTitle": "General Instructions for Integrations",
+    "instructionsDesc": "These settings are responsible for connecting the core system with external services (such as Firebase). Configuration keys are passed to the frontend upon initialization. Ensure that the entered data is correct to guarantee proper authentication and push notifications, and toggle the global switch to enable the service.",
+    "firebaseTitle": "Firebase Core Configuration",
+    "firebaseSubtitle": "Configure project identification card for server connectivity.",
+    "configKeyLabel": "Config Key",
+    "configKeyHint": "Enter the unique configuration identifier key used by the system to reference this service.",
+    "apiKeyLabel": "API Key",
+    "show": "Show",
+    "hide": "Hide",
+    "apiKeyHint": "Provide the web API key generated from your Firebase project settings console.",
+    "authDomainLabel": "Auth Domain",
+    "authDomainHint": "Enter the authentication domain associated with your project URL.",
+    "projectIdLabel": "Project ID",
+    "projectIdHint": "Specify the unique string identifier assigned to your cloud project.",
+    "messagingSenderIdLabel": "Messaging Sender ID",
+    "messagingSenderIdHint": "Enter the numeric sender identification code required for cloud messaging services.",
+    "cancel": "Cancel",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "defaultSuccess": "Setting Created Successfully!",
+    "defaultError": "Failed to create setting.",
+    "unexpectedError": "An unexpected error occurred."
+  },
+  
+  "profile": {
+    "loading": "Loading profile data...",
+    "title": "Profile",
+    "subtitle": "Manage your account information and access permissions",
+    "inCall": "In Call",
+    "readyToReceive": "Ready to recieve call",
+    "offline": "Offline",
+    "readyToMake": "Ready to Make call",
+    "outOffline": "Out Offline",
+    "defaultRole": "Software Engineer",
+    "defaultEmail": "email@example.com",
+    "accountDetails": "Account Details",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "assignedPermissions": "Assigned Permissions",
+    "noPermissions": "No custom permissions assigned to this account."
+  
+},
+
+  "liveStats": {
+    "failedToFetch": "Failed to fetch live statistics",
+    "activeRooms": "Active Rooms",
+    "totalParticipants": "Total Participants",
+    "noActiveRoomsTitle": "No Active Rooms Found",
+    "noActiveRoomsDesc": "Active rooms and participants will appear here once a call starts.",
+    "activeNow": "Active Now",
+    "peakParticipants": "Peak Participants",
+    "totalJoins": "Total Joins",
+    "currentParticipants": "Current Participants",
+    "agent": "Agent",
+    "customer": "Customer",
+    "external": "External"
+  },
+  
+  "roomHistory": {
+    "loading": "Loading room history",
+    "errorFetching": "Error in fetching data.",
+    "title": "Room History & Statistics",
+    "roomName": "Room Name",
+    "egressId": "Egress ID",
+    "startedAt": "Started At",
+    "duration": "Duration",
+    "peakParticipants": "Peak Participants",
+    "totalJoins": "Total Joins",
+    "status": "Status",
+    "durationMins": "{{mins}} mins"
+  },
+  
+  "myCall": {
+    "missingAuth": "Missing authentication token or user session.",
+    "fetchError": "An error occurred while fetching calls",
+    "title": "Call History",
+    "subtitle": "Review live channel states and system metrics",
+    "noRecords": "No records found for this participant.",
+    "createdAt": "Created At",
+    "duration": "Duration",
+    "agent": "Agent",
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {{current}} of {{total}}",
+    "durationSeconds": "{{seconds}}s",
+    "backToCalls": "Back to Calls"
+  },
+  
+  "queues": {
+    "back": "Back",
+    "title": "Support Queues",
+    "subtitle": "Monitor and manage all active live ticketing support queues.",
+    "loading": "Fetching active queues...",
+    "errorTitle": "Failed to load queues",
+    "defaultError": "Something went wrong.",
+    "noQueues": "No queues found active at the moment."
+  },
+  
+  "queueDetails": {
+    "loading": "Loading...",
+    "notFound": "Queue not found.",
+    "backToQueues": "Back to Queues",
+    "assignAgent": "Assign Agent",
+    "delete": "Delete",
+    "deleteError": "Failed to delete queue",
+    "deleteUnexpected": "An unexpected error occurred while deleting.",
+    "deleteCallError": "An unexpected error occurred while deleting the call.",
+    "unassignError": "Failed to unassign agent.",
+    "unassignUnexpected": "An unexpected error occurred while unassigning the agent.",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "waitingCustomers": "Waiting Customers",
+    "createdDate": "Created Date",
+    "waitingCalls": "Waiting Calls",
+    "enqueued": "Enqueued",
+    "deleteCall": "Delete Call",
+    "noWaitingCalls": "No waiting calls in this queue.",
+    "assignedAgents": "Assigned Agents",
+    "unassignAgent": "Unassign Agent",
+    "noAgents": "No agents assigned to this queue yet."
+  },
+   "queueCard": {
+    "deactivateTooltip": "Deactivate Queue",
+    "activateTooltip": "Activate Queue",
+    "active": "Active",
+    "inactive": "Inactive",
+    "waitingCustomers": "Waiting Customers",
+    "createdDate": "Created Date",
+    "manageQueue": "Manage Queue",
+    "updateError": "Failed to update status:"
+  },
+  "systemStats": {
+    "title": "System Statistics",
+    "subtitle": "Core system metrics, ticket analysis and configuration data.",
+    "totalUsers": "Total Users",
+    "totalTickets": "Total Tickets",
+    "openTickets": "Open Tickets",
+    "requiresAction": "Requires Action",
+    "escalatedTickets": "Escalated Tickets",
+    "ticketsByPriority": "Tickets By Priority",
+    "ticketsByCategory": "Tickets By Category",
+    "dynamicFieldsAnalytics": "Dynamic Fields Analytics",
+    "mostUsedCustomField": "Most Used Custom Field",
+    "valueDistribution": "Value Distribution",
+    "globalNotice": "* Field analysis is calculated globally across all active tickets.",
+    "noPriorities": "No priorities recorded.",
+    "noCategories": "No categories recorded.",
+    "ticketsCount": "tickets",
+    "loadingPhrase": "System Stats",
+    "errorPhrase": "Stats"
+  },
+  "getAllEmployees": {
+    "title": "Employees Overview",
+    "subtitle": "Monitoring Your Employees.",
+    "addEmployee": "Add Employee",
+    "searchPlaceholder": "Search About Employee name",
+    "total": "TOTAL",
+    "loadingPhrase": "Employees",
+    "errorPhrase": "Employees"
+  },
+  
+  "employeeCard": {
+    "tooltip": "Employee Details",
+    "noDepartment": "No Department",
+    "noPhone": "No Phone Number",
+    "rolesLabel": "Roles:",
+    "noRoles": "No roles assigned"
+  },
+  
+  "employeeDetails": {
+    "title": "Employee Details",
+    "edit": "Edit",
+    "delete": "Delete",
+    "departmenta": "Department",
+    "noDepartment": "No Department",
+    "noPhone": "No phone number",
+    "role": "Role",
+    "noRoles": "No Roles",
+    "verifiedAt": "Verified At",
+    "notVerified": "Not Verified",
+    "loadError": "Failed to load employee data.",
+    "notFound": "Employee data not found"
+  },
+  
+  "showAllTickets": {
+    "title": "All Tickets",
+    "exportTooltip": "Export CSV",
+    "newTicket": "New Ticket",
+    "structure": "Structure",
+    "searchPlaceholder": "Search About Ticket name",
+    "colorLegend": "Color Legend & Indicators",
+    "statusLabel": "Ticket Status",
+    "priorityLabel": "Priority Levels",
+    "open": "Open",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "criticalPriority": "Critical Priority",
+    "highPriority": "High Priority",
+    "mediumPriority": "Medium Priority",
+    "lowPriority": "Low Priority",
+    "filterByDepartment": "Filter by Department",
+    "filterByStatus": "Filter by Status",
+    "filterByPriority": "Filter by Priority",
+    "sortBy": "Sort By",
+    "newestFirst": "Newest First",
+    "oldestFirst": "Oldest First",
+    "filterDepartmentsDefault": "Filter By departments",
+    "filterStatusDefault": "Filter By Status",
+    "filterPriorityDefault": "Filter By Priority",
+    "noTickets": "No tickets found",
+    "loadingPhrase": "Tickets",
+    "errorPhrase": "Tickets",
+    "exportError": "erro in uplooad file :"
+  },
+  
+  "ticketCard": {
+    "open": "Open",
+    "inProgress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed",
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "unknownUser": "Unknown User",
+    "viewDetails": "View Details"
+  },
+  
+  "ticketDetails": {
+    "loadingPhrase": "Ticket Details",
+    "errorPhrase": "Failed to load ticket data.",
+    "editDetails": "Edit Ticket details",
+    "deleteTicket": "Delete Ticket",
+    "priorityLabel": "{{priority}} Priority",
+    "departmentLabel": "Department : {{department}}",
+    "categoryLabel": "Category : {{category}}",
+    "ticketIdLabel": "Ticket #{{id}}",
+    "assignedTo": "Assigned To: {{name}}",
+    "assignAgent": "Assign Agent",
+    "createdOn": "Created on {{date}}",
+    "customerHeader": "This Ticket Is For Customer :",
+    "issueDescription": "Issue Description",
+    "noDescription": "No description provided.",
+    "additionalDetails": "Additional Details",
+    "attachments": "Attachments ({{count}})",
+    "ticketStats": "Ticket Stats",
+    "assignedToStat": "Assigned To",
+    "categoryStat": "Category",
+    "lastUpdateStat": "Last Update",
+    "adminNotes": "Admin Notes"
+  },
+  
+  "departmentsList": {
+    "loadingPhrase": "Departments",
+    "errorPhrase": "Departments",
+    "title": "Departments List",
+    "addDepartment": "Add Department",
+    "addCategory": "Add category To Department",
+    "searchPlaceholder": "Search About Department name",
+    "noDepartments": "No departments found."
+  },
+  
+  "departmentCard": {
+    "agents": "Agents:",
+    "noAgents": "No agents assigned",
+    "categories": "Categories:",
+    "noCategories": "No categories",
+    "totalAgents": "Total Agents",
+    "agentsCount": "{{count}} Agents"
+  },
+  
+  "rolesManagement": {
+    "loadingPhrase": "Roles",
+    "errorPhrase": "Roles",
+    "title": "Role Management",
+    "subtitle": "Review and configure access control levels, security descriptors, and assigned scope metrics.",
+    "totalActiveRoles": "Total Active Roles:",
+    "addRole": "Add Role",
+    "searchPlaceholder": "Search About Role name",
+    "updateRole": "Update Role",
+    "deleteRole": "Delete Role",
+    "noDescription": "No description provided for this role.",
+    "roleId": "Role ID:",
+    "tenantScope": "Tenant Scope:",
+    "totalKeyActions": "Total Key Actions:",
+    "capabilityTree": "Capability & Permission Tree",
+    "noPermissions": "This role has no atomic actions or permissions attached to it.",
+    "deleteSuccess": "Role deleted successfully",
+    "deleteError": "Failed to delete role",
+    "unexpectedError": "An unexpected error occurred"
+  },
+  
+  "tenantsManagement": {
+    "loadingPhrase": "Tenants",
+    "errorPhrase": "Tenants",
+    "title": "Company Tenants",
+    "subtitle": "Manage your organization's tenants and their status from here.",
+    "addNewTenant": "Add New Tenant",
+    "createAdminTenant": "Create Admin Tenant"
+  },
+  
+  "tenantsCard": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "editTenant": "Edit Tenant"
+  },
+  
+  "flowsManagement": {
+    "loadingPhrase": "Flows",
+    "errorPhrase": "Flows",
+    "title": "IVR Flows",
+    "subtitle": "Manage your automated call flows from here.",
+    "addNewFlow": "Add New Flow"
+  },
+  
+  "flowCard": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "noDescription": "No description provided for this IVR flow.",
+    "buildIvr": "Build IVR"
+  },
+  
+  "workflowsManagement": {
+    "loadingPhrase": "Rules",
+    "errorPhrase": "Rules",
+    "title": "Workflows",
+    "subtitle": "Intelligent automation to orchestrate your ticketing lifecycle with a seamless, friction-free flow.",
+    "createWorkflow": "Create Workflow",
+    "noWorkflows": "No workflows found."
+  },
+  
+  "createWorkflowRules": {
+    "title": "Create Workflow Rule",
+    "subtitle": "Automate your ticketing processes by defining conditions and subsequent actions.",
+    "information": "Information",
+    "createRule": "Create Rule",
+    "basicInformation": "Basic Information",
+    "ruleNameLabel": "Rule Name",
+    "ruleNamePlaceholder": "e.g., Escalation for Enterprise VIPs",
+    "priorityTierLabel": "Priority Tier",
+    "priorityPlaceholder": "Select a priority...",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Explain the purpose of this rule...",
+    "conditionsTitle": "Conditions (IF)",
+    "conditionsSubtitle": "Rule triggers when these match",
+    "addCondition": "Add Condition",
+    "noConditions": "No conditions added yet.",
+    "field": "Field",
+    "operator": "Operator",
+    "value": "Value",
+    "fieldsPlaceholder": "fields",
+    "operatorsPlaceholder": "operators",
+    "valuesPlaceholder": "values",
+    "textValuePlaceholder": "Type text value...",
+    "actionsTitle": "Actions (THEN)",
+    "actionsSubtitle": "Execute these when triggered",
+    "addAction": "Add Action",
+    "noActions": "No actions added yet.",
+    "actionType": "Action Type",
+    "targetField": "Target Field",
+    "typesPlaceholder": "types",
+    "actionValuePlaceholder": "Type value..."
+  },
+  
+  "workflowCard": {
+    "id": "ID: #{{id}}",
+    "active": "Active",
+    "inactive": "Inactive",
+    "priority": "Priority",
+    "details": "Details"
+  },
+  
+  "clientCard": {
+    "unknownClient": "Unknown Client",
+    "id": "ID: #{{id}}",
+    "types": {
+      "vip": "VIP",
+      "corporate": "Corporate",
+      "standard": "Standard"
+    },
+    "directContact": "Direct Contact",
+    "noNumber": "No Number",
+    "call": "Call",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "agentOwner": "Agent Owner",
+    "unassigned": "Unassigned",
+    "agentId": "Agent #{{id}}",
+    "viewDetails": "View Details"
+  },
+  
+  "customerDetails": {
+    "loading": "Loading customer details...",
+    "errorTitle": "Failed to load customer details.",
+    "backToList": "Back to List",
+    "headerTitle": "Customer Details",
+    "addTag": "Add Tag",
+    "editCustomer": "Edit Customer",
+    "deleteCustomer": "Delete Customer",
+    "customerId": "Customer ID #{{id}}",
+    "assignedAgent": "Assigned Agent: {{name}}",
+    "noAgent": "No Agent Assigned",
+    "campaign": "Campaign:",
+    "directLine": "Direct Line",
+    "noPhone": "No Phone",
+    "copyPhoneTooltip": "Copy Phone Number",
+    "callNow": "Call Now",
+    "primaryContact": "Primary Contact",
+    "noEmail": "No Email",
+    "totalOpportunity": "Total Opportunity:",
+    "customerNotes": "Customer Notes",
+    "edit": "Edit",
+    "save": "Save",
+    "saving": "Saving...",
+    "noNotes": "No notes provided for this customer.",
+    "interactionsHistory": "Interactions History",
+    "conductedBy": "Conducted by:",
+    "ref": "Ref: {{ref}}",
+    "noInteractions": "No interactions recorded.",
+    "activeOpportunities": "Active Opportunities",
+    "expectedClose": "Expected Close",
+    "noOpportunities": "No opportunities available.",
+    "originatingCampaign": "Originating Campaign",
+    "leadId": "Lead ID: #{{id}}",
+    "deleteConfirm": "Are you sure you want to delete this customer? This action cannot be undone.",
+    "deleteSuccess": "Customer deleted successfully",
+    "tagDeleteConfirm": "Are you sure you want to remove the tag \"{{name}}\"?",
+    "tagDeleteSuccess": "Tag \"{{name}}\" removed successfully",
+    "notesSuccess": "Notes updated successfully",
+    "notesError": "Failed to update notes",
+    "phoneCopied": "Phone number copied!"
+  },
+  
+  "leadCard": {
+    "id": "ID: #{{id}}",
+    "campaign": "Campaign",
+    "campaignFallback": "Campaign #{{id}}",
+    "notLinked": "Not linked",
+    "agent": "Agent",
+    "agentFallback": "Agent #{{id}}",
+    "unassigned": "Unassigned",
+    "converted": "Converted",
+    "convertedId": "#{{id}}",
+    "notConverted": "Not Converted"
+  },
+  
+  "agentsPerformance": {
+    "errorTitle": "Failed to load metrics",
+    "errorFallback": "Something went wrong. Please try again later.",
+    "title": "Agents Performance",
+    "subtitle": "Real-time analytics and agent productivity metrics.",
+    "liveMetrics": "Live Metrics",
+    "activeAgents": "Active Agents",
+    "onDuty": "On Duty",
+    "customerSatisfaction": "Customer Satisfaction",
+    "avgResolutionTime": "Avg Resolution Time",
+    "topPerformingAgentLabel": "Top Performing Agent",
+    "highestResolutionRate": "Highest Resolution Rate",
+    "placeholderChart": "[ Place hourly resolution charts or active agents table here ]",
+    "toggleSidebarAria": "Toggle Sidebar"
+  },
+  
+  "monitory": {
+    "systemHealth": "System Health",
+    "subtitle": "System Monitoring Stats",
+    "totalUsers": "Total Users",
+    "activeTickets": "Active Tickets",
+    "databaseStatus": "Database Status",
+    "systemUptime": "System Uptime",
+    "heapMemoryUsage": "Heap Memory Usage",
+    "errorRate": "Error Rate",
+    "requestsPerMinute": "Requests Per Minute",
+    "avgResponseTime": "Avg Response Time",
+    "activeThreads": "Active Threads",
+    "toggleSidebarAria": "Toggle Sidebar"
+  },
+  
+  "auditLogs": {
+    "title": "Audit Logs",
+    "subtitle": "Review recent system activities, track ticket status updates, and monitor user actions for security and compliance.",
+    "getMoreAudits": "Get More audits",
+    "loading": "Loading...",
+    "toggleSidebarAria": "Toggle Sidebar"
+  },
+  "auditTable": {
+    "ticketId": "Ticket ID",
+    "action": "Action",
+    "user": "User",
+    "timestamp": "Timestamp"
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
 
 }

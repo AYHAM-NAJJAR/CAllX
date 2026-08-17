@@ -221,8 +221,10 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
       </div>
 
             {/* أزرار Go Live / Go Offline */}
-            <div className="flex items-center gap-2 w-full mt-1">
-              <button
+            <div className="flex flex-col items-center gap-2 w-full mt-1">
+              <span className="text-gray-500 font-bold mt-2 mb-1">{t('sidebar.shiftManagement')}</span>
+              <div className="flex justify-center items-center gap-2 w-full">
+                <button
                 onClick={() => handleToggleGoLive(true)}
                 className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 py-1.5 px-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5"
               >
@@ -236,6 +238,7 @@ const SidebarAdmin = ({ isOpen, toggleSidebar }) => {
                 <Power size={12} />
                 {t('sidebar.offline')}
               </button>
+              </div>
             </div>
 
           </div>

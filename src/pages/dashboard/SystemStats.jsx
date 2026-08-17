@@ -1,27 +1,27 @@
 import React from 'react';
 import * as Progress from '@radix-ui/react-progress';
-import { Users, Ticket, AlertTriangle, Layers, Activity, ShieldAlert, Loader2, AlertCircle, BarChart3, Menu } from 'lucide-react';
+import { Users, Ticket, AlertTriangle, Layers, Activity, ShieldAlert, BarChart3 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useSystemStats } from '../../hooks/useSystemStats';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import LoadingError from '../../components/common/LoadingError';
-import Button from '../../components/common/Button';
 import TicketStats from './TicketStats';
 
-
 function SystemStats() {
+  const { t } = useTranslation();
   const token = localStorage.getItem("Token");
   const { data: stats, isLoading, isError } = useSystemStats(token);
+
   // 1. حالة التحميل (Loading State)
-  console.log(stats);
-    if (isLoading) {
+  if (isLoading) {
     return (
-      <LoadingCircle Phrase={"System Stats"}/>
+      <LoadingCircle Phrase={t('systemStats.loadingPhrase')} />
     );
   }
 
   if (isError) {
     return (
-      <LoadingError Phrase={"Stats"}/>
+      <LoadingError Phrase={t('systemStats.errorPhrase')} />
     );
   }
 
@@ -45,16 +45,16 @@ function SystemStats() {
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-100">
-      <TicketStats token={token}/>
+      <TicketStats token={token} />
+      
       {/* الهيدر أو رأس الصفحة */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div className=''>
-            <h2 className="text-xl font-semibold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
+        <div>
+          <h2 className="text-xl font-semibold tracking-wide text-cyan-400 uppercase flex items-center gap-2">
             <Activity size={20} />
-            System Statistics
+            {t('systemStats.title')}
           </h2>
-          <p className="text-xs text-slate-400 mt-1">Core system metrics, ticket analysis and configuration data.</p>
-          
+          <p className="text-xs text-slate-400 mt-1">{t('systemStats.subtitle')}</p>
         </div>
       </div>
 
@@ -64,7 +64,7 @@ function SystemStats() {
         {/* Total Users */}
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">Total Users</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">{t('systemStats.totalUsers')}</span>
             <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400"><Users size={18} /></div>
           </div>
           <p className="text-3xl font-bold tracking-tight">{stats.totalUsers ?? 0}</p>
@@ -73,7 +73,7 @@ function SystemStats() {
         {/* Total Tickets */}
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">Total Tickets</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">{t('systemStats.totalTickets')}</span>
             <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><Ticket size={18} /></div>
           </div>
           <p className="text-3xl font-bold tracking-tight">{stats.totalTickets ?? 0}</p>
@@ -82,19 +82,19 @@ function SystemStats() {
         {/* Open Tickets */}
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">Open Tickets</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">{t('systemStats.openTickets')}</span>
             <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400"><AlertTriangle size={18} /></div>
           </div>
           <div className="flex items-baseline gap-2">
             <p className="text-3xl font-bold tracking-tight text-amber-400">{stats.openTickets ?? 0}</p>
-            <span className="text-xs text-slate-400 font-medium">Requires Action</span>
+            <span className="text-xs text-slate-400 font-medium">{t('systemStats.requiresAction')}</span>
           </div>
         </div>
 
         {/* Escalated Tickets */}
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">Escalated Tickets</span>
+            <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">{t('systemStats.escalatedTickets')}</span>
             <div className="p-2 bg-rose-500/10 rounded-lg text-rose-400"><ShieldAlert size={18} /></div>
           </div>
           <p className="text-3xl font-bold tracking-tight text-emerald-400">{stats.escalatedTickets ?? 0}</p>
@@ -109,7 +109,7 @@ function SystemStats() {
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-6 shadow-md">
           <h3 className="text-sm font-semibold tracking-wider text-slate-300 uppercase mb-4 flex items-center gap-2">
             <BarChart3 size={16} className="text-amber-500" />
-            Tickets By Priority
+            {t('systemStats.ticketsByPriority')}
           </h3>
           <div className="space-y-4">
             {stats.ticketsByPriority && Object.keys(stats.ticketsByPriority).length > 0 ? (
@@ -121,7 +121,7 @@ function SystemStats() {
                   <div key={priority} className="space-y-1.5">
                     <div className="flex justify-between text-xs font-medium">
                       <span className={`font-semibold ${styles.text}`}>{priority}</span>
-                      <span className="text-slate-400">{count} tickets</span>
+                      <span className="text-slate-400">{count} {t('systemStats.ticketsCount')}</span>
                     </div>
                     {/* Radix UI Progress Root */}
                     <Progress.Root
@@ -138,7 +138,7 @@ function SystemStats() {
                 );
               })
             ) : (
-              <p className="text-xs text-slate-500 text-center py-4">No priorities recorded.</p>
+              <p className="text-xs text-slate-500 text-center py-4">{t('systemStats.noPriorities')}</p>
             )}
           </div>
         </div>
@@ -147,7 +147,7 @@ function SystemStats() {
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-6 shadow-md">
           <h3 className="text-sm font-semibold tracking-wider text-slate-300 uppercase mb-4 flex items-center gap-2">
             <Layers size={16} className="text-cyan-400" />
-            Tickets By Category
+            {t('systemStats.ticketsByCategory')}
           </h3>
           <div className="space-y-4">
             {stats.ticketsByCategory && Object.keys(stats.ticketsByCategory).length > 0 ? (
@@ -158,7 +158,7 @@ function SystemStats() {
                   <div key={category} className="space-y-1.5">
                     <div className="flex justify-between text-xs font-medium">
                       <span className="text-slate-300 capitalize">{category}</span>
-                      <span className="text-slate-400">{count} tickets</span>
+                      <span className="text-slate-400">{count} {t('systemStats.ticketsCount')}</span>
                     </div>
                     {/* Radix UI Progress Root */}
                     <Progress.Root
@@ -175,7 +175,7 @@ function SystemStats() {
                 );
               })
             ) : (
-              <p className="text-xs text-slate-500 text-center py-4">No categories recorded.</p>
+              <p className="text-xs text-slate-500 text-center py-4">{t('systemStats.noCategories')}</p>
             )}
           </div>
         </div>
@@ -186,18 +186,18 @@ function SystemStats() {
       <div className="bg-[#121E28] border border-slate-800 rounded-xl p-6 shadow-md">
         <h3 className="text-sm font-semibold tracking-wider text-slate-300 uppercase mb-4 flex items-center gap-2">
           <Activity size={16} className="text-purple-400" />
-          Dynamic Fields Analytics
+          {t('systemStats.dynamicFieldsAnalytics')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
           <div className="bg-slate-900 border border-slate-800 rounded-lg p-4 flex flex-col justify-center h-full">
-            <span className="text-xs text-slate-400 mb-1">Most Used Custom Field</span>
+            <span className="text-xs text-slate-400 mb-1">{t('systemStats.mostUsedCustomField')}</span>
             <span className="text-sm font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-1.5 rounded text-center block truncate">
               "{stats.dynamicFieldsAnalytics?.mostUsedCustomField || "N/A"}"
             </span>
           </div>
           
           <div className="md:col-span-2">
-            <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-3">Value Distribution</p>
+            <p className="text-xs font-semibold text-slate-400 tracking-wider uppercase mb-3">{t('systemStats.valueDistribution')}</p>
             <div className="grid grid-cols-3 gap-3">
               {stats.dynamicFieldsAnalytics?.fieldValuesDistribution && 
                 Object.entries(stats.dynamicFieldsAnalytics.fieldValuesDistribution).map(([label, value]) => (
@@ -210,7 +210,7 @@ function SystemStats() {
           </div>
         </div>
         <div className="text-[11px] text-slate-500 text-right mt-4 italic border-t border-slate-800/50 pt-2">
-          * Field analysis is calculated globally across all active tickets.
+          {t('systemStats.globalNotice')}
         </div>
       </div>
 

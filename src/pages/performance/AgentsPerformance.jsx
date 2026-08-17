@@ -1,16 +1,16 @@
 import React from 'react';
-import { Clock, Trophy, Smile, Users, BarChart2, Loader2, AlertCircle, Menu } from 'lucide-react';
+import { Clock, Trophy, Smile, Users, BarChart2, AlertCircle, Menu } from 'lucide-react';
 import { useAgentsPerformanceMetrics } from '../../hooks/useAgentsPerformanceMetrics';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import { useOutletContext } from 'react-router-dom';
 import Button from '../../components/common/Button';
+import { useTranslation } from 'react-i18next';
 
 function AgentsPerformance() {
-  // جلب التوكن من الـ LocalStorage أو من الـ Auth Context حسب إعدادات مشروعك
+  const { t } = useTranslation();
   const token = localStorage.getItem("Token"); 
-   const context = useOutletContext() || {};
+  const context = useOutletContext() || {};
   const { toggleSidebar } = context;
-  // استدعاء الـ Hook وجلب البيانات الحقيقية
   const { data: performanceData, isLoading, isError, error } = useAgentsPerformanceMetrics(token);
 
   // 1. حالة التحميل (Loading State)
@@ -27,9 +27,9 @@ function AgentsPerformance() {
     return (
       <div className="min-h-screen bg-primary text-slate-100 flex flex-col items-center justify-center gap-3 p-4 text-center">
         <AlertCircle className="text-red-500" size={40} />
-        <h3 className="text-lg font-bold">Failed to load metrics</h3>
+        <h3 className="text-lg font-bold">{t('agentsPerformance.errorTitle')}</h3>
         <p className="text-sm text-slate-400 max-w-md">
-          {error?.response?.data?.message || error?.message || "Something went wrong. Please try again later."}
+          {error?.response?.data?.message || error?.message || t('agentsPerformance.errorFallback')}
         </p>
       </div>
     );
@@ -44,33 +44,23 @@ function AgentsPerformance() {
       
       {/* الهيدر أو رأس الصفحة */}
       <div className="flex flex-col items-start justify-between mb-8 border-b border-slate-800 pb-5">
-        
-         <Button 
-          onClick={toggleSidebar} 
-          className="p-2 text-slate-300 hover:text-sky-400  rounded-lg transition-all shrink-0"
-          aria-label="Toggle Sidebar"
-        >
-          <Menu size={22} />
-        </Button>
+      
         <div className='flex flex-row items-center p-4 justify-center'>
-          
-          <div className='flex  flex-col '>
-          <h1 className="text-2xl font-bold tracking-wide uppercase flex items-center gap-2">
-            <BarChart2 className="text-[#10B981]" size={24} />
-              Agents Performance
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Real-time analytics and agent productivity metrics.
-          </p>
+          <div className='flex flex-col'>
+            <h1 className="text-2xl font-bold tracking-wide uppercase flex items-center gap-2">
+              <div onClick={toggleSidebar} > <BarChart2  className="text-[#10B981] cursor-pointer" size={24} /></div>
+              {t('agentsPerformance.title')}
+            </h1>
+            <p className="text-sm text-slate-400 mt-1">
+              {t('agentsPerformance.subtitle')}
+            </p>
+          </div>
         </div>
-        </div>
-        
-        
         
         {/* مؤشر تحديث البيانات تلقائياً أو فلتر */}
         <div className="flex items-center gap-2 text-xs bg-primary border border-slate-800 px-3 py-1.5 rounded-md text-slate-400">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Live Metrics
+          {t('agentsPerformance.liveMetrics')}
         </div>
       </div>
 
@@ -81,7 +71,7 @@ function AgentsPerformance() {
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              Active Agents
+              {t('agentsPerformance.activeAgents')}
             </span>
             <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
               <Users size={20} />
@@ -89,7 +79,7 @@ function AgentsPerformance() {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold">{performanceData.activeAgents}</span>
-            <span className="text-xs text-emerald-400 font-medium">On Duty</span>
+            <span className="text-xs text-emerald-400 font-medium">{t('agentsPerformance.onDuty')}</span>
           </div>
         </div>
 
@@ -97,7 +87,7 @@ function AgentsPerformance() {
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              Customer Satisfaction
+              {t('agentsPerformance.customerSatisfaction')}
             </span>
             <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400">
               <Smile size={20} />
@@ -113,7 +103,7 @@ function AgentsPerformance() {
         <div className="bg-[#121E28] border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-all duration-200 shadow-lg">
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              Avg Resolution Time
+              {t('agentsPerformance.avgResolutionTime')}
             </span>
             <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
               <Clock size={20} />
@@ -131,7 +121,7 @@ function AgentsPerformance() {
           
           <div className="flex items-center justify-between mb-4">
             <span className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
-              Top Performing Agent
+              {t('agentsPerformance.topPerformingAgentLabel')}
             </span>
             <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
               <Trophy size={20} />
@@ -141,7 +131,7 @@ function AgentsPerformance() {
             <span className="text-xl font-bold truncate text-emerald-400">
               {performanceData.topPerformingAgent || "N/A"}
             </span>
-            <span className="text-xs text-slate-400 mt-1">Highest Resolution Rate</span>
+            <span className="text-xs text-slate-400 mt-1">{t('agentsPerformance.highestResolutionRate')}</span>
           </div>
         </div>
 
@@ -149,7 +139,7 @@ function AgentsPerformance() {
 
       {/* قسم مستقبلي مقترح للرسوم البيانية أو تفاصيل أعمق بنفس الصفحة */}
       <div className="mt-8 bg-[#121E28] border border-slate-800 rounded-xl p-6 h-64 flex items-center justify-center text-slate-500 text-sm border-dashed">
-        [ Place hourly resolution charts or active agents table here ]
+        {t('agentsPerformance.placeholderChart')}
       </div>
 
     </div>

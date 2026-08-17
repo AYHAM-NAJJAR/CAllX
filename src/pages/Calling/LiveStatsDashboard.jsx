@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Radio, Clock, ShieldAlert, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { getLiveStats } from '../../services/stats/getLiveStats';
 import LoadingError from '../../components/common/LoadingError';
 import LoadingCircle from '../../components/common/LoadingCircle';
 
 const LiveStatsDashboard = () => {
+    const { t } = useTranslation();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -18,7 +20,7 @@ const LiveStatsDashboard = () => {
                     setStats(data.data);
                 }
             } catch (err) {
-                setError('Failed to fetch live statistics');
+                setError(t('liveStats.failedToFetch'));
             } finally {
                 setLoading(false);
             }
@@ -27,16 +29,15 @@ const LiveStatsDashboard = () => {
         loadStats();
         const interval = setInterval(loadStats, 5000);
         return () => clearInterval(interval);
-    }, []);
+    }, [t]);
 
-    
-      if (loading) {
+    if (loading) {
         return <LoadingCircle Phrase={"Rooms"} />;
-      }
+    }
     
-      if (error) {
+    if (error) {
         return <LoadingError Phrase={"Rooms"} />;
-      }
+    }
 
     const roomsArray = stats?.rooms ? Object.values(stats.rooms) : [];
 
@@ -44,7 +45,6 @@ const LiveStatsDashboard = () => {
         <div className="p-6 max-w-6xl mx-auto font-sans" dir="ltr" style={{ backgroundColor: '#0F172A', minHeight: '100vh', color: '#F8FAFC' }}>
             {/* Header and General Stats */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-               
 
                 {/* Summary Cards */}
                 <div className="flex gap-4">
@@ -53,7 +53,7 @@ const LiveStatsDashboard = () => {
                             <Radio size={24} />
                         </div>
                         <div>
-                            <p className="text-xs text-slate-400 font-medium">Active Rooms</p>
+                            <p className="text-xs text-slate-400 font-medium">{t('liveStats.activeRooms')}</p>
                             <p className="text-xl font-bold text-slate-100">{stats?.activeRooms || 0}</p>
                         </div>
                     </div>
@@ -63,7 +63,7 @@ const LiveStatsDashboard = () => {
                             <Users size={24} />
                         </div>
                         <div>
-                            <p className="text-xs text-slate-400 font-medium">Total Participants</p>
+                            <p className="text-xs text-slate-400 font-medium">{t('liveStats.totalParticipants')}</p>
                             <p className="text-xl font-bold text-slate-100">{stats?.totalParticipants || 0}</p>
                         </div>
                     </div>
@@ -74,8 +74,8 @@ const LiveStatsDashboard = () => {
             {roomsArray.length === 0 ? (
                 <div className="rounded-2xl p-12 text-center border border-dashed border-slate-800" style={{ backgroundColor: '#101B22' }}>
                     <Radio className="mx-auto h-12 w-12 text-slate-600 mb-3 animate-pulse" />
-                    <h3 className="text-lg font-medium text-slate-300">No Active Rooms Found</h3>
-                    <p className="text-slate-500 text-sm mt-1">Active rooms and participants will appear here once a call starts.</p>
+                    <h3 className="text-lg font-medium text-slate-300">{t('liveStats.noActiveRoomsTitle')}</h3>
+                    <p className="text-slate-500 text-sm mt-1">{t('liveStats.noActiveRoomsDesc')}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -89,7 +89,7 @@ const LiveStatsDashboard = () => {
                             <div className="flex justify-between items-start mb-4 pb-3 border-b border-slate-800/80">
                                 <div>
                                     <span className="inline-block px-2.5 py-1 bg-emerald-950 text-emerald-400 text-xs font-semibold rounded-full mb-2 border border-emerald-900/50">
-                                        Active Now
+                                        {t('liveStats.activeNow')}
                                     </span>
                                     <h3 className="text-sm font-mono text-slate-400 break-all" title={room.roomName}>
                                         {room.roomName}
@@ -104,11 +104,11 @@ const LiveStatsDashboard = () => {
                             {/* Additional Details */}
                             <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                                 <div className="p-3 rounded-xl border border-slate-800/50" style={{ backgroundColor: '#0F172A' }}>
-                                    <span className="block text-slate-400 text-xs">Peak Participants</span>
+                                    <span className="block text-slate-400 text-xs">{t('liveStats.peakParticipants')}</span>
                                     <span className="font-bold text-slate-200">{room.peakParticipants} users</span>
                                 </div>
                                 <div className="p-3 rounded-xl border border-slate-800/50" style={{ backgroundColor: '#0F172A' }}>
-                                    <span className="block text-slate-400 text-xs">Total Joins</span>
+                                    <span className="block text-slate-400 text-xs">{t('liveStats.totalJoins')}</span>
                                     <span className="font-bold text-slate-200">{room.totalJoins}</span>
                                 </div>
                             </div>
@@ -116,7 +116,7 @@ const LiveStatsDashboard = () => {
                             {/* Participants List */}
                             <div>
                                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                                    Current Participants ({room.currentParticipants.length})
+                                    {t('liveStats.currentParticipants')} ({room.currentParticipants.length})
                                 </h4>
                                 <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                                     {room.currentParticipants.map((participant, index) => {
@@ -137,7 +137,7 @@ const LiveStatsDashboard = () => {
                                                     isCustomer ? 'bg-amber-950 text-amber-400 border border-amber-900/50' : 
                                                     'bg-slate-800 text-slate-300'
                                                 }`}>
-                                                    {isAgent ? 'Agent' : isCustomer ? 'Customer' : 'External'}
+                                                    {isAgent ? t('liveStats.agent') : isCustomer ? t('liveStats.customer') : t('liveStats.external')}
                                                 </span>
                                             </div>
                                         );

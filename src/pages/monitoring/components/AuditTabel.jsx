@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const AuditTable = ({ data }) => {
+  const { t } = useTranslation();
   
   const formatDate = (timestamp) => {
     return new Date(timestamp).toLocaleString();
@@ -12,10 +14,10 @@ const AuditTable = ({ data }) => {
         {/* استخدام اللون الأساسي للخلفية في الرأس */}
         <thead className="text-xs uppercase text-white" style={{ backgroundColor: '#0F172A' }}>
           <tr>
-            <th className="px-6 py-3">Ticket ID</th>
-            <th className="px-6 py-3">Action</th>
-            <th className="px-6 py-3">User</th>
-            <th className="px-6 py-3">Timestamp</th>
+            <th className="px-6 py-3">{t('auditTable.ticketId')}</th>
+            <th className="px-6 py-3">{t('auditTable.action')}</th>
+            <th className="px-6 py-3">{t('auditTable.user')}</th>
+            <th className="px-6 py-3">{t('auditTable.timestamp')}</th>
           </tr>
         </thead>
         <tbody>

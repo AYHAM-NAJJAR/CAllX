@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getEmployeeById } from '../../../services/UserManagement/getEmployeeById';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import LoadingCircle from '../../../components/common/LoadingCircle';
 import Button from '../../../components/common/Button';
 import UpdateEmployeeModal from './modal/UpdateEmployeeModal';
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const EmployeeDetails = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const [employee, setEmployee] = useState();
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ const EmployeeDetails = () => {
         const data = await getEmployeeById(token, id);
         setEmployee(data); 
       } catch (err) {
-        setError("فشل في تحميل بيانات الموظف.");
+        setError(t('employeeDetails.loadError'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -42,7 +44,7 @@ const EmployeeDetails = () => {
     };
 
     fetchEmployeeData();
-  }, [token, id, flag]); 
+  }, [token, id, flag, t]); 
 
   // عرض واجهة التحميل
   if (loading) {
@@ -56,7 +58,7 @@ const EmployeeDetails = () => {
   if (error || !employee) {
     return (
       <div className="min-h-screen text-gray-200 flex items-center justify-center">
-        <p className="text-xl text-red-400">{error || "لم يتم العثور على بيانات الموظف"}</p>
+        <p className="text-xl text-red-400">{error || t('employeeDetails.notFound')}</p>
       </div>
     );
   }
@@ -71,7 +73,7 @@ const EmployeeDetails = () => {
           <Button path={"/main/system/employee"}>
             <CircleChevronLeft className='text-sky-600 hover:text-sky-700 transition-all ease-in' size={25} />
           </Button>
-          <h1 className="text-xl font-bold tracking-wider text-white">Employee Details</h1>
+          <h1 className="text-xl font-bold tracking-wider text-white">{t('employeeDetails.title')}</h1>
         </div>
         
         <div className="flex items-center gap-3">
@@ -80,7 +82,7 @@ const EmployeeDetails = () => {
             className="flex items-center gap-2 rounded-full bg-customButton px-6 py-2.5 text-sm font-bold text-[#0f172a]"
           >
             <UserPen size={16} />
-            Edit
+            {t('employeeDetails.edit')}
           </Button>
           
           <Button
@@ -88,7 +90,7 @@ const EmployeeDetails = () => {
             className="flex items-center gap-2 rounded-full text-white bg-red-400 hover:bg-red-600 ease-in transition-colors px-6 py-2.5 text-sm font-bold"
           >
             <Trash2 size={16} />
-            Delete
+            {t('employeeDetails.delete')}
           </Button>
         </div>
       </header>
@@ -102,7 +104,7 @@ const EmployeeDetails = () => {
             </h3>
             <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
               <Building2 size={16} className="text-sky-500" />
-              Department: {employee.departmentName || "No Department"}
+              {t('employeeDetails.departmenta')}: {employee.departmentName || t('employeeDetails.noDepartment')}
             </p>
           </div>
           
@@ -114,20 +116,20 @@ const EmployeeDetails = () => {
             
             <div className="flex items-center gap-3">
               <Phone size={18} className="text-sky-500" />
-              <span>{employee.phoneNumber || "No phone number"}</span>
+              <span>{employee.phoneNumber || t('employeeDetails.noPhone')}</span>
             </div>
             
             <div className="flex items-center gap-3 col-span-2">
               <span className="text-sm bg-gray-800 text-gray-300 px-3 py-1.5 rounded-md flex items-center gap-2 border border-gray-700">
                 <Shield size={15} className="text-emerald-400" />
-                Role: {employee.roles?.join('/ ') || "No Roles"}
+                {t('employeeDetails.role')}: {employee.roles?.join('/ ') || t('employeeDetails.noRoles')}
               </span>
             </div>
 
             <div className="flex items-center gap-3 col-span-2">
               <span className="text-sm bg-gray-800 text-gray-300 px-3 py-1.5 rounded-md flex items-center gap-2 border border-gray-700">
                 <Calendar size={15} className="text-amber-400" />
-                Verified At: {employee.verifiedAt || "Not Verified"}
+                {t('employeeDetails.verifiedAt')}: {employee.verifiedAt || t('employeeDetails.notVerified')}
               </span>
             </div>
           </div>

@@ -1,10 +1,10 @@
 // src/services/ivrSyncService.js
 
-// 1. استيراد دالة الـ API التي تم عزلها
 import { updateNode } from '../Node/UpdateNode';
+import { updateFlow } from './updateFlow'; // تأكد من المسار
 
-
-export const saveCompleteFlow = async (nodes, edges) => {
+// 1. أضفنا flowId و flowData كمعاملات (Parameters) للدالة
+export const saveCompleteFlow = async (flowId, flowData, nodes, edges) => {
   const token = localStorage.getItem('Token');
   console.log(nodes);
   console.log(edges);
@@ -17,6 +17,28 @@ export const saveCompleteFlow = async (nodes, edges) => {
     return;
   }
 
+  // ==========================================
+  // النقص الذي تمت إضافته: استخراج rootNodeId
+  // ==========================================
+  // نبحث عن عقدة من نوع main-menu ليس لها أي سهم يدخل إليها (Target)
+  let rootNode = nodes.find(
+    (node) => node.type === 'main-menu' && !edges.some((edge) => edge.target === node.id)
+  );
+
+  // إذا لم نجدها بهذه الطريقة (لو كان هناك main-menu واحدة فقط)، نأخذ أول main-menu نجدها
+  if (!rootNode) {
+    rootNode = nodes.find((node) => node.type === 'main-menu');
+  }
+
+  if (!rootNode || !rootNode.data?.dbId) {
+    alert("لم يتم العثور على عقدة القائمة الرئيسية (Main Menu) لتعيينها كجذر للمخطط.");
+    return;
+  }
+
+  const rootNodeId = rootNode.data.dbId;
+  console.log("Root Node ID:", rootNodeId);
+  // ==========================================
+
   const updatePromises = [];
 
   // 2. معالجة كل عقدة وبناء الـ Payload الخاص بها
@@ -26,16 +48,13 @@ export const saveCompleteFlow = async (nodes, edges) => {
 
     switch (node.type) {
       case 'main-menu': {
-        // بناء خيارات القائمة وتتبع مسار الأسهم لمعرفة العقدة الهدف
         const updatedOptions = (node.data.options || []).map((opt, index) => {
-          // البحث عن السهم الذي يخرج من هذا الخيار
           const edge = edges.find(
             (e) => e.source === node.id && e.sourceHandle === String(opt.id || index)
           );
 
           let targetDbId = null;
           if (edge) {
-            // البحث عن العقدة المستهدفة لجلب dbId الخاص بها
             const targetNode = nodes.find((n) => n.id === edge.target);
             targetDbId = targetNode?.data?.dbId || null;
           }
@@ -43,7 +62,7 @@ export const saveCompleteFlow = async (nodes, edges) => {
           return {
             dtmfKey: opt.dtmfKey,
             label: opt.label,
-            targetNodeId: targetDbId, // الـ ID الفعلي من قاعدة البيانات
+            targetNodeId: targetDbId, 
           };
         }).filter(opt => opt.targetNodeId !== null);
 
@@ -56,7 +75,7 @@ export const saveCompleteFlow = async (nodes, edges) => {
           transferTarget: "sales-queue",
           options: updatedOptions,
         };
-        console.log("soso",updatedOptions);
+        console.log("soso", updatedOptions);
         break;
       }
 
@@ -64,12 +83,11 @@ export const saveCompleteFlow = async (nodes, edges) => {
         updatePayload = {
           type: "TRANSFER",
           promptText: node.data.promptText || "",
-          audioUrl:null,
+          audioUrl: null,
           timeoutSeconds: node.data.timeoutSeconds,
           maxRetries: node.data.maxRetries,
           transferTarget: "sales-queue",
         };
-        
         break;
       }
 
@@ -101,20 +119,23 @@ export const saveCompleteFlow = async (nodes, edges) => {
 
       default:
         console.warn(`تم تخطي العقدة غير المعروفة: ${node.type}`);
-        continue;
+        continue; // تخطي هذه الدورة من اللوب بدون إضافة Promise
     }
-    const requestPromise = updateNode(dbId, updatePayload, token);
     
+    const requestPromise = updateNode(dbId, updatePayload, token);
     updatePromises.push(requestPromise);
   }
 
   // 4. تنفيذ جميع الطلبات دفعة واحدة (Parallel Processing)
   try {
-    console.log("جاري حفظ المخطط...");
+    console.log("جاري حفظ المخطط وتحديث العقد...");
     
-    // تنفيذ جميع الوعود بالتوازي لأداء أسرع
+    // 1. تحديث جميع العقد أولاً
     await Promise.all(updatePromises);
-
+    console.log(flowId, flowData, rootNodeId, token);
+    // 2. بعد نجاح تحديث العقد، نقوم بتحديث الفلو ونمرر له الـ rootNodeId
+    await updateFlow(flowId, flowData, rootNodeId, token);
+    
     console.log("✅ تمت عملية حفظ المخطط بنجاح.");
     alert("تم حفظ المخطط وتحديث جميع العلاقات بنجاح!");
 

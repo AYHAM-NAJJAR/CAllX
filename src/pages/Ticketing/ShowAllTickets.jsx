@@ -30,6 +30,7 @@ import LoadingError from "../../components/common/LoadingError";
 import LoadingCircle from "../../components/common/LoadingCircle";
 import { useDepartments } from "../../hooks/useDepartments";
 import { SearchInput } from "../../components/common/SearchInput";
+import { useTranslation } from "react-i18next";
 
 const customSelectStyles = {
   control: (base, state) => ({
@@ -84,20 +85,20 @@ const customSelectStyles = {
 };
 
 const ShowAllTickets = () => {
+  const { t } = useTranslation();
   const [isCreateTicketModalOpen, setIsCreateTicketModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
 
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedPriority, setSelectedPriority] = useState("");
-  const [selectedSort, setSelectedSort] = useState("createdAt,desc"); // 👈 حالة الترتيب
+  const [selectedSort, setSelectedSort] = useState("createdAt,desc");
   const [search, setSearch] = useState("");
   const pageSize = 20;
 
   const location = useLocation();
   const token = localStorage.getItem("Token");
 
-  // تمرير معامل الترتيب الرابع للـ Hook
   const {
     data: responseData,
     isLoading,
@@ -120,27 +121,26 @@ const ShowAllTickets = () => {
   } = useDepartments(token, true);
 
   const statusOptions = [
-    { value: 'OPEN', label: 'Open' },
-    { value: 'IN_PROGRESS', label: 'In Progress' },
-    { value: 'RESOLVED', label: 'Resolved' },
-    { value: 'CLOSED', label: 'Closed' }
+    { value: 'OPEN', label: t('showAllTickets.open') },
+    { value: 'IN_PROGRESS', label: t('showAllTickets.inProgress') },
+    { value: 'RESOLVED', label: t('showAllTickets.resolved') },
+    { value: 'CLOSED', label: t('showAllTickets.closed') }
   ];
 
   const priorityOptions = [
-    { value: 'LOW', label: 'Low' },
-    { value: 'MEDIUM', label: 'Medium' },
-    { value: 'HIGH', label: 'High' },
-    { value: 'CRITICAL', label: 'Critical' }
+    { value: 'LOW', label: t('showAllTickets.lowPriority') },
+    { value: 'MEDIUM', label: t('showAllTickets.mediumPriority') },
+    { value: 'HIGH', label: t('showAllTickets.highPriority') },
+    { value: 'CRITICAL', label: t('showAllTickets.criticalPriority') }
   ];
 
-  // 👈 خيارات الترتيب
   const sortOptions = [
-    { value: 'createdAt,desc', label: 'Newest First' },
-    { value: 'createdAt,asc', label: 'Oldest First' },
+    { value: 'createdAt,desc', label: t('showAllTickets.newestFirst') },
+    { value: 'createdAt,asc', label: t('showAllTickets.oldestFirst') },
   ];
 
   const departmentOptions = [
-    { value: "", label: "Filter By departments" },
+    { value: "", label: t('showAllTickets.filterDepartmentsDefault') },
     ...departments.map((dep) => ({
       value: typeof dep === "object" ? dep.name || dep.label || dep.value : dep,
       label: typeof dep === "object" ? dep.name || dep.label : dep,
@@ -148,12 +148,12 @@ const ShowAllTickets = () => {
   ];
 
   const statusSelectOptions = [
-    { value: "", label: "Filter By Status" },
+    { value: "", label: t('showAllTickets.filterStatusDefault') },
     ...statusOptions,
   ];
 
   const prioritySelectOptions = [
-    { value: "", label: "Filter By Priority" },
+    { value: "", label: t('showAllTickets.filterPriorityDefault') },
     ...priorityOptions,
   ];
 
@@ -171,7 +171,7 @@ const ShowAllTickets = () => {
     try {
       await exportCSV(token);
     } catch (err) {
-      console.error("حدث خطأ أثناء تحميل الملف:", err);
+      console.error(t('showAllTickets.exportError'), err);
     }
   }
 
@@ -196,27 +196,26 @@ const ShowAllTickets = () => {
   };
 
   if (isLoading) {
-    return <LoadingCircle Phrase={"Tickets"} />;
+    return <LoadingCircle Phrase={t('showAllTickets.loadingPhrase')} />;
   }
 
   if (isError) {
-    return <LoadingError Phrase={"Tickets"} />;
+    return <LoadingError Phrase={t('showAllTickets.errorPhrase')} />;
   }
 
   return (
     <>
       {/* Header */}
       <div className="flex flex-col sm:flex-row p-4 sm:items-center justify-between gap-4 mb-8 sm:mb-12">
-<CreateTicketModal isOpen={isCreateTicketModalOpen} onClose={setIsCreateTicketModalOpen} onSuccess={() => refetch()} />        
-        
-       
+        <CreateTicketModal isOpen={isCreateTicketModalOpen} onClose={setIsCreateTicketModalOpen} onSuccess={() => refetch()} />        
+
         <div className="flex items-center gap-3">
           <div>
             <Ticket className="text-sky-600 " />
           </div>
 
           <h1 className="text-lg sm:text-xl text-white font-bold tracking-wide flex items-center gap-2.5">
-            All Tickets 
+            {t('showAllTickets.title')} 
             <span className="inline-flex items-center justify-center px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
               {totalElements}
             </span>
@@ -227,7 +226,7 @@ const ShowAllTickets = () => {
           <Button
             onClick={ExportCSV}
             dataTooltipId="export-tickets-tooltip"
-            dataTooltipContent="Export CSV"
+            dataTooltipContent={t('showAllTickets.exportTooltip')}
             className="p-2 sm:p-2.5 bg-[#0d1527] rounded-md border border-[#1e293b] hover:bg-[#1e293b] transition-colors focus:outline-none shrink-0"
           >
             <Download className="text-customButton" size={18} />
@@ -237,23 +236,24 @@ const ShowAllTickets = () => {
             onClick={() => setIsCreateTicketModalOpen(true)}
             className="flex-1 sm:flex-initial justify-center bg-customButton hover:bg-blue-500 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap"
           >
-            New Ticket
+            {t('showAllTickets.newTicket')}
           </Button>
 
           <Button
             path="/main/system/tickets/structure"
             className="flex-1 sm:flex-initial justify-center bg-customButton hover:bg-blue-500 px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2 whitespace-nowrap"
           >
-            Structure
+            {t('showAllTickets.structure')}
           </Button>
-           <SearchInput
-           placeholder={"Search About Ticket name"} 
-          value={search} 
-          onChange={(val) => {
-            setSearch(val);
-            setCurrentPage(0); 
-          }} 
-        />
+          
+          <SearchInput
+            placeholder={t('showAllTickets.searchPlaceholder')} 
+            value={search} 
+            onChange={(val) => {
+              setSearch(val);
+              setCurrentPage(0); 
+            }} 
+          />
         </div>
       </div>
 
@@ -262,38 +262,38 @@ const ShowAllTickets = () => {
         <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-800/60">
           <Palette className="w-4 h-4 text-sky-400" />
           <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-            Color Legend & Indicators
+            {t('showAllTickets.colorLegend')}
           </h3>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
           <div className="space-y-2">
             <span className="font-semibold text-gray-400 text-[11px] block uppercase tracking-wider">
-              Ticket Status
+              {t('showAllTickets.statusLabel')}
             </span>
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                 <span className="flex items-center gap-1 text-gray-300">
-                  <AlertCircle className="w-3.5 h-3.5 text-emerald-500" /> Open
+                  <AlertCircle className="w-3.5 h-3.5 text-emerald-500" /> {t('showAllTickets.open')}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                 <span className="flex items-center gap-1 text-gray-300">
-                  <Clock className="w-3.5 h-3.5 text-amber-500" /> In Progress
+                  <Clock className="w-3.5 h-3.5 text-amber-500" /> {t('showAllTickets.inProgress')}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
                 <span className="flex items-center gap-1 text-gray-300">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" /> Resolved
+                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" /> {t('showAllTickets.resolved')}
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                 <span className="flex items-center gap-1 text-gray-300">
-                  <XCircle className="w-3.5 h-3.5 text-rose-500" /> Closed
+                  <XCircle className="w-3.5 h-3.5 text-rose-500" /> {t('showAllTickets.closed')}
                 </span>
               </div>
             </div>
@@ -301,79 +301,75 @@ const ShowAllTickets = () => {
 
           <div className="space-y-2">
             <span className="font-semibold text-gray-400 text-[11px] block uppercase tracking-wider">
-              Priority Levels
+              {t('showAllTickets.priorityLabel')}
             </span>
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold border bg-purple-950/40 text-purple-300 border-purple-700/50 uppercase">
-                <Zap className="w-3 h-3 text-purple-400" /> Critical Priority
+                <Zap className="w-3 h-3 text-purple-400" /> {t('showAllTickets.criticalPriority')}
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold border bg-red-900/20 text-red-400 border-red-900/30 uppercase">
-                <ShieldAlert className="w-3 h-3 text-red-400" /> High Priority
+                <ShieldAlert className="w-3 h-3 text-red-400" /> {t('showAllTickets.highPriority')}
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold border bg-yellow-900/20 text-yellow-400 border-yellow-900/30 uppercase">
-                <Shield className="w-3 h-3 text-yellow-400" /> Medium Priority
+                <Shield className="w-3 h-3 text-yellow-400" /> {t('showAllTickets.mediumPriority')}
               </span>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold border bg-blue-900/20 text-blue-400 border-blue-900/30 uppercase">
-                <ShieldCheck className="w-3 h-3 text-blue-400" /> Low Priority
+                <ShieldCheck className="w-3 h-3 text-blue-400" /> {t('showAllTickets.lowPriority')}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* شريط الفلاتر (Filters Bar) */}
+      {/* Filters Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-6">
-        {/* فلتر القسم */}
         <div>
           <Select
             options={departmentOptions}
             isLoading={isDepsLoading}
             onChange={handleDepartmentChange}
             value={departmentOptions.find((opt) => opt.value === selectedDepartment) || null}
-            placeholder="Filter by Department"
+            placeholder={t('showAllTickets.filterByDepartment')}
             styles={customSelectStyles}
             isSearchable
           />
         </div>
 
-        {/* فلتر الحالة */}
         <div>
           <Select
             options={statusSelectOptions}
             onChange={handleStatusChange}
             value={statusSelectOptions.find((opt) => opt.value === selectedStatus)}
-            placeholder="Filter by Status"
+            placeholder={t('showAllTickets.filterByStatus')}
             styles={customSelectStyles}
             isSearchable
           />
         </div>
 
-        {/* فلتر الأولوية */}
         <div>
           <Select
             options={prioritySelectOptions}
             onChange={handlePriorityChange}
             value={prioritySelectOptions.find((opt) => opt.value === selectedPriority)}
-            placeholder="Filter by Priority"
+            placeholder={t('showAllTickets.filterByPriority')}
             styles={customSelectStyles}
             isSearchable
           />
         </div>
 
-        {/* 👈 فلتر الترتيب الجديد */}
         <div>
           <Select
             options={sortOptions}
             onChange={handleSortChange}
             value={sortOptions.find((opt) => opt.value === selectedSort)}
-            placeholder="Sort By"
+            placeholder={t('showAllTickets.sortBy')}
             styles={customSelectStyles}
             isSearchable={false}
           />
         </div>
       </div>
 
-      {/* Grid بطاقات التذاكر */}
+      {/* Tickets Cards Grid */}
       <div>
         {!isLoading && !isError && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -383,7 +379,7 @@ const ShowAllTickets = () => {
               ))
             ) : (
               <div className="col-span-full text-center py-10 text-gray-400 text-sm sm:text-base">
-                No tickets found
+                {t('showAllTickets.noTickets')}
               </div>
             )}
           </div>

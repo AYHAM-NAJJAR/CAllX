@@ -9,6 +9,7 @@ import {
 } from '@floating-ui/react';
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import detail from '../../../../assets/details.png';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,7 +23,7 @@ function EmployeeCard({
   userType, // 1. استقبال الـ userType هنا
   roles = [],
 }) {
-
+  const { t } = useTranslation();
   const controls = useAnimation();
   const GO = useNavigate();
 
@@ -128,7 +129,7 @@ function EmployeeCard({
             {...getFloatingProps()}
             className="bg-sky-600 text-white text-xs px-3 py-1 rounded shadow-lg z-50"
           >
-            Employee Details
+            {t('employeeCard.tooltip')}
           </div>
         )}
       </div>
@@ -139,7 +140,7 @@ function EmployeeCard({
           {userType || 'UNKNOWN'}
         </span>
         <span className="text-blue-400 text-xs">
-          • {departmentName || 'No Department'}
+          • {departmentName || t('employeeCard.noDepartment')}
         </span>
       </div>
 
@@ -148,12 +149,12 @@ function EmployeeCard({
       </p>
 
       <p className="text-gray-400 text-sm">
-        {phone || 'No Phone Number'}
+        {phone || t('employeeCard.noPhone')}
       </p>
 
       {/* Roles Section */}
       <div className="mt-3 pt-3 border-t border-slate-700/50">
-        <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Roles:</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">{t('employeeCard.rolesLabel')}</div>
         <div className="flex flex-wrap gap-1">
           {roles && roles.length > 0 ? (
             roles.map((role, idx) => (
@@ -169,7 +170,7 @@ function EmployeeCard({
               </span>
             ))
           ) : (
-            <span className="text-[10px] text-slate-500 italic">No roles assigned</span>
+            <span className="text-[10px] text-slate-500 italic">{t('employeeCard.noRoles')}</span>
           )}
         </div>
       </div>

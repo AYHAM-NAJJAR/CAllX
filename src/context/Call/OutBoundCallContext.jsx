@@ -1,158 +1,269 @@
-// // OutboundCallContext.js
-// import { createContext, useContext, useState } from "react";
+// import { createContext, useContext, useState, useCallback } from "react";
+
 // import {
 //   startAgentOutboundEngine,
 //   initiateOutboundCall,
-//   endActiveOutboundCall
-// } from "../../services/realtime/stomp/Stompmake"; // قم بتعديل مسار ملف المحرك حسب مشروعك
+//   endActiveOutboundCall,
+// } from "../../services/realtime/stomp/Stompmake";
 
 // import { toggleMicrophone } from "../../services/call/Livekit/livekitService";
 // import { CALL_STATUS } from "../../services/call/Livekit/livekitConstants";
 
-// const OutboundCallContext = createContext();
+// const OutboundCallContext = createContext(null);
 
 // export const OutboundCallProvider = ({ children }) => {
 //   const [activeCallId, setActiveCallId] = useState(null);
 //   const [room, setRoom] = useState(null);
 //   const [callStatus, setCallStatus] = useState(CALL_STATUS.IDLE);
 //   const [isMuted, setIsMuted] = useState(false);
+
 //   const [wsStatus, setWsStatus] = useState("Disconnected");
+
 //   const [agentIdentity, setAgentIdentity] = useState("");
 //   const [agentToken, setAgentToken] = useState("");
+
 //   const [statusMessage, setStatusMessage] = useState("");
 //   const [startTimer, setStartTimer] = useState(false);
 
 //   /**
-//    * 1. تشغيل محرك الاتصال الصادر عبر WebSocket
+//    * تحديث موحد لحالة الـ UI القادمة من محرك المكالمات
 //    */
-//   const initOutboundEngine = (token, identity) => {
-//     setAgentIdentity(identity);
-//     setAgentToken(token);
+//   const handleEngineUpdate = useCallback((uiUpdate = {}) => {
+//     const {
+//       status,
+//       callId,
+//       room: livekitRoom,
+//       message,
+//       isWsConnected,
+//       startTimer: timerFlag,
+//     } = uiUpdate;
 
-//     startAgentOutboundEngine(token, identity, (uiUpdate) => {
-//       const {
-//         status,
-//         callId,
-//         room: livekitRoom,
-//         message,
-//         isWsConnected,
-//         startTimer: timerFlag
-//       } = uiUpdate;
+//     console.log(
+//       "[Outbound Context Event]",
+//       uiUpdate
+//     );
 
-//       console.log(`[Outbound Context Event]: ${message} -> Status: ${status}`);
+//     // WebSocket status
+//     if (isWsConnected === true) {
+//       setWsStatus("Connected");
+//     }
 
-//       // تحديث حالة الـ WebSocket
-//       if (isWsConnected === true) setWsStatus("Connected");
-//       if (isWsConnected === false) setWsStatus("Disconnected");
+//     if (isWsConnected === false) {
+//       setWsStatus("Disconnected");
+//     }
 
-//       // تحديث البيانات المستلمة
-//       if (message) setStatusMessage(message);
-//       if (status) setCallStatus(status);
-//       if (callId) setActiveCallId(callId);
-//       if (timerFlag !== undefined) setStartTimer(timerFlag);
+//     // Message
+//     if (message !== undefined) {
+//       setStatusMessage(message);
+//     }
 
-//       // ربط غرفة LiveKit بالـ State عند تجهيز الصوت
-//       if (livekitRoom) {
-//         setRoom(livekitRoom);
-//       }
+//     // Call status
+//     if (status !== undefined) {
+//       setCallStatus(status);
+//     }
 
-//       // تنظيف الواجهة تلقائياً إذا أُغلقت المكالمة أو رفضها العميل
-//       if (
-//         [
-//           CALL_STATUS.IDLE,
-//           CALL_STATUS.DISCONNECTED,
-//           CALL_STATUS.FAILED,
-//           CALL_STATUS.ENDED,
-//           CALL_STATUS.REJECTED,
-//           CALL_STATUS.CANCELLED
-//         ].includes(status) &&
-//         !livekitRoom
-//       ) {
-//         resetCallState();
-//       }
-//     });
-//   };
+//     // Call ID
+//     if (callId !== undefined) {
+//       setActiveCallId(callId);
+//     }
+
+//     // Timer
+//     if (timerFlag !== undefined) {
+//       setStartTimer(timerFlag);
+//     }
+
+//     // LiveKit room
+//     if (livekitRoom !== undefined) {
+//       setRoom(livekitRoom);
+//     }
+//   }, []);
 
 //   /**
-//    * 2. بدء الاتصال برقم هاتف معين (Outbound Call)
+//    * 1. تشغيل محرك المكالمات الصادرة
 //    */
-//   const handleMakeCall = async (phoneNumber, overrideToken = null) => {
-//     const jwtToken = overrideToken || agentToken;
-//     if (!jwtToken) {
-//       console.error("❌ لا يوجد Token معتمد لإجراء المكالمة الصادرة");
+//   const initOutboundEngine = useCallback((token, identity) => {
+//     if (!token || !identity) {
+//       console.error(
+//         "❌ لا يمكن تشغيل محرك المكالمات: token أو identity مفقود"
+//       );
 //       return;
 //     }
 
-//     setCallStatus(CALL_STATUS.CONNECTING_TO_ROOM);
+//     setAgentIdentity(identity);
+//     setAgentToken(token);
 
-//     await initiateOutboundCall(phoneNumber, jwtToken, (uiUpdate) => {
-//       const { status, callId, room: livekitRoom, message } = uiUpdate;
+//     startAgentOutboundEngine(
+//       token,
+//       identity,
+//       handleEngineUpdate
+//     );
+//   }, [handleEngineUpdate]);
 
-//       if (message) setStatusMessage(message);
-//       if (status) setCallStatus(status);
-//       if (callId) setActiveCallId(callId);
+//   /**
+//    * 2. بدء مكالمة صادرة
+//    */
+//   const handleMakeCall = useCallback(
+//     async (phoneNumber, overrideToken = null) => {
+//       const jwtToken = overrideToken || agentToken;
 
-//       if (livekitRoom) {
-//         setRoom(livekitRoom);
+//       if (!jwtToken) {
+//         console.error(
+//           "❌ لا يوجد Token معتمد لإجراء المكالمة الصادرة"
+//         );
+
+//         setStatusMessage(
+//           "لا يوجد Token معتمد لإجراء المكالمة."
+//         );
+
+//         return;
 //       }
 
-//       if ([CALL_STATUS.FAILED, CALL_STATUS.DISCONNECTED].includes(status)) {
-//         resetCallState();
+//       if (!phoneNumber) {
+//         console.error(
+//           "❌ رقم الهاتف غير موجود"
+//         );
+
+//         setStatusMessage(
+//           "يرجى إدخال رقم الهاتف."
+//         );
+
+//         return;
 //       }
-//     });
-//   };
+
+//       setCallStatus(CALL_STATUS.CONNECTING_TO_ROOM);
+//       setStatusMessage("جاري بدء المكالمة...");
+
+//       try {
+//         await initiateOutboundCall(
+//           phoneNumber,
+//           jwtToken,
+//           handleEngineUpdate
+//         );
+//       } catch (error) {
+//         console.error(
+//           "❌ خطأ أثناء إنشاء المكالمة:",
+//           error
+//         );
+
+//         setCallStatus(CALL_STATUS.IDLE);
+//         setStatusMessage(
+//           error?.message || "فشل إنشاء المكالمة."
+//         );
+//       }
+//     },
+//     [agentToken, handleEngineUpdate]
+//   );
 
 //   /**
-//    * 3. إنهاء المكالمة الصادرة النشطة
+//    * 3. إنهاء المكالمة الحالية
 //    */
-//   const handleEndCall = async (overrideToken = null) => {
-//     const jwtToken = overrideToken || agentToken;
+//   const handleEndCall = useCallback(
+//     async (overrideToken = null) => {
+//       const jwtToken = overrideToken || agentToken;
 
-//     await endActiveOutboundCall(jwtToken, (uiUpdate) => {
-//       if (uiUpdate.message) setStatusMessage(uiUpdate.message);
-//       if (uiUpdate.status) setCallStatus(uiUpdate.status);
-//       resetCallState();
-//     });
-//   };
+//       if (!jwtToken) {
+//         console.error(
+//           "❌ لا يوجد Token لإنهاء المكالمة"
+//         );
+//         return;
+//       }
+
+//       try {
+//         await endActiveOutboundCall(
+//           jwtToken,
+//           handleEngineUpdate
+//         );
+//       } catch (error) {
+//         console.error(
+//           "❌ خطأ أثناء إنهاء المكالمة:",
+//           error
+//         );
+//       } finally {
+//         // تأكيد تنظيف UI حتى لو حدث خطأ في API
+//         setActiveCallId(null);
+//         setRoom(null);
+//         setIsMuted(false);
+//         setStartTimer(false);
+//         setCallStatus(CALL_STATUS.IDLE);
+//       }
+//     },
+//     [agentToken, handleEngineUpdate]
+//   );
 
 //   /**
-//    * 4. كتم / إعادة تشغيل المايكرفون
+//    * 4. كتم / تشغيل المايكروفون
 //    */
-//   const handleToggleMute = async () => {
-//     if (!room) return;
+//   const handleToggleMute = useCallback(async () => {
+//     if (!room) {
+//       console.warn(
+//         "⚠️ لا توجد غرفة LiveKit نشطة."
+//       );
+//       return;
+//     }
 
-//     const nextMuteState = !isMuted;
-//     await toggleMicrophone(room, !nextMuteState);
-//     setIsMuted(nextMuteState);
-//   };
+//     try {
+//       const nextMuteState = !isMuted;
+
+//       // toggleMicrophone(room, true) = microphone enabled
+//       // toggleMicrophone(room, false) = microphone disabled
+//       await toggleMicrophone(
+//         room,
+//         !nextMuteState
+//       );
+
+//       setIsMuted(nextMuteState);
+//     } catch (error) {
+//       console.error(
+//         "❌ فشل تغيير حالة المايكروفون:",
+//         error
+//       );
+//     }
+//   }, [room, isMuted]);
 
 //   /**
-//    * 5. تصفير وإعادة ضبط حالة الواجهة
+//    * 5. تصفير حالة الواجهة فقط
+//    *
+//    * ملاحظة:
+//    * هذه الدالة لا تنهي المكالمة من السيرفر.
+//    * لا تستخدمها بدلاً من handleEndCall.
 //    */
-//   const resetCallState = () => {
+//   const resetCallState = useCallback(() => {
 //     setActiveCallId(null);
 //     setRoom(null);
 //     setIsMuted(false);
 //     setStartTimer(false);
 //     setCallStatus(CALL_STATUS.IDLE);
-//     console.log("UI Reset: All Outbound call states cleared");
-//   };
+//     setStatusMessage("");
+
+//     console.log(
+//       "UI Reset: All Outbound call states cleared"
+//     );
+//   }, []);
 
 //   const value = {
+//     // Call state
 //     activeCallId,
 //     room,
 //     callStatus,
 //     isMuted,
+
+//     // WebSocket
 //     wsStatus,
+
+//     // Agent
 //     agentIdentity,
 //     agentToken,
+
+//     // UI
 //     statusMessage,
 //     startTimer,
+
+//     // Actions
 //     initOutboundEngine,
 //     handleMakeCall,
 //     handleEndCall,
 //     handleToggleMute,
-//     resetCallState
+//     resetCallState,
 //   };
 
 //   return (
@@ -162,4 +273,14 @@
 //   );
 // };
 
-// export const useOutboundCall = () => useContext(OutboundCallContext);
+// export const useOutboundCall = () => {
+//   const context = useContext(OutboundCallContext);
+
+//   if (!context) {
+//     throw new Error(
+//       "useOutboundCall must be used inside OutboundCallProvider"
+//     );
+//   }
+
+//   return context;
+// };
