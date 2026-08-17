@@ -184,10 +184,6 @@ const FloatingAgentTerminal = () => {
             )}
           </div>
 
-          <button className="mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-800/50 text-[11px] font-medium text-cyan-400 hover:bg-cyan-900/50 transition-colors">
-            <Ticket className="w-3.5 h-3.5" />
-            <span>THIS CUSTOMER HAS A TICKET</span>
-          </button>
         </div>
 
         {/* <div className="my-5">

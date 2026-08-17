@@ -15,7 +15,10 @@ import {
   TicketPlus,
   PhoneCall,
   ListStart,
-  UserCheck
+  UserCheck,
+  History,
+  Calendar,
+  Paperclip
 } from 'lucide-react';
 import Select from 'react-select';
 import { useCall } from '../../context/Call/CallContext';
@@ -30,6 +33,8 @@ import LoadingInButton from '../../components/common/LoadingInButton';
 import LoadingCircle from '../../components/common/LoadingCircle';
 import TransferToQueueModal from './Modal/TransferToQueueModal';
 import TransferToAgentModal from './Modal/TransferToAgentModal';
+import getUserTickets from '../../services/call/core/getUserTickets';
+import { toast } from 'react-toastify';
 
 const CallRoom = () => {
   const token = localStorage.getItem("Token");
@@ -58,6 +63,8 @@ const CallRoom = () => {
     if (callStatus === "ENDED") {
       onHangUp();
     }
+
+
   }, [callStatus]);
   const [isLoading, setIsLoading] = useState(false);
   const [isWrapUpModalOpen, setIsWrapUpModalOpen] = useState(false);
@@ -73,6 +80,11 @@ const CallRoom = () => {
   });
   const[listQueue,setListQueue]=useState(false)
   const[listAgent,setListAgent]=useState(false)
+
+  // Added States for Previous Tickets
+  const [customerTickets, setCustomerTickets] = useState([]);
+  const [isLoadingTickets, setIsLoadingTickets] = useState(false);
+
   // Call Checklist State
   const [checklist, setChecklist] = useState([
     { id: 1, title: 'Welcome & Platform Intro', desc: 'Greet customer and state platform name', completed: false, icon: Smile },
@@ -80,6 +92,34 @@ const CallRoom = () => {
     { id: 3, title: 'Active Listening', desc: 'Allow customer sufficient space to explain', completed: false, icon: MessageSquare },
     { id: 4, title: 'Record Ticket', desc: 'Fill in details in the Ticket Creator form', completed: false, icon: FileEdit }
   ]);
+  
+  useEffect(() => {
+  if (!customerUserId) {
+    return;
+  }
+  
+  setIsLoadingTickets(true);
+  // Background request - لا ننتظر نتيجته حتى لا نبطئ الواجهة
+  getUserTickets(customerUserId, token)
+    .then((tickets) => {
+      if (Array.isArray(tickets) && tickets.length > 0) {
+        setCustomerTickets(tickets);
+        toast.info(`Customer has ${tickets.length} previous ticket(s)`, {
+          position: "top-left",
+          autoClose: 4000,
+          className:
+            '!bg-[#1a2332] !border !border-gray-700 !rounded-xl !shadow-2xl',
+        });
+      }
+      console.log(tickets, "Customer Tickets Loaded Successfully");
+    })
+    .catch((error) => {
+      console.error("Failed to load customer tickets:", error);
+    })
+    .finally(() => {
+      setIsLoadingTickets(false);
+    });
+}, [customerUserId, token]);
 
   const toggleChecklistItem = (id) => {
     setChecklist((prev) =>
@@ -606,6 +646,100 @@ const CallRoom = () => {
                 
               </form>
             </div>
+
+            {/* ---------- Previous Customer Tickets Section ---------- */}
+            <div className="rounded-2xl border border-[#2A2E37] p-6 w-full flex flex-col gap-6 shadow-2xl bg-[#111726] mt-6">
+              <div className="border-b border-[#2A2E37] pb-4 flex items-center gap-3">
+                <History className="text-emerald-400 w-6 h-6" />
+                <h2 className="text-2xl font-semibold text-emerald-400">Previous Tickets</h2>
+              </div>
+
+              {isLoadingTickets ? (
+                <div className="flex justify-center items-center py-8">
+                  <LoadingCircle size="medium" color="#34d399" />
+                </div>
+              ) : customerTickets.length === 0 ? (
+                <p className="text-slate-400 text-center py-6 text-sm">No previous tickets found for this customer.</p>
+              ) : (
+                <div className="space-y-4 max-h-[600px] overflow-auto custom-scrollbar pr-2">
+                  {customerTickets.map((ticket, index) => (
+                    <div key={ticket.id || index} className="bg-[#1C2029] border border-[#2A2E37] rounded-xl p-5 space-y-4 shadow-sm hover:border-slate-600 transition-colors">
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 border-b border-[#2A2E37] pb-4">
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-200 flex items-center gap-2">
+                            <span className="text-emerald-500 font-mono text-sm">#{ticket.id}</span>
+                            {ticket.title || 'Untitled Ticket'}
+                          </h3>
+                          <p className="text-xs text-slate-400 mt-1.5 flex items-center gap-2">
+                            <Calendar className="w-3.5 h-3.5" />
+                            Created: {ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : 'N/A'} 
+                            {ticket.updatedAt && ` | Updated: ${new Date(ticket.updatedAt).toLocaleString()}`}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                            ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 
+                            ticket.status === 'IN_PROGRESS' || ticket.status === 'OPEN' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 
+                            'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          }`}>
+                            {ticket.status || 'OPEN'}
+                          </span>
+                          <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 border border-rose-500/30">
+                            {ticket.priority || 'NORMAL'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-slate-500 block text-[11px] font-bold uppercase tracking-wider mb-1">Department</span>
+                          <span className="text-slate-300 font-medium">{ticket.department?.name || ticket.department || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[11px] font-bold uppercase tracking-wider mb-1">Category</span>
+                          <span className="text-slate-300 font-medium">{ticket.category?.name || ticket.category || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block text-[11px] font-bold uppercase tracking-wider mb-1">Assigned To</span>
+                          <span className="text-slate-300 font-medium">{ticket.assignedTo?.name || ticket.assignedTo || 'Unassigned'}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2">
+                        <span className="text-slate-500 block text-[11px] font-bold uppercase tracking-wider mb-2">Description</span>
+                        <div className="bg-[#182032] p-3 rounded-lg border border-[#2A2E37]">
+                          <p className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">{ticket.description || 'No description provided.'}</p>
+                        </div>
+                      </div>
+
+                      {ticket.adminNotes && (
+                        <div className="pt-2">
+                          <span className="text-indigo-400 block text-[11px] font-bold uppercase tracking-wider mb-2">Admin Notes</span>
+                          <div className="bg-indigo-950/20 p-3 rounded-lg border border-indigo-500/30">
+                            <p className="text-slate-300 text-sm whitespace-pre-wrap leading-relaxed">{ticket.adminNotes}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {ticket.attachments && ticket.attachments.length > 0 && (
+                        <div className="pt-2">
+                          <span className="text-slate-500 block text-[11px] font-bold uppercase tracking-wider mb-2">Attachments</span>
+                          <div className="flex flex-wrap gap-2">
+                            {ticket.attachments.map((file, i) => (
+                              <a key={i} href={file.url || file} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-[#182032] border border-[#2A2E37] hover:bg-[#2A2E37] hover:border-sky-500/50 rounded-md text-xs text-sky-400 transition-all font-medium">
+                                <Paperclip className="w-3.5 h-3.5" />
+                                Attachment {i + 1}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
           </div>
 
           {/* Call Checklist Component */}
